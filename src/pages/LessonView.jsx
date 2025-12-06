@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftIcon, 
-  ArrowRightIcon, 
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   CheckCircleIcon,
   PlayIcon,
-  DocumentTextIcon 
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import SidePanel, { SidePanelToggle } from '../component/modules/SidePanel';
 import { useLesson, useAllCourseLessons, useModules } from '../utils/useModules';
@@ -56,7 +56,7 @@ const LessonView = () => {
   };
 
   const handleBackToCourse = () => {
-    navigate(`/course/${courseId}`);
+    navigate('/course');
   };
 
   if (lessonLoading || modulesLoading) {
@@ -210,11 +210,10 @@ const LessonView = () => {
                 <button
                   onClick={handleToggleCompletion}
                   disabled={completionLoading}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isCompleted
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${isCompleted
                       ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
+                    }`}
                 >
                   <CheckCircleIcon className="h-5 w-5" />
                   {isCompleted ? 'Completed' : 'Mark Complete'}
@@ -233,11 +232,10 @@ const LessonView = () => {
               <button
                 onClick={handlePrevious}
                 disabled={!previousLesson}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  previousLesson
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${previousLesson
                     ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 <ArrowLeftIcon className="h-5 w-5" />
                 <span className="hidden sm:inline">Previous</span>
@@ -250,11 +248,10 @@ const LessonView = () => {
               <button
                 onClick={handleNext}
                 disabled={!nextLesson}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  nextLesson
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${nextLesson
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
+                  }`}
               >
                 <span className="hidden sm:inline">Next</span>
                 <ArrowRightIcon className="h-5 w-5" />

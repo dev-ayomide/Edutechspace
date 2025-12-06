@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useContext } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../utils/supabase';
@@ -10,6 +11,8 @@ import {
   HomeIcon,
   PhotoIcon,
   XMarkIcon,
+  PlusIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 
 const AdminCourseForm = () => {
@@ -18,13 +21,28 @@ const AdminCourseForm = () => {
   const { user } = useContext(AuthContext);
   const isEditMode = !!id;
 
+  // Basic Info
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
   const [link, setLink] = useState('');
   const [duration, setDuration] = useState('');
   const [tags, setTags] = useState('');
-  const [learningOutcomes, setLearningOutcomes] = useState('');
+  const [learningOutcomes, setLearningOutcomes] = useState(''); // Kept for backward compatibility if needed, or mapped to what_you_will_learn
+
+  // New Dynamic Content Fields
+  const [overviewFull, setOverviewFull] = useState('');
+  const [keyBenefits, setKeyBenefits] = useState(['']);
+  const [whatYouWillLearn, setWhatYouWillLearn] = useState(['']);
+  const [requirements, setRequirements] = useState(['']);
+
+  // Metadata
+  const [difficultyLevel, setDifficultyLevel] = useState('Beginner Level');
+  const [scheduleType, setScheduleType] = useState('Flexible Schedule');
+  const [rating, setRating] = useState(0);
+  const [studentsApplied, setStudentsApplied] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -48,14 +66,30 @@ const AdminCourseForm = () => {
         setTitle(data.title || '');
         setDescription(data.description || '');
         setImageUrl(data.image_url || '');
+        setHeaderImageUrl(data.header_image_url || '');
         setLink(data.link || '');
         setDuration(data.duration || '');
         setTags(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags || '');
-        setLearningOutcomes(
-          Array.isArray(data.learning_outcomes)
-            ? data.learning_outcomes.join(', ')
-            : data.learning_outcomes || ''
-        );
+
+        // Handle new fields
+        setOverviewFull(data.overview_full || data.description || ''); // Fallback to description if overview empty
+        setDifficultyLevel(data.difficulty_level || 'Beginner Level');
+        setScheduleType(data.schedule_type || 'Flexible Schedule');
+        setRating(data.rating || 0);
+        setStudentsApplied(data.students_applied_count || 0);
+
+        // Handle JSONB Arrays
+        setKeyBenefits(Array.isArray(data.key_benefits) && data.key_benefits.length > 0 ? data.key_benefits : ['']);
+
+        // what_you_will_learn might be stored in 'learning_outcomes' (text[]) or 'what_you_will_learn' (jsonb)
+        // prioritizing jsonb, falling back to legacy text array
+        const outcomesList = Array.isArray(data.what_you_will_learn) && data.what_you_will_learn.length > 0
+          ? data.what_you_will_learn
+          : (Array.isArray(data.learning_outcomes) ? data.learning_outcomes : ['']);
+        setWhatYouWillLearn(outcomesList);
+
+        // requirements
+        setRequirements(Array.isArray(data.requirements) && data.requirements.length > 0 ? data.requirements : ['']);
       }
     } catch (error) {
       console.error('Error fetching course:', error);
@@ -64,6 +98,21 @@ const AdminCourseForm = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleArrayChange = (index, value, setter, currentArray) => {
+    const newArray = [...currentArray];
+    newArray[index] = value;
+    setter(newArray);
+  };
+
+  const addArrayItem = (setter, currentArray) => {
+    setter([...currentArray, '']);
+  };
+
+  const removeArrayItem = (index, setter, currentArray) => {
+    const newArray = currentArray.filter((_, i) => i !== index);
+    setter(newArray.length ? newArray : ['']); // Keep at least one empty input
   };
 
   const handleSubmit = async (e) => {
@@ -76,22 +125,39 @@ const AdminCourseForm = () => {
 
     setSaving(true);
     try {
-      // Parse tags and learning outcomes
+      // Clean up arrays: remove empty strings
+      const cleanKeyBenefits = keyBenefits.map(i => i.trim()).filter(i => i);
+      const cleanWhatYouWillLearn = whatYouWillLearn.map(i => i.trim()).filter(i => i);
+      const cleanRequirements = requirements.map(i => i.trim()).filter(i => i);
+
+      // Legacy tags handling
       const tagsArray = tags
         ? tags.split(',').map((tag) => tag.trim()).filter((tag) => tag)
-        : [];
-      const outcomesArray = learningOutcomes
-        ? learningOutcomes.split(',').map((outcome) => outcome.trim()).filter((outcome) => outcome)
         : [];
 
       const courseData = {
         title: title.trim(),
         description: description.trim() || null,
         image_url: imageUrl.trim() || null,
+        header_image_url: headerImageUrl.trim() || null,
         link: link.trim() || null,
         duration: duration.trim() || null,
         tags: tagsArray.length > 0 ? tagsArray : null,
-        learning_outcomes: outcomesArray.length > 0 ? outcomesArray : null,
+
+        // New Columns
+        overview_full: overviewFull.trim() || description.trim() || null,
+        difficulty_level: difficultyLevel,
+        schedule_type: scheduleType,
+        rating: parseFloat(rating),
+        students_applied_count: parseInt(studentsApplied),
+
+        // JSONB Columns
+        key_benefits: cleanKeyBenefits,
+        what_you_will_learn: cleanWhatYouWillLearn,
+        requirements: cleanRequirements,
+
+        // Sync legacy column just in case
+        learning_outcomes: cleanWhatYouWillLearn
       };
 
       if (isEditMode) {
@@ -102,7 +168,8 @@ const AdminCourseForm = () => {
 
         if (error) throw error;
         toast.success('Course updated successfully!');
-        navigate('/admin/courses');
+        // Optional: stay on page to keep editing
+        // navigate('/admin/courses'); 
       } else {
         const { error } = await supabase.from('courses').insert([courseData]);
 
@@ -118,6 +185,41 @@ const AdminCourseForm = () => {
     }
   };
 
+  const DynamicListInput = ({ title, items, setter }) => (
+    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{title}</label>
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <div key={index} className="flex gap-2">
+            <input
+              type="text"
+              value={item}
+              onChange={(e) => handleArrayChange(index, e.target.value, setter, items)}
+              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder={`Add ${title.toLowerCase()}...`}
+            />
+            <button
+              type="button"
+              onClick={() => removeArrayItem(index, setter, items)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              title="Remove item"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => addArrayItem(setter, items)}
+          className="flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium mt-2"
+        >
+          <PlusIcon className="h-4 w-4 mr-1" />
+          Add Item
+        </button>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -130,9 +232,9 @@ const AdminCourseForm = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md px-6 py-4 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md px-6 py-4 text-white sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -153,147 +255,213 @@ const AdminCourseForm = () => {
               </Link>
             </div>
             <h1 className="text-2xl font-bold">{isEditMode ? 'Edit Course' : 'Create Course'}</h1>
-            <p className="text-blue-100 text-sm mt-1">
-              {isEditMode ? 'Update course details' : 'Add a new course to your platform'}
-            </p>
           </div>
-          <BookOpenIcon className="h-6 w-6 text-blue-300 opacity-50 hidden md:block" />
+          {/* Quick Actions / Save Button at top for easy access */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={saving}
+              className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-bold shadow-sm transition-colors"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-5">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Course Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., Frontend Development"
-              required
-            />
-          </div>
+      {/* Form Grid */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
 
-          {/* Description */}
+          {/* Section 1: Basic Info */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows="4"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Course description..."
-            />
-          </div>
-
-          {/* Image URL */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Image URL</label>
-            <div className="relative">
-              <PhotoIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="url"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div>
-            {imageUrl && (
-              <div className="mt-2">
-                <img
-                  src={imageUrl}
-                  alt="Preview"
-                  className="h-32 w-full object-cover rounded-md border border-gray-200"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
+            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Course Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Frontend Development"
+                  required
                 />
               </div>
-            )}
+
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Short Description (Card)</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows="2"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="Brief summary shown on course cards..."
+                />
+              </div>
+
+              {/* Images */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Thumbnail Image URL (Card)</label>
+                <div className="relative">
+                  <PhotoIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Header/Hero Image URL (Page)</label>
+                <div className="relative">
+                  <PhotoIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    type="url"
+                    value={headerImageUrl}
+                    onChange={(e) => setHeaderImageUrl(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Slug / Link</label>
+                <input
+                  type="text"
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., /course/frontendcourse"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tags</label>
+                <input
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="React, JS, HTML"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Link */}
+          {/* Section 2: Course Details & Stats */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Course Link</label>
-            <input
-              type="text"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., /course/frontendcourse"
-            />
+            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Course Details & Stats</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Difficulty</label>
+                <select
+                  value={difficultyLevel}
+                  onChange={(e) => setDifficultyLevel(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  <option>Beginner Level</option>
+                  <option>Intermediate Level</option>
+                  <option>Advanced Level</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Schedule</label>
+                <select
+                  value={scheduleType}
+                  onChange={(e) => setScheduleType(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                >
+                  <option>Flexible Schedule</option>
+                  <option>Fixed Schedule</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Rating (0-5)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Students Applied</label>
+                <input
+                  type="number"
+                  value={studentsApplied}
+                  onChange={(e) => setStudentsApplied(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="col-span-1 md:col-span-2 lg:col-span-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Course Overview (Detailed)</label>
+                <textarea
+                  value={overviewFull}
+                  onChange={(e) => setOverviewFull(e.target.value)}
+                  rows="6"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                  placeholder="Detailed overview shown on the course page..."
+                />
+              </div>
+
+            </div>
           </div>
 
-          {/* Duration */}
+          {/* Section 3: Dynamic Content (Lists) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Duration</label>
-            <input
-              type="text"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., 8 weeks, 40 hours"
-            />
+            <h3 className="text-lg font-bold text-gray-900 border-b pb-2 mb-4">Curriculum & Requirements</h3>
+            <div className="grid grid-cols-1 gap-6">
+              <DynamicListInput
+                title="Key Benefits"
+                items={keyBenefits}
+                setter={setKeyBenefits}
+              />
+              <DynamicListInput
+                title="What You Will Learn"
+                items={whatYouWillLearn}
+                setter={setWhatYouWillLearn}
+              />
+              <DynamicListInput
+                title="Requirements / Prerequisites"
+                items={requirements}
+                setter={setRequirements}
+              />
+            </div>
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Comma-separated tags (e.g., React, JavaScript, HTML)"
-            />
-            <p className="text-xs text-gray-500 mt-1">Separate multiple tags with commas</p>
-          </div>
-
-          {/* Learning Outcomes */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">Learning Outcomes</label>
-            <textarea
-              value={learningOutcomes}
-              onChange={(e) => setLearningOutcomes(e.target.value)}
-              rows="3"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Comma-separated learning outcomes"
-            />
-            <p className="text-xs text-gray-500 mt-1">Separate multiple outcomes with commas</p>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex gap-3 pt-4">
+          {/* Footer Actions */}
+          <div className="flex gap-4 pt-6 border-t border-gray-100">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white text-sm font-semibold py-2.5 px-4 rounded-md shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
             >
-              {saving ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {isEditMode ? 'Updating...' : 'Creating...'}
-                </>
-              ) : (
-                <>
-                  <BookOpenIcon className="h-4 w-4 mr-1.5" />
-                  {isEditMode ? 'Update Course' : 'Create Course'}
-                </>
-              )}
+              {saving ? 'Saving Changes...' : (isEditMode ? 'Update Course Details' : 'Create New Course')}
             </button>
             <Link
               to="/admin/courses"
-              className="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className="px-6 py-3 font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Cancel
             </Link>
           </div>
+
         </form>
       </div>
 
@@ -303,9 +471,3 @@ const AdminCourseForm = () => {
 };
 
 export default AdminCourseForm;
-
-
-
-
-
-
