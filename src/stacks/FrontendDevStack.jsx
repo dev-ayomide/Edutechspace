@@ -1,103 +1,42 @@
-// FrontendCourse.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserIcon, StarIcon, CheckIcon } from '@heroicons/react/24/solid';
-import { InfinityIcon, BarChart3, FileText, Video, Clock, BookOpen, PlayCircle } from 'lucide-react';
-import { supabase } from '../utils/supabase';
+import { InfinityIcon, BarChart3, BookOpen } from 'lucide-react';
 import { useModules } from '../utils/useModules';
+import { useCourse } from '../utils/useCourse';
 import { useMultipleLessonCompletions } from '../utils/useLessonCompletion';
 import ModuleAccordion from '../component/modules/ModuleAccordion';
-import frontendHeaderImg from '../assets/images/frontendHeaderImage2.jpg';
-import htmlImg from '../assets/images/html-image.jpg';
-import cssImg from '../assets/images/css-image.jpg';
-import jsImg from '../assets/images/js-thumbnail.jpg';
-import htmlGuide from '../assets/images/html-guide.jpg';
-import cssGuide from '../assets/images/css-guide.png';
-import FrontendVideoPdfModal from '../component/dialog/FrontendVideoPdfModal';
+import FrontendHeaderImg from '../assets/images/frontendHeaderImage2.jpg';
 
 // The sections for scroll tracking
 const sections = [
   { id: 'overview', title: '📘 Overview' },
   { id: 'benefits', title: '🚀 Key Benefits' },
-  { id: 'learn', title: '🧠 What You Will Learn' },
+  { id: 'learn', title: '🎓 What You Will Learn' },
   { id: 'requirements', title: '🧰 What You Will Need' },
   { id: 'modules', title: '📚 Course Modules' },
-  { id: 'pdf', title: '📂 Additional Resources' },
   { id: 'recommendation', title: 'Course Recommendation' },
 ];
 
-const FrontendCourse = () => {
+const FrontendDevStack = () => {
   const navigate = useNavigate();
-  const courseId = 'frontend-dev'; // Course ID for module fetching
+  const courseSlug = 'frontend-dev';
   const [activeSection, setActiveSection] = useState(null);
-  const [modalType, setModalType] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [videoResources, setVideoResources] = useState([]);
-  const [pdfResources, setPdfResources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeResourceTab, setActiveResourceTab] = useState('pdf'); // 'pdf' or 'video'
+  const sizes = ['w-5 h-5', 'w-6 h-6', 'w-7 h-7', 'w-8 h-8'];
+
+  // Fetch course details
+  const { course, loading: courseLoading, error: courseError } = useCourse(courseSlug);
 
   // Fetch modules and lessons
-  const { modules, loading: modulesLoading } = useModules(courseId);
-  
+  const { modules, loading: modulesLoading } = useModules(courseSlug);
+
   // Get all lesson IDs for completion tracking
   const allLessonIds = modules.flatMap(m => (m.lessons || []).map(l => l.id));
   const { completions } = useMultipleLessonCompletions(allLessonIds);
 
   const handleLessonClick = (lesson) => {
-    navigate(`/course/${courseId}/lesson/${lesson.id}`);
+    navigate(`/course/${courseSlug}/lesson/${lesson.id}`);
   };
-
-  // Fetch resources from Supabase
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        setLoading(true);
-        const courseType = "Frontend Development";
-        
-        // Fetch videos
-        const { data: videos, error: videoError } = await supabase
-          .from('course_resources')
-          .select('*')
-          .eq('course_type', courseType)
-          .eq('resource_type', 'Video')
-          .order('created_at', { ascending: false });
-
-        // Fetch PDFs
-        const { data: pdfs, error: pdfError } = await supabase
-          .from('course_resources')
-          .select('*')
-          .eq('course_type', courseType)
-          .eq('resource_type', 'PDF')
-          .order('created_at', { ascending: false });
-
-        if (videoError) console.error('Error fetching videos:', videoError);
-        if (pdfError) console.error('Error fetching PDFs:', pdfError);
-
-        // Map resources with default images if no thumbnail
-        const mappedVideos = (videos || []).map((video, idx) => ({
-          ...video,
-          image: video.thumbnail_url || [htmlImg, cssImg, jsImg, jsImg][idx % 4] || htmlImg,
-          duration: video.duration || 'N/A'
-        }));
-
-        const mappedPdfs = (pdfs || []).map((pdf, idx) => ({
-          ...pdf,
-          image: pdf.thumbnail_url || [htmlGuide, cssGuide][idx % 2] || htmlGuide
-        }));
-
-        setVideoResources(mappedVideos);
-        setPdfResources(mappedPdfs);
-      } catch (err) {
-        console.error('Error fetching resources:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResources();
-  }, []);
 
   // Scroll spy logic
   useEffect(() => {
@@ -117,12 +56,6 @@ const FrontendCourse = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleOpenModal = (type, index = 0) => {
-    setModalType(type);
-    setSelectedIndex(index);
-    setShowModal(true);
-  };
-
   const handleNavClick = (e, id) => {
     e.preventDefault();
     const element = document.getElementById(id);
@@ -137,6 +70,23 @@ const FrontendCourse = () => {
       });
     }
   };
+
+  if (courseLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-neutral-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (courseError || !course) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-50 text-neutral-600">
+        <p className="text-xl mb-4">Failed to load course details.</p>
+        <p className="text-sm">Please try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-neutral-50 min-h-screen w-full">
@@ -158,19 +108,17 @@ const FrontendCourse = () => {
                 <span
                   className={`
                     w-3 h-3 rounded-full absolute left-1 top-1.5 
-                    ${
-                      activeSection === id
-                        ? 'bg-blue-900'
-                        : 'bg-gray-300 group-hover:bg-blue-600 transition-colors'
+                    ${activeSection === id
+                      ? 'bg-blue-900'
+                      : 'bg-gray-300 group-hover:bg-blue-600 transition-colors'
                     }
                   `}
                 />
                 <span
-                  className={`ml-4 text-sm font-semibold ${
-                    activeSection === id
-                      ? 'text-blue-900'
-                      : 'text-gray-700 group-hover:text-blue-700'
-                  }`}
+                  className={`ml-4 text-sm font-semibold ${activeSection === id
+                    ? 'text-blue-900'
+                    : 'text-gray-700 group-hover:text-blue-700'
+                    }`}
                 >
                   {title}
                 </span>
@@ -184,16 +132,16 @@ const FrontendCourse = () => {
           {/* Header Section */}
           <div className="relative w-full h-[500px] overflow-hidden pb-32">
             <img
-              src={frontendHeaderImg}
-              alt="Frontend Development Hero"
+              src={course.header_image_url || FrontendHeaderImg}
+              alt={course.title}
               className="w-full h-full object-cover rounded-md"
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 mt-[-135px]">
-              <h1 className="text-6xl md:text-7xl md:font-extrabold font-bold text-white mb-2">
-                Frontend Development
+              <h1 className="text-6xl md:text-7xl md:font-extrabold font-bold text-slate-900 mb-2">
+                {course.title}
               </h1>
-              <p className="text-lg md:text-2xl text-white font-semibold max-w-2xl">
-                Master the Art of Building Beautiful, Responsive Websites with HTML, CSS, and JavaScript.
+              <p className="text-lg md:text-2xl text-slate-900 max-w-2xl">
+                {course.description || "Craft beautiful interfaces."}
               </p>
             </div>
             {/* Horizontal Badge/Tag Section */}
@@ -220,15 +168,15 @@ const FrontendCourse = () => {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-md md:text-xl font-semibold text-blue-950">Beginner Level</p>
-                  <BarChart3 className="w-6 h-6 text-blue-950" />
+                  <p className="text-md md:text-xl font-semibold text-blue-950">{course.difficulty_level || 'Beginner Level'}</p>
+                  <BarChart3 className="w-5 h-5 text-blue-950" />
                 </div>
                 <p className="text-sm text-slate-600">Expected Proficiency</p>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-md md:text-xl font-semibold text-blue-950">Flexible Schedule</p>
-                  <InfinityIcon className="w-6 h-6 text-blue-950" />
+                  <p className="text-md md:text-xl font-semibold text-blue-950">{course.schedule_type || 'Flexible Schedule'}</p>
+                  <InfinityIcon className="w-5 h-5 text-blue-950" />
                 </div>
                 <p className="text-sm text-slate-600">Self Paced</p>
               </div>
@@ -237,17 +185,17 @@ const FrontendCourse = () => {
                   {[...Array(4)].map((_, i) => (
                     <StarIcon key={i} className="w-5 h-5 text-blue-950" />
                   ))}
-                  <p className="text-md md:text-lg font-semibold text-blue-950">4.2 Ratings</p>
+                  <p className="text-md md:text-lg font-semibold text-blue-950">{course.rating || 4.2} Ratings</p>
                 </div>
-                <p className="text-sm text-slate-600">Over 4,000 reviews</p>
+                <p className="text-sm text-slate-600">Over {course.reviews_count?.toLocaleString() || '4,000'} reviews</p>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                {[1, 2, 3, 4].map(i => (
-                  <UserIcon key={i} className={`w-${i === 3 ? 8 : i + 4} h-${i === 3 ? 8 : i + 4} text-blue-950`} />
-                ))}
+                  {sizes.map((size, i) => (
+                    <UserIcon key={i} className={`${size} text-blue-950`} />
+                  ))}
                 </div>
-                <p className="text-md md:text-lg font-semibold text-blue-950">200 Students Applied</p>
+                <p className="text-md md:text-lg font-semibold text-blue-950">{course.students_applied_count?.toLocaleString() || 200} Students Applied</p>
               </div>
             </div>
           </div>
@@ -256,8 +204,7 @@ const FrontendCourse = () => {
           <div className="mb-12" id='overview'>
             <h2 className="text-3xl font-bold text-blue-950 mb-4">Course Overview</h2>
             <p className="text-xl text-neutral-800 leading-relaxed">
-            Learn the fundamentals of frontend web development and build stunning, responsive websites using HTML, CSS, and JavaScript. 
-            This course takes you from beginner to advanced level with hands-on projects and real-world examples.
+              {course.overview_full || course.description}
             </p>
           </div>
 
@@ -265,19 +212,12 @@ const FrontendCourse = () => {
           <div id="benefits">
             <h2 className="text-3xl font-bold text-blue-950 mb-4">Key Benefits</h2>
             <ul className="space-y-2 text-xl text-neutral-800 pl-6">
-                {[
-                "Build real-world responsive websites",
-                "Learn the latest industry-standard tools",
-                "Self-paced learning with access to resources anytime",
-                "Project-based learning approach for practical skills",
-                "Boost your resume with hands-on experience",
-                "Access to mentorship and support community"
-                ].map((benefit, idx) => (
+              {(course.key_benefits || []).map((benefit, idx) => (
                 <li key={idx} className="flex items-center">
                   <CheckIcon className="w-6 h-6 text-slate-500 mr-2" />
                   {benefit}
                 </li>
-                ))}
+              ))}
             </ul>
           </div>
 
@@ -285,20 +225,12 @@ const FrontendCourse = () => {
           <div id="learn">
             <h2 className="text-3xl font-bold text-blue-950 mb-4">What you will learn</h2>
             <ul className="space-y-2 text-xl text-neutral-800 pl-6">
-                {[
-                "You'll master HTML5",
-                "CSS3",
-                "JavaScript",
-                "Fundamentals",
-                "Responsive design",
-                "Modern frameworks like React",
-                "And best practices for frontend performance and accessibility"
-                ].map((learn, idx) => (
+              {(course.what_you_will_learn || []).map((learn, idx) => (
                 <li key={idx} className="flex items-center">
                   <CheckIcon className="w-6 h-6 text-slate-500 mr-2" />
                   {learn}
                 </li>
-                ))}
+              ))}
             </ul>
           </div>
 
@@ -306,9 +238,9 @@ const FrontendCourse = () => {
           <div id="requirements">
             <h2 className="text-3xl font-bold text-blue-950 mb-4">What You Will Need</h2>
             <ul className="list-disc pl-6 text-xl text-neutral-800 space-y-2">
-              <li>Basic computer literacy</li>
-              <li>Access to a computer with internet</li>
-              <li>A desire to learn and build cool stuff</li>
+              {(course.requirements || []).map((req, idx) => (
+                <li key={idx}>{req}</li>
+              ))}
             </ul>
           </div>
 
@@ -317,225 +249,96 @@ const FrontendCourse = () => {
             <div className="mb-8">
               <h2 className="text-4xl font-bold text-blue-950 mb-2">Course Modules</h2>
               <p className="text-lg text-neutral-600">
-                Explore our structured learning modules. Click on any module to expand and view lessons.
+                Structured learning path with interactive lessons and hands-on projects
               </p>
             </div>
 
             {modulesLoading ? (
-              <div className="text-center py-16">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-950 border-t-transparent"></div>
-                <p className="mt-4 text-lg text-neutral-600">Loading modules...</p>
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
-            ) : modules.length === 0 ? (
-              <div className="text-center py-16 bg-gradient-to-br from-neutral-50 to-neutral-100 border-2 border-dashed border-neutral-300 rounded-2xl">
-                <BookOpen className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
-                <p className="text-xl font-semibold text-neutral-700 mb-2">No Modules Available Yet</p>
-                <p className="text-lg text-neutral-500">Course content is being prepared. Check back soon!</p>
-              </div>
-            ) : (
+            ) : modules.length > 0 ? (
               <div className="space-y-4">
-                {modules.map((module) => (
+                {modules.map((module, index) => (
                   <ModuleAccordion
                     key={module.id}
                     module={module}
+                    moduleNumber={index + 1}
+                    completedLessonIds={completions}
                     onLessonClick={handleLessonClick}
-                    completions={completions}
                   />
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Course Resources - Unified Section (Legacy - now labeled as Additional Resources) */}
-          <div id="pdf" className="mb-16">
-            <div className="mb-8">
-              <h2 className="text-4xl font-bold text-blue-950 mb-2">Additional Resources</h2>
-              <p className="text-lg text-neutral-600">Legacy PDF guides and video tutorials (now organized in modules above)</p>
-            </div>
-
-            {/* Tab Navigation */}
-            <div className="flex gap-4 mb-8 border-b-2 border-neutral-200">
-              <button
-                onClick={() => setActiveResourceTab('pdf')}
-                className={`flex items-center gap-3 px-6 py-4 font-semibold text-lg transition-all duration-300 relative ${
-                  activeResourceTab === 'pdf'
-                    ? 'text-blue-950'
-                    : 'text-neutral-500 hover:text-neutral-700'
-                }`}
-              >
-                <FileText className={`w-5 h-5 ${activeResourceTab === 'pdf' ? 'text-blue-950' : 'text-neutral-400'}`} />
-                PDF Resources
-                {pdfResources.length > 0 && (
-                  <span className={`ml-2 px-2.5 py-0.5 rounded-full text-sm ${
-                    activeResourceTab === 'pdf' ? 'bg-blue-950 text-white' : 'bg-neutral-200 text-neutral-600'
-                  }`}>
-                    {pdfResources.length}
-                  </span>
-                )}
-                {activeResourceTab === 'pdf' && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-950"></span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveResourceTab('video')}
-                className={`flex items-center gap-3 px-6 py-4 font-semibold text-lg transition-all duration-300 relative ${
-                  activeResourceTab === 'video'
-                    ? 'text-blue-950'
-                    : 'text-neutral-500 hover:text-neutral-700'
-                }`}
-              >
-                <Video className={`w-5 h-5 ${activeResourceTab === 'video' ? 'text-blue-950' : 'text-neutral-400'}`} />
-                Video Resources
-                {videoResources.length > 0 && (
-                  <span className={`ml-2 px-2.5 py-0.5 rounded-full text-sm ${
-                    activeResourceTab === 'video' ? 'bg-blue-950 text-white' : 'bg-neutral-200 text-neutral-600'
-                  }`}>
-                    {videoResources.length}
-                  </span>
-                )}
-                {activeResourceTab === 'video' && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-950"></span>
-                )}
-              </button>
-            </div>
-
-            {/* Resources Content */}
-            {loading ? (
-              <div className="text-center py-16">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-950 border-t-transparent"></div>
-                <p className="mt-4 text-lg text-neutral-600">Loading resources...</p>
-              </div>
-            ) : activeResourceTab === 'pdf' ? (
-              pdfResources.length === 0 ? (
-                <div className="text-center py-16 bg-gradient-to-br from-neutral-50 to-neutral-100 border-2 border-dashed border-neutral-300 rounded-2xl">
-                  <FileText className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
-                  <p className="text-xl font-semibold text-neutral-700 mb-2">No PDF Resources Available</p>
-                  <p className="text-lg text-neutral-500">Check back soon for study materials!</p>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pdfResources.map((pdf, index) => (
-                    <div
-                      key={pdf.id}
-                      className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-neutral-200 hover:border-blue-950/30"
-                    >
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={pdf.image}
-                          alt={pdf.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute top-4 right-4 bg-blue-950/90 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                          <FileText className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <h4 className="text-xl font-bold text-neutral-900 group-hover:text-blue-950 transition-colors line-clamp-2 flex-1">
-                            {pdf.title}
-                          </h4>
-                        </div>
-                        <p className="text-neutral-600 mb-4 line-clamp-2 text-sm leading-relaxed">
-                          {pdf.description || 'Comprehensive study material to enhance your learning'}
-                        </p>
-                        <button
-                          onClick={() => handleOpenModal('pdfresource', index)}
-                          className="w-full flex items-center justify-center gap-2 bg-blue-950 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-300 group-hover:shadow-lg"
-                        >
-                          <BookOpen className="w-5 h-5" />
-                          Study Now
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )
             ) : (
-              videoResources.length === 0 ? (
-                <div className="text-center py-16 bg-gradient-to-br from-neutral-50 to-neutral-100 border-2 border-dashed border-neutral-300 rounded-2xl">
-                  <Video className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
-                  <p className="text-xl font-semibold text-neutral-700 mb-2">No Video Resources Available</p>
-                  <p className="text-lg text-neutral-500">Check back soon for video tutorials!</p>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {videoResources.map((video, index) => (
-                    <div
-                      key={video.id}
-                      className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-neutral-200 hover:border-blue-950/30"
-                    >
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={video.image}
-                          alt={video.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                          <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 group-hover:scale-110 transition-transform">
-                            <PlayCircle className="w-12 h-12 text-blue-950" />
-                          </div>
-                        </div>
-                        <div className="absolute top-4 right-4 bg-blue-950/90 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                          <Video className="w-5 h-5 text-white" />
-                        </div>
-                        {video.duration && video.duration !== 'N/A' && (
-                          <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-lg flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-white" />
-                            <span className="text-white text-sm font-medium">{video.duration}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <h4 className="text-xl font-bold text-neutral-900 group-hover:text-blue-950 transition-colors line-clamp-2 flex-1">
-                            {video.title}
-                          </h4>
-                        </div>
-                        <p className="text-neutral-600 mb-4 line-clamp-2 text-sm leading-relaxed">
-                          {video.description || 'Comprehensive video tutorial to enhance your learning'}
-                        </p>
-                        <button
-                          onClick={() => handleOpenModal('video', index)}
-                          className="w-full flex items-center justify-center gap-2 bg-blue-950 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-300 group-hover:shadow-lg"
-                        >
-                          <PlayCircle className="w-5 h-5" />
-                          Watch Now
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )
+              <div className="bg-neutral-50 rounded-xl p-8 text-center">
+                <BookOpen className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
+                <p className="text-neutral-600 text-lg">
+                  Course modules are being prepared. Check back soon!
+                </p>
+              </div>
             )}
           </div>
 
-          {/* Video Resources anchor for navigation */}
-          <div id="videos" className="hidden"></div>
+          {/* Course Recommendation */}
+          <div id="recommendation" className="bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] rounded-2xl p-10 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <StarIcon className="w-64 h-64 text-white" />
+            </div>
 
-          {showModal && (
-            <FrontendVideoPdfModal type={modalType} index={selectedIndex} onClose={() => setShowModal(false)} />
-          )}
-
-          {/* Next Course Recommendation */}
-          <div className="mb-16 mt-20" id='recommendation'>
-            <h2 className="text-3xl font-bold text-blue-950 mb-4">Next Course Recommendation</h2>
-            <div className="bg-white p-6 rounded-2xl shadow-md">
-              <h3 className="text-2xl font-semibold text-neutral-900 mb-2">Backend Development</h3>
-              <p className="text-lg text-neutral-700 mb-4">
-                Continue your learning journey by exploring backend technologies like Node.js, Express, and databases.
-              </p>
-              <Link
-                to="/course/backendcourse"
-                className="inline-block bg-blue-950 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-800 transition"
-              >
-                Explore Backend Course
-              </Link>
+            <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center bg-blue-500/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm border border-blue-400/30">
+                  <StarIcon className="w-4 h-4 text-yellow-400 mr-2" />
+                  <span className="text-sm font-semibold tracking-wide text-blue-100">Recommended Next Step</span>
+                </div>
+                <h3 className="text-3xl font-bold mb-4">Advance Your Career with Backend Development</h3>
+                <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+                  Ready to go full stack? Our Backend Development specialization is recommended for you.
+                  Master server-side technologies.
+                </p>
+                <Link
+                  to="/stack/backend-dev"
+                  className="inline-flex items-center px-8 py-3 bg-white text-blue-900 rounded-xl font-bold text-lg hover:bg-blue-50 transform hover:-translate-y-1 transition-all duration-300 shadow-lg"
+                >
+                  Explore Course
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+              <div className="hidden md:block">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="bg-blue-500/30 p-3 rounded-lg">
+                      <BarChart3 className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xl">Backend Development</h4>
+                      <p className="text-blue-200">Full Stack Mastery</p>
+                    </div>
+                  </div>
+                  <ul className="space-y-3">
+                    {[
+                      "API Development",
+                      "Database Management",
+                      "Server Architecture",
+                      "Security"
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-center text-blue-100">
+                        <CheckIcon className="w-5 h-5 mr-3 text-green-400" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
+
         </main>
       </div>
     </div>
   );
 };
 
-export default FrontendCourse;
+export default FrontendDevStack;
