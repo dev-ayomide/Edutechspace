@@ -11,7 +11,7 @@ if (!supabaseUrl || !supabaseKey) {
   console.error("VITE_SUPABASE_ANON_KEY=your_supabase_anon_key");
 }
 
-// Create client with improved configuration for better reliability
+// Create client with improved configuration for better reliability and session persistence
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
   supabaseKey || "placeholder-key",
@@ -22,7 +22,9 @@ export const supabase = createClient(
       detectSessionInUrl: true,
       storageKey: 'edutechspace-auth',
       storage: window.localStorage,
-      flowType: 'pkce' // More secure auth flow
+      flowType: 'pkce', // More secure auth flow
+      // Prevent aggressive session refresh that might cause issues
+      debug: false,
     },
     global: {
       headers: {

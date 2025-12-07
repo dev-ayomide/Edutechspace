@@ -38,7 +38,12 @@ import LessonManager from './admin/pages/LessonManager';
 import { isSupabaseConfigured } from './utils/supabase';
 
 const App = () => {
-  const { loading } = useContext(AuthContext);
+  const { loading, isInitializing } = useContext(AuthContext);
+
+  // Show loading screen during initial auth check to prevent flash
+  if (isInitializing) {
+    return <LoadingPage />;
+  }
 
   // Show error message if Supabase is not configured
   if (!isSupabaseConfigured) {

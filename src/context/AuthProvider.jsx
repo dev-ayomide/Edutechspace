@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const isSyncingUser = useRef(false);
   const isInitialized = useRef(false);
@@ -57,32 +58,44 @@ export const AuthProvider = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
+        console.log('🔄 Initializing auth...');
+        
+        // Get the current session from storage (this is critical for page refreshes)
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Session error:', error);
           setLoading(false);
+          setIsInitializing(false);
           return;
         }
 
-        if (session) {
+        if (session?.user) {
+          console.log('✅ Found existing session on refresh');
           if (!isSyncingUser.current) {
             isSyncingUser.current = true;
             try {
               await syncUser(session.user);
             } catch (err) {
               console.error('Sync user error on init:', err);
+              // Even if sync fails, keep the session alive
+              setUser({ id: session.user.id, email: session.user.email });
+              setIsAuthenticated(true);
               setLoading(false);
             } finally {
               isSyncingUser.current = false;
+              setIsInitializing(false);
             }
           }
         } else {
+          console.log('ℹ️ No existing session found');
           setLoading(false);
+          setIsInitializing(false);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
         setLoading(false);
+        setIsInitializing(false);
       }
     };
 
@@ -92,19 +105,25 @@ export const AuthProvider = ({ children }) => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event);
       
-      // Prevent navigation loops
+      // Handle different auth events
       if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in');
         if (!isSyncingUser.current) {
           isSyncingUser.current = true;
           try {
             await syncUser(session.user);
           } catch (err) {
             console.error('Sync user error on sign in:', err);
+            // Keep user logged in even if sync fails
+            setUser({ id: session.user.id, email: session.user.email });
+            setIsAuthenticated(true);
+            setLoading(false);
           } finally {
             isSyncingUser.current = false;
           }
         }
       } else if (event === 'SIGNED_OUT') {
+        console.log('🚪 User signed out');
         setUser(null);
         setIsAuthenticated(false);
         setLoading(false);
@@ -113,8 +132,24 @@ export const AuthProvider = ({ children }) => {
           navigateToLogin();
         }
       } else if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
+        console.log('🔄 Token refreshed successfully');
+        // Don't clear user state on token refresh - this is critical!
+        // The session is still valid, just the token was refreshed
+        if (session?.user && !user) {
+          // Only sync if we don't have user data
+          if (!isSyncingUser.current) {
+            isSyncingUser.current = true;
+            try {
+              await syncUser(session.user);
+            } catch (err) {
+              console.error('Sync user error on token refresh:', err);
+            } finally {
+              isSyncingUser.current = false;
+            }
+          }
+        }
       } else if (event === 'USER_UPDATED') {
+        console.log('👤 User updated');
         if (session?.user && !isSyncingUser.current) {
           isSyncingUser.current = true;
           try {
@@ -123,6 +158,24 @@ export const AuthProvider = ({ children }) => {
             console.error('Sync user error on update:', err);
           } finally {
             isSyncingUser.current = false;
+          }
+        }
+      } else if (event === 'INITIAL_SESSION') {
+        console.log('🎬 Initial session detected');
+        // This event fires when auth is initialized with an existing session
+        if (session?.user && !user) {
+          if (!isSyncingUser.current) {
+            isSyncingUser.current = true;
+            try {
+              await syncUser(session.user);
+            } catch (err) {
+              console.error('Sync user error on initial session:', err);
+              setUser({ id: session.user.id, email: session.user.email });
+              setIsAuthenticated(true);
+              setLoading(false);
+            } finally {
+              isSyncingUser.current = false;
+            }
           }
         }
       }
@@ -498,6 +551,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     loading,
+    isInitializing,
     isOnline,
     signup,
     login,
