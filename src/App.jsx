@@ -6,6 +6,7 @@ import LoadingPage from './pages/LoadingPage';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/signup';
+import ResetPassword from './pages/ResetPassword';
 import Course from './pages/Course';
 import CourseDatabase from './pages/courseDatabase';
 import Contact from './pages/contact';
@@ -82,6 +83,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key`}
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
+        <Route path="reset-password" element={<ResetPassword />} />
         <Route path="about-us" element={<AboutUs />} />
         <Route path="coursedatabase" element={<CourseDatabase />} />
         <Route path="course/frontendcourse" element={<FrontendDevStack />} />

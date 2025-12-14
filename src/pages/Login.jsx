@@ -52,13 +52,12 @@ const Login = () => {
           </div>
         )}
         <h2 className="text-2xl font-bold text-neutral-900 mb-4 text-center">Welcome Back!</h2>
-        {/* Google OAuth temporarily disabled - uncomment below to enable */}
-        {/* 
         <div className="mb-4">
           <button
+            type="button"
             onClick={() => googleLogin()}
-            disabled={loading}
-            className="w-full flex items-center justify-center border border-neutral-300 bg-white text-neutral-700 py-2 px-4 rounded-lg hover:bg-neutral-50 transition"
+            disabled={loading || !isOnline}
+            className="w-full flex items-center justify-center border border-neutral-300 bg-white text-neutral-700 py-2 px-4 rounded-lg hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
@@ -77,7 +76,6 @@ const Login = () => {
             <span className="bg-white px-2 text-neutral-600">or</span>
           </div>
         </div>
-        */}
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-neutral-700 font-bold">

@@ -14,7 +14,7 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     // Log error to console for debugging
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -38,14 +38,32 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      const isNetworkError = this.state.error?.message?.includes('fetch') ||
+        this.state.error?.message?.includes('network') ||
+        this.state.error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
+        !navigator.onLine;
+
       return (
         <div className="min-h-screen bg-neutral-100 flex flex-col items-center justify-center p-6">
           <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Something went wrong</h2>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              {isNetworkError ? '🌐 Connection Problem' : '⚠️ Something went wrong'}
+            </h2>
             <p className="text-neutral-700 mb-4">
-              An unexpected error occurred. The page will try to recover automatically, or you can refresh.
+              {isNetworkError
+                ? 'Unable to connect to the server. Please check your internet connection and try again.'
+                : 'An unexpected error occurred. The page will try to recover automatically, or you can refresh.'
+              }
             </p>
-            
+
+            {!navigator.onLine && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                <p className="text-yellow-800 text-sm font-medium">
+                  📡 You appear to be offline. Please reconnect to the internet.
+                </p>
+              </div>
+            )}
+
             {import.meta.env.DEV && this.state.error && (
               <details className="bg-gray-50 p-4 rounded-lg mb-4 max-h-96 overflow-auto">
                 <summary className="text-neutral-900 font-semibold cursor-pointer mb-2">
@@ -62,19 +80,22 @@ class ErrorBoundary extends React.Component {
                 </pre>
               </details>
             )}
-            
+
             <div className="flex gap-4 justify-center">
               <button
-                onClick={this.handleReset}
+                onClick={() => {
+                  this.setState({ hasError: false, error: null, errorInfo: null });
+                  window.location.reload();
+                }}
                 className="bg-blue-950 text-white py-2 px-6 rounded-lg hover:bg-blue-900 transition"
               >
-                Go Home
+                {isNetworkError ? 'Retry Connection' : 'Reload Page'}
               </button>
               <button
-                onClick={() => window.location.reload()}
+                onClick={this.handleReset}
                 className="bg-gray-600 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition"
               >
-                Reload Page
+                Go Home
               </button>
             </div>
           </div>

@@ -50,9 +50,10 @@ export const AuthProvider = ({ children }) => {
     isInitialized.current = true;
 
     // Check if Supabase is configured
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !supabase) {
       console.error('Supabase is not configured. Please set environment variables.');
       setLoading(false);
+      setIsInitializing(false);
       return;
     }
 

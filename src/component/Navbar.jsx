@@ -21,8 +21,8 @@ const Navbar = () => {
       <header className="sticky top-0 z-50 backdrop-blur-md border border-white/10">
         <nav className="px-6 md:px-10 py-3 md:py-4">
           <div className="relative flex items-center justify-between">
-              <NavLink to="/" className="relative z-10 pr-4 xl:pr-0">
-              <img className="h-8 md:h-10" src={logoiii} alt="RUNTechSpace Logo" />
+            <NavLink to="/" className="relative z-10 pr-4 xl:pr-0">
+              <img className="h-7 md:h-8" src={logoiii} alt="RUNTechSpace Logo" />
             </NavLink>
             <div className="hidden xl:flex xl:justify-center gap-16 xl:absolute xl:w-full xl:top-1/2 xl:left-1/2 xl:-translate-y-1/2 xl:-translate-x-1/2">
               <NavLink className="navlinks" to="/">
@@ -38,18 +38,18 @@ const Navbar = () => {
                 About us
               </NavLink>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 md:space-x-4">
               {!isAuthenticated ? (
                 <>
                   <NavLink
                     to="/login"
-                    className="bg-slate-200 text-blue-950 px-4 py-2 rounded-lg text-lg font-medium hover:bg-blue-950 hover:text-white transition-all cursor-pointer relative z-10"
+                    className="bg-slate-200 text-blue-950 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-950 hover:text-white transition-all cursor-pointer relative z-10"
                   >
                     Login
                   </NavLink>
                   <NavLink
                     to="/signup"
-                    className="bg-slate-200 text-blue-950 px-4 py-2 rounded-lg text-lg font-medium hover:bg-blue-950 hover:text-white transition-all cursor-pointer relative z-10"
+                    className="bg-slate-200 text-blue-950 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-950 hover:text-white transition-all cursor-pointer relative z-10 hidden sm:block"
                   >
                     Signup
                   </NavLink>
@@ -57,31 +57,31 @@ const Navbar = () => {
               ) : (
                 <>
                   <NavLink to="/notifications" className="cursor-pointer">
-                    <BellIcon className="w-8 h-8 text-blue-950 hover:text-slate-900 transition" />
+                    <BellIcon className="w-5 h-5 md:w-6 md:h-6 text-blue-950 hover:text-slate-900 transition" />
                   </NavLink>
                   <NavLink to="/profile" className="cursor-pointer">
                     {user?.picture && !imageError ? (
                       <img
                         src={user.picture}
                         alt={user?.name || "User"}
-                        className="w-14 h-14 object-cover rounded-full border-4 border-blue-950"
+                        className="w-8 h-8 md:w-9 md:h-9 object-cover rounded-full border-2 border-blue-950"
                         onError={() => setImageError(true)}
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-full border-4 border-blue-950 bg-blue-950 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-blue-950 bg-blue-950 flex items-center justify-center text-white font-bold text-xs md:text-sm">
                         {user?.name
                           ? user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .toUpperCase()
-                              .slice(0, 2)
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)
                           : "U"}
                       </div>
                     )}
                   </NavLink>
                   <button
-                    className="bg-slate-200 text-blue-950 px-4 py-2 rounded-lg text-lg font-medium hover:bg-blue-950 hover:text-white transition-all hidden md:block cursor-pointer relative z-10"
+                    className="bg-slate-200 text-blue-950 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-950 hover:text-white transition-all hidden xl:block cursor-pointer relative z-10"
                     onClick={() => setShowLogoutModal(true)}
                     type="button"
                   >
@@ -89,13 +89,13 @@ const Navbar = () => {
                   </button>
                 </>
               )}
+              <button
+                className="xl:hidden p-1"
+                onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              >
+                <Bars3Icon className="w-6 h-6 text-slate-900" />
+              </button>
             </div>
-            <button
-              className="xl:hidden"
-              onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            >
-              <Bars3Icon className="w-8 h-8 text-slate-900" />
-            </button>
           </div>
         </nav>
       </header>

@@ -11,38 +11,36 @@ if (!supabaseUrl || !supabaseKey) {
   console.error("VITE_SUPABASE_ANON_KEY=your_supabase_anon_key");
 }
 
-// Create client with improved configuration for better reliability and session persistence
-export const supabase = createClient(
-  supabaseUrl || "https://placeholder.supabase.co",
-  supabaseKey || "placeholder-key",
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      storageKey: 'edutechspace-auth',
-      storage: window.localStorage,
-      flowType: 'pkce', // More secure auth flow
-      // Prevent aggressive session refresh that might cause issues
-      debug: false,
-    },
-    global: {
-      headers: {
-        'x-application-name': 'edutechspace'
-      }
-    },
-    db: {
-      schema: 'public'
-    },
-    // Add retry logic for failed requests
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
-    }
-  }
-);
-
 // Export a flag to check if Supabase is properly configured
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseKey);
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseKey && supabaseUrl.startsWith('http'));
+
+// Only create client if properly configured, otherwise create a dummy client
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storageKey: 'edutechspace-auth',
+        storage: window.localStorage,
+        flowType: 'pkce', // More secure auth flow
+        // Prevent aggressive session refresh that might cause issues
+        debug: false,
+      },
+      global: {
+        headers: {
+          'x-application-name': 'edutechspace'
+        }
+      },
+      db: {
+        schema: 'public'
+      },
+      // Add retry logic for failed requests
+      realtime: {
+        params: {
+          eventsPerSecond: 10
+        }
+      }
+    })
+  : null; // Return null if not configured - app will show setup instructions
 

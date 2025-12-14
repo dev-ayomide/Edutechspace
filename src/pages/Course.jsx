@@ -368,7 +368,7 @@ const Course = () => {
 
             {/* All Courses Section */}
             <div>
-              <h1 className="text-6xl sm:text-9xl xl:text-6xl font-semibold mb-14 tracking-tight font-heading text-blue-950">
+              <h1 className="text-4xl sm:text-5xl xl:text-6xl font-semibold mb-8 tracking-tight font-heading text-blue-950">
                 All Courses
               </h1>
               <div className="w-full h-px bg-neutral-900 mb-10"></div>

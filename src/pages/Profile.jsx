@@ -17,210 +17,180 @@ const UserProfile = () => {
   useEffect(() => {
     const checkProfile = async () => {
       if (!user && !loading) {
-        // Check if there's a Supabase session
         const { data: { session } } = await supabase.auth.getSession();
         if (session && !Cookies.get('token')) {
-          console.log('Profile.jsx: Supabase session exists but no token, authentication failed');
           toast.error('Authentication failed. Please log in again.');
           navigate('/login');
           return;
         }
-
-        // Fetch profile only if user is null and not loading
         const loadProfile = async () => {
           try {
             await fetchProfile();
           } catch (err) {
-            console.error('Profile.jsx: loadProfile - Error fetching profile:', err);
+            console.error('Error fetching profile:', err);
           }
         };
         loadProfile();
       }
     };
-
     checkProfile();
   }, [user, loading, fetchProfile, navigate]);
 
   useEffect(() => {
-    console.log('Profile.jsx: useEffect [user] (name parsing) - Starting');
     if (user && user.name) {
       const nameParts = user.name.trim().split(" ");
       const newFirstName = nameParts[0] || "";
       const newLastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
       setFirstName(newFirstName);
       setLastName(newLastName);
-      console.log('Profile.jsx: useEffect [user] (name parsing) - Name set:', newFirstName, newLastName);
     } else {
-      console.log('Profile.jsx: useEffect [user] (name parsing) - User or user.name is null/undefined, skipping');
       setFirstName("");
       setLastName("");
     }
-    console.log('Profile.jsx: useEffect [user] (name parsing) - Finished');
   }, [user]);
 
   const handleDeleteConfirmation = () => {
-    console.log('Profile.jsx: handleDeleteConfirmation - Opening delete modal');
     setDeleteModalOpen(true);
   };
 
   const handleDeleteAccount = async () => {
-    console.log('Profile.jsx: handleDeleteAccount - Starting account deletion');
     try {
       await deleteAccount();
       toast.success('Account deleted successfully.');
       navigate('/');
-      console.log('Profile.jsx: handleDeleteAccount - Account deleted successfully');
     } catch (error) {
-      console.error('Profile.jsx: handleDeleteAccount - Error deleting account:', error);
+      console.error('Error deleting account:', error);
     } finally {
       setDeleteModalOpen(false);
-      console.log('Profile.jsx: handleDeleteAccount - Modal closed');
     }
   };
 
   const handleCancelDelete = () => {
-    console.log('Profile.jsx: handleCancelDelete - Closing delete modal');
     setDeleteModalOpen(false);
   };
 
   if (loading) {
-    console.log('Profile.jsx: Rendering - Loading state');
-    return <div className="text-center mt-20 text-lg">Loading profile...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-950 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
-    console.log('Profile.jsx: Rendering - User is null');
-    return <div className="text-center mt-20 text-lg">No profile data available</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">No profile data available</p>
+          <Link to="/login" className="text-blue-600 hover:underline">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  console.log('Profile.jsx: Rendering - User data:', user);
-
   return (
-    <div className="bg-gray-50 min-h-screen p-6 relative">
-      <div className="absolute top-10 left-0 right-0 h-[300px] bg-blue-950 rounded-3xl z-0 mx-4"></div>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Header background */}
+      <div className="bg-blue-950 h-48 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/50 to-blue-950"></div>
+      </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mt-16">
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
-          <div className="flex flex-col items-center">
-            <img
-              src={user.picture || "https://i.pravatar.cc/300"}
-              alt={user.name || "User"}
-              className="w-48 h-48 object-cover rounded-full border-4 border-blue-950 shadow-lg"
-            />
-            <h2 className="text-2xl font-semibold mt-4 text-gray-900">
-              {user.name || 'Unknown User'}
-            </h2>
-            <p className="text-gray-600">{user.email || 'No email'}</p>
-
-            <div className="flex justify-between gap-6 mt-8">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                  <span className="text-xl font-bold text-blue-700">{user.ongoingcourses || 0}</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">Ongoing Courses</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                  <span className="text-xl font-bold text-green-700">{user.completedcourses || 0}</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">Completed Courses</p>
-              </div>
+      {/* Profile content */}
+      <div className="max-w-4xl mx-auto px-6 -mt-24 relative z-10 pb-12">
+        {/* Profile card */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Profile header */}
+          <div className="p-8 text-center border-b border-gray-100">
+            <div className="relative inline-block">
+              <img
+                src={user.picture || "https://i.pravatar.cc/300"}
+                alt={user.name || "User"}
+                className="w-28 h-28 object-cover rounded-full border-4 border-white shadow-lg"
+              />
+              <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
+            <h1 className="text-2xl font-bold text-gray-900 mt-4">
+              {user.name || 'Unknown User'}
+            </h1>
+            <p className="text-gray-500 mt-1">{user.email || 'No email'}</p>
 
-            <div className="flex gap-4 mt-8">
-              <Link
-                className="bg-blue-950 text-white px-4 py-2 rounded-md hover:bg-slate-900 transition-colors duration-300"
-                to="/admin/resource-upload"
-              >
-                Resource Upload
-              </Link>
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors duration-300"
-                onClick={handleDeleteConfirmation}
-              >
-                Delete Account
-              </button>
+            {/* Stats */}
+            <div className="flex justify-center gap-12 mt-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">{user.ongoingcourses || 0}</div>
+                <p className="text-sm text-gray-500 mt-1">Ongoing</p>
+              </div>
+              <div className="h-12 w-px bg-gray-200"></div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">{user.completedcourses || 0}</div>
+                <p className="text-sm text-gray-500 mt-1">Completed</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2">Profile Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">First Name</label>
-              <input
-                type="text"
-                value={firstName}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Last Name</label>
-              <input
-                type="text"
-                value={lastName}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Username</label>
-              <input
-                type="text"
-                value={user.name || ''}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Password</label>
-              <input
-                type="password"
-                value={user.password ? '********' : 'N/A'}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Phone</label>
-              <input
-                type="tel"
-                value={user.phone || 'Not provided'}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Email</label>
-              <input
-                type="email"
-                value={user.email || 'Not provided'}
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                readOnly
-              />
-            </div>
-            <div className="md:col-span-2 mb-4">
-              <label className="block text-gray-700 font-medium mb-2 text-sm">Weekly Goal</label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="text"
-                  value="Mon,Wed,Thu"
-                  className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-200 focus:outline-none bg-gray-100 text-gray-700"
-                  readOnly
-                />
-                <button className="text-blue-600 font-medium underline hover:text-blue-700 focus:outline-none">
-                  Edit
-                </button>
+          {/* Profile details */}
+          <div className="p-8">
+            <h2 className="text-lg font-semibold text-gray-800 mb-6">Profile Information</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  First Name
+                </label>
+                <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                  {firstName || 'Not set'}
+                </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  Last Name
+                </label>
+                <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                  {lastName || 'Not set'}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  Email Address
+                </label>
+                <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                  {user.email || 'Not provided'}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                  Phone Number
+                </label>
+                <div className="px-4 py-3 bg-gray-50 rounded-lg text-gray-800">
+                  {user.phone || 'Not provided'}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <Link
+                to="/course"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+              >
+                ← Back to Courses
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Delete confirmation modal */}
       <Transition appear show={deleteModalOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => {}}>
+        <Dialog as="div" className="relative z-50" onClose={() => { }}>
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
@@ -230,11 +200,11 @@ const UserProfile = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
           </TransitionChild>
 
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex min-h-full items-center justify-center p-4">
               <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-300"
@@ -244,33 +214,26 @@ const UserProfile = () => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <DialogTitle
-                    as="h3"
-                    className="text-2xl font-bold leading-6 text-gray-900"
-                  >
-                    Confirm Delete Account
+                <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
+                  <DialogTitle className="text-xl font-bold text-gray-900">
+                    Delete Account?
                   </DialogTitle>
-                  <div className="mt-2">
-                    <p className="text-gray-700">
-                      Are you sure you want to permanently delete your account? This action cannot be undone.
-                    </p>
-                  </div>
+                  <p className="mt-3 text-gray-600">
+                    This will permanently delete your account and all your data. This action cannot be undone.
+                  </p>
 
-                  <div className="mt-4 flex justify-end gap-4">
+                  <div className="mt-6 flex gap-3 justify-end">
                     <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors font-medium"
                       onClick={handleCancelDelete}
                     >
                       Cancel
                     </button>
                     <button
-                      type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      className="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded-lg transition-colors font-medium"
                       onClick={handleDeleteAccount}
                     >
-                      Delete
+                      Delete Account
                     </button>
                   </div>
                 </DialogPanel>
