@@ -61,6 +61,29 @@ export const AuthProvider = ({ children }) => {
       try {
         console.log('🔄 Initializing auth...');
 
+        // Check if this is an OAuth callback with a code parameter (PKCE flow)
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        if (code) {
+          console.log('🔐 OAuth callback detected, exchanging code for session...');
+          try {
+            const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+            if (exchangeError) {
+              console.error('OAuth code exchange error:', exchangeError);
+              // Don't throw - continue to check for existing session
+            } else if (data.session) {
+              console.log('✅ OAuth code exchanged successfully');
+              // Clean up the URL by removing the code parameter
+              const cleanUrl = window.location.pathname;
+              window.history.replaceState({}, '', cleanUrl);
+            }
+          } catch (exchangeErr) {
+            console.error('OAuth exchange failed:', exchangeErr);
+          }
+        }
+
         // Get the current session from storage (this is critical for page refreshes)
         const { data: { session }, error } = await supabase.auth.getSession();
 
