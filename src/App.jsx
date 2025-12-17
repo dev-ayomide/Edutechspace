@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/signup';
 import ResetPassword from './pages/ResetPassword';
+import EmailVerification from './pages/EmailVerification';
 import Course from './pages/Course';
 import CourseDatabase from './pages/courseDatabase';
 import Contact from './pages/contact';
@@ -58,7 +59,7 @@ const App = () => {
           <div className="bg-gray-50 p-4 rounded mb-4">
             <p className="text-sm font-semibold mb-2">Create a <code className="bg-gray-200 px-2 py-1 rounded">.env.local</code> file in the root directory with:</p>
             <pre className="text-sm bg-gray-900 text-green-400 p-3 rounded overflow-x-auto">
-{`VITE_SUPABASE_URL=your_supabase_project_url
+              {`VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key`}
             </pre>
           </div>
@@ -77,13 +78,14 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key`}
     <Routes>
       {/* Admin login outside MainLayout */}
       <Route path="/admin/login" element={<AdminLogin />} />
-      
+
       <Route path="/" element={<MainLayout />}>
         {/* Public Routes */}
         <Route index element={<Home />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
         <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="verify-email" element={<EmailVerification />} />
         <Route path="about-us" element={<AboutUs />} />
         <Route path="coursedatabase" element={<CourseDatabase />} />
         <Route path="course/frontendcourse" element={<FrontendDevStack />} />

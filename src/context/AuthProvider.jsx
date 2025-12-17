@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
       setIsOnline(true);
       toast.info('Connection restored');
     };
-    
+
     const handleOffline = () => {
       console.log('Network: Offline');
       setIsOnline(false);
@@ -60,10 +60,10 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       try {
         console.log('🔄 Initializing auth...');
-        
+
         // Get the current session from storage (this is critical for page refreshes)
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           console.error('Session error:', error);
           setLoading(false);
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
     // Listen for Supabase auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event);
-      
+
       // Handle different auth events
       if (event === 'SIGNED_IN' && session) {
         console.log('✅ User signed in');
@@ -191,7 +191,7 @@ export const AuthProvider = ({ children }) => {
 
   const syncUser = async (supabaseUser, retryCount = 0) => {
     const maxRetries = 2;
-    
+
     try {
       // Check network connectivity first
       if (!navigator.onLine) {
@@ -241,7 +241,7 @@ export const AuthProvider = ({ children }) => {
         if (updateError) {
           throw new Error(updateError.message);
         }
-        
+
         userData = updatedUser;
       } else {
         // Create new user record
@@ -263,7 +263,7 @@ export const AuthProvider = ({ children }) => {
         if (insertError) {
           throw new Error(insertError.message);
         }
-        
+
         userData = newUser;
       }
 
@@ -271,7 +271,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       setLoading(false);
-      
+
       // Debug log in development
       if (import.meta.env.DEV) {
         console.log('✅ User synced:', {
@@ -280,24 +280,24 @@ export const AuthProvider = ({ children }) => {
           isAdmin: userData.role === 'admin'
         });
       }
-      
+
     } catch (err) {
       console.error('❌ Sync user error:', err);
-      
+
       // Retry logic for network errors
       if (retryCount < maxRetries && (err.message?.includes('Failed to fetch') || err.message?.includes('network') || !navigator.onLine)) {
         console.log(`Retrying sync (${retryCount + 1}/${maxRetries})...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
         return syncUser(supabaseUser, retryCount + 1);
       }
-      
+
       // Show user-friendly error messages
       if (!navigator.onLine || err.message?.includes('No internet connection')) {
         toast.error('No internet connection. Please check your network.');
       } else if (err.message && !err.message.includes('row-level security')) {
         toast.error('Failed to sync user account. Please refresh the page.');
       }
-      
+
       setLoading(false);
       // For critical errors, sign out the user
       if (err.message?.includes('JWT') || err.message?.includes('token')) {
@@ -331,7 +331,7 @@ export const AuthProvider = ({ children }) => {
           // Don't fail login if sync fails - auth state listener will retry
         }
       }
-      
+
     } catch (err) {
       setLoading(false);
       // Check if it's a network error
@@ -359,10 +359,11 @@ export const AuthProvider = ({ children }) => {
             name,
             phone,
           },
+          emailRedirectTo: `${window.location.origin}/verify-email`,
         },
       });
 
-      if (error) {  
+      if (error) {
         throw error;
       }
 
@@ -376,7 +377,7 @@ export const AuthProvider = ({ children }) => {
       // If session is created immediately (email confirmation disabled)
       // syncUser will be called by onAuthStateChange listener
       toast.success('Account created successfully!');
-      
+
     } catch (err) {
       const errorMsg = err.message || 'Failed to sign up';
       toast.error(errorMsg);
@@ -390,12 +391,12 @@ export const AuthProvider = ({ children }) => {
       // In development, always use localhost
       // In production, use window.location.origin
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl = isDevelopment 
+      const baseUrl = isDevelopment
         ? `http://localhost:${window.location.port || '5173'}`
         : window.location.origin;
 
       // Ensure redirect URL is properly formatted
-      const redirectUrl = redirectTo.startsWith('/') 
+      const redirectUrl = redirectTo.startsWith('/')
         ? `${baseUrl}${redirectTo}`
         : redirectTo;
 
@@ -418,7 +419,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Google OAuth error:', error);
         throw error;
       }
-      
+
       // Don't set loading to false here - the redirect will happen
       // The browser will redirect to Google, then back to redirectUrl
     } catch (err) {
@@ -432,7 +433,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw error;
       }
@@ -440,10 +441,10 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       toast.success('Logged out successfully!');
-      
+
       // Use window.location to avoid React Router navigation issues
       window.location.href = '/';
-      
+
     } catch (err) {
       console.error('Logout error:', err);
       toast.error('Failed to log out');
@@ -456,7 +457,7 @@ export const AuthProvider = ({ children }) => {
   const fetchProfile = async () => {
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session) {
         throw new Error('No active session');
       }
@@ -475,7 +476,7 @@ export const AuthProvider = ({ children }) => {
       // Update state with fresh data
       setUser(userData);
       setIsAuthenticated(true);
-      
+
       // Debug log in development
       if (import.meta.env.DEV) {
         console.log('✅ Profile fetched:', {
@@ -484,9 +485,9 @@ export const AuthProvider = ({ children }) => {
           isAdmin: userData.role === 'admin'
         });
       }
-      
+
       return userData;
-      
+
     } catch (err) {
       console.error('❌ Fetch profile error:', err);
       toast.error('Failed to fetch profile');
@@ -500,7 +501,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session) {
         throw new Error('No active session');
       }
@@ -518,12 +519,12 @@ export const AuthProvider = ({ children }) => {
       // Delete auth user (this requires admin privileges or RLS policies)
       // Note: You might need to call a backend endpoint or use Supabase Admin API
       await supabase.auth.signOut();
-      
+
       setUser(null);
       setIsAuthenticated(false);
       window.location.href = '/';
       toast.success('Account deleted successfully!');
-      
+
     } catch (err) {
       toast.error('Failed to delete account');
       throw err;
@@ -534,7 +535,7 @@ export const AuthProvider = ({ children }) => {
 
   const isAdmin = () => {
     const adminCheck = user?.role === 'admin';
-    
+
     // Debug log in development
     if (import.meta.env.DEV) {
       console.log('🔐 Admin check:', {
@@ -544,7 +545,7 @@ export const AuthProvider = ({ children }) => {
         isAdmin: adminCheck
       });
     }
-    
+
     return adminCheck;
   };
 
