@@ -62,10 +62,12 @@ export const AuthProvider = ({ children }) => {
         console.log('🔄 Initializing auth...');
 
         // Check if this is an OAuth callback with a code parameter (PKCE flow)
+        // Skip if we're on the /auth/callback page - let that component handle it
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
+        const isAuthCallbackPage = window.location.pathname === '/auth/callback';
 
-        if (code) {
+        if (code && !isAuthCallbackPage) {
           console.log('🔐 OAuth callback detected, exchanging code for session...');
           try {
             const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);

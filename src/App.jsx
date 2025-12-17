@@ -43,8 +43,14 @@ import { isSupabaseConfigured } from './utils/supabase';
 const App = () => {
   const { loading, isInitializing } = useContext(AuthContext);
 
+  // Allow auth callback pages to render immediately without waiting for initialization
+  const isAuthCallbackPath = window.location.pathname === '/auth/callback' ||
+    window.location.pathname === '/verify-email' ||
+    window.location.pathname === '/reset-password';
+
   // Show loading screen during initial auth check to prevent flash
-  if (isInitializing) {
+  // But skip for auth callback pages that need to handle tokens
+  if (isInitializing && !isAuthCallbackPath) {
     return <LoadingPage />;
   }
 
