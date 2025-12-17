@@ -418,19 +418,21 @@ export const AuthProvider = ({ children }) => {
         ? `http://localhost:${window.location.port || '5173'}`
         : window.location.origin;
 
-      // Ensure redirect URL is properly formatted
-      const redirectUrl = redirectTo.startsWith('/')
-        ? `${baseUrl}${redirectTo}`
-        : redirectTo;
+      // Use the auth/callback page to handle the PKCE code exchange
+      // Pass the final destination as a query parameter
+      const callbackUrl = `${baseUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
 
-      console.log('🔐 Google OAuth redirect URL:', redirectUrl);
-      console.log('🔐 Current origin:', window.location.origin);
+      // Store redirect destination in localStorage as backup
+      localStorage.setItem('oauth_redirect', redirectTo);
+
+      console.log('🔐 Google OAuth callback URL:', callbackUrl);
+      console.log('🔐 Final redirect destination:', redirectTo);
       console.log('🔐 Is development:', isDevelopment);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: callbackUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -444,7 +446,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Don't set loading to false here - the redirect will happen
-      // The browser will redirect to Google, then back to redirectUrl
+      // The browser will redirect to Google, then back to /auth/callback
     } catch (err) {
       console.error('Google login error:', err);
       toast.error('Failed to log in with Google: ' + (err.message || 'Unknown error'));

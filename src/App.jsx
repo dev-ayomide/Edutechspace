@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Signup from './pages/signup';
 import ResetPassword from './pages/ResetPassword';
 import EmailVerification from './pages/EmailVerification';
+import AuthCallback from './pages/AuthCallback';
 import Course from './pages/Course';
 import CourseDatabase from './pages/courseDatabase';
 import Contact from './pages/contact';
@@ -86,6 +87,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key`}
         <Route path="signup" element={<Signup />} />
         <Route path="reset-password" element={<ResetPassword />} />
         <Route path="verify-email" element={<EmailVerification />} />
+        <Route path="auth/callback" element={<AuthCallback />} />
         <Route path="about-us" element={<AboutUs />} />
         <Route path="coursedatabase" element={<CourseDatabase />} />
         <Route path="course/frontendcourse" element={<FrontendDevStack />} />
