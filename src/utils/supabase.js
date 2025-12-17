@@ -17,30 +17,30 @@ export const isSupabaseConfigured = !!(supabaseUrl && supabaseKey && supabaseUrl
 // Only create client if properly configured, otherwise create a dummy client
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-        storageKey: 'edutechspace-auth',
-        storage: window.localStorage,
-        flowType: 'pkce', // More secure auth flow
-        // Prevent aggressive session refresh that might cause issues
-        debug: false,
-      },
-      global: {
-        headers: {
-          'x-application-name': 'edutechspace'
-        }
-      },
-      db: {
-        schema: 'public'
-      },
-      // Add retry logic for failed requests
-      realtime: {
-        params: {
-          eventsPerSecond: 10
-        }
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false, // We handle this manually in AuthCallback
+      storageKey: 'edutechspace-auth',
+      storage: window.localStorage,
+      flowType: 'pkce', // More secure auth flow
+      // Prevent aggressive session refresh that might cause issues
+      debug: false,
+    },
+    global: {
+      headers: {
+        'x-application-name': 'edutechspace'
       }
-    })
+    },
+    db: {
+      schema: 'public'
+    },
+    // Add retry logic for failed requests
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
+    }
+  })
   : null; // Return null if not configured - app will show setup instructions
 

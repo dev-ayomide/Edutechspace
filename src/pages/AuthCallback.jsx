@@ -12,81 +12,73 @@ const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
+    const hasRun = useRef(false);
 
     useEffect(() => {
+        if (hasRun.current) return;
+
         let isMounted = true;
 
         const handleOAuthCallback = async () => {
             try {
+                // 1. Get code from URL
                 const code = searchParams.get('code');
-                const errorParam = searchParams.get('error');
-                const errorDescription = searchParams.get('error_description');
-
-                // Get the next parameter before any processing - Supabase may modify params
                 const nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
-                // Clear any stored redirect
+
+                console.log('🔐 AuthCallback: Starting exchange...', { code: code ? 'present' : 'missing', next: nextParam });
+
+                // 2. Clear stored redirect
                 localStorage.removeItem('oauth_redirect');
 
-                // Handle OAuth errors
+                // 3. Handle OAuth errors from provider
+                const errorParam = searchParams.get('error');
+                const errorDescription = searchParams.get('error_description');
                 if (errorParam) {
-                    console.error('OAuth error:', errorParam, errorDescription);
-                    setStatus('error');
-                    setError(errorDescription || errorParam);
-                    return;
+                    throw new Error(errorDescription || errorParam);
                 }
 
-                if (!code) {
-                    // No code - check if user is already authenticated
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (session) {
-                        console.log('✅ Already authenticated, redirecting...');
+                // 4. Check if we already have a session (might have been persisted)
+                const { data: { session: existingSession } } = await supabase.auth.getSession();
+                if (existingSession) {
+                    console.log('✅ AuthCallback: Existing session found, redirecting...');
+                    if (isMounted) {
                         setStatus('success');
-                        setTimeout(() => {
-                            if (isMounted) {
-                                navigate(nextParam, { replace: true });
-                            }
-                        }, 300);
-                        return;
+                        navigate(nextParam, { replace: true });
                     }
-                    console.error('No code parameter found');
-                    setStatus('error');
-                    setError('No authorization code found');
                     return;
                 }
 
-                console.log('🔐 Exchanging OAuth code for session...');
+                // 5. If no code and no session, we shouldn't be here
+                if (!code) {
+                    throw new Error('No authorization code found in URL');
+                }
 
-                // Exchange the code for a session
+                // 6. Exchange code for session (Only once!)
+                hasRun.current = true;
+                console.log('🔐 AuthCallback: Exchanging code...');
                 const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-                if (!isMounted) return;
-
                 if (exchangeError) {
-                    console.error('Code exchange error:', exchangeError);
-                    setStatus('error');
-                    setError(exchangeError.message);
-                    return;
+                    console.error('❌ AuthCallback: Exchange error:', exchangeError);
+                    throw exchangeError;
                 }
 
                 if (data.session) {
-                    console.log('✅ OAuth session established successfully');
-                    setStatus('success');
-
-                    // Small delay to ensure session is persisted
-                    setTimeout(() => {
-                        if (isMounted) {
-                            navigate(nextParam, { replace: true });
-                        }
-                    }, 500);
+                    console.log('✅ AuthCallback: Exchange successful!');
+                    if (isMounted) {
+                        setStatus('success');
+                        // Small delay to ensure state and storage are synced
+                        setTimeout(() => navigate(nextParam, { replace: true }), 300);
+                    }
                 } else {
-                    setStatus('error');
-                    setError('No session returned from authentication');
+                    throw new Error('Authentication succeeded but no session was returned');
                 }
             } catch (err) {
-                console.error('OAuth callback error:', err);
+                console.error('❌ AuthCallback: Fatal error:', err);
                 if (isMounted) {
                     setStatus('error');
-                    setError(err.message || 'An unexpected error occurred');
+                    setError(err.message || 'An unexpected error occurred during sign in');
+                    toast.error(err.message || 'Authentication failed');
                 }
             }
         };
