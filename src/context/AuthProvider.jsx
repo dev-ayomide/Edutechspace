@@ -388,12 +388,9 @@ export const AuthProvider = ({ children }) => {
   const googleLogin = async (redirectTo = '/course') => {
     setLoading(true);
     try {
-      // In development, always use localhost
-      // In production, use window.location.origin
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl = isDevelopment
-        ? `http://localhost:${window.location.port || '5173'}`
-        : window.location.origin;
+      // Always use window.location.origin to get the correct domain in production
+      // This works for both localhost and deployed versions
+      const baseUrl = window.location.origin;
 
       // Use the auth/callback page to handle the PKCE code exchange
       // Pass the final destination as a query parameter
@@ -402,9 +399,10 @@ export const AuthProvider = ({ children }) => {
       // Store redirect destination in localStorage as backup
       localStorage.setItem('oauth_redirect', redirectTo);
 
-      console.log('🔐 Google OAuth callback URL:', callbackUrl);
-      console.log('🔐 Final redirect destination:', redirectTo);
-      console.log('🔐 Is development:', isDevelopment);
+      console.log('🔐 Google OAuth - Starting authentication');
+      console.log('  Callback URL:', callbackUrl);
+      console.log('  Final redirect:', redirectTo);
+      console.log('  Base URL:', baseUrl);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -418,15 +416,16 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (error) {
-        console.error('Google OAuth error:', error);
-        throw error;
+        console.error('❌ Google OAuth error:', error);
+        throw new Error(error.message || 'Google authentication failed. Please check your Supabase Google OAuth configuration.');
       }
 
       // Don't set loading to false here - the redirect will happen
       // The browser will redirect to Google, then back to /auth/callback
     } catch (err) {
-      console.error('Google login error:', err);
-      toast.error('Failed to log in with Google: ' + (err.message || 'Unknown error'));
+      console.error('❌ Google login error:', err);
+      const errorMessage = err.message || 'Failed to log in with Google';
+      toast.error(errorMessage);
       setLoading(false);
       throw err;
     }
