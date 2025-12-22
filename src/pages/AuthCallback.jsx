@@ -13,6 +13,11 @@ const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
+    const [debugInfo] = useState({
+        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+        code: searchParams.get('code'),
+        next: searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course'
+    });
     const hasRun = useRef(false);
 
     useEffect(() => {
@@ -20,25 +25,58 @@ const AuthCallback = () => {
 
         let isMounted = true;
 
+        // Fail fast if Supabase is not configured (prevents infinite spinner)
+        if (!supabase) {
+            console.error('AuthCallback: Supabase client is not initialized. Check environment variables.');
+            setStatus('error');
+            const errMsg = 'Supabase is not configured. Please check Vercel environment variables.';
+            setError(errMsg);
+            toast.error(errMsg);
+            return undefined;
+        }
+
+        // Determine redirect destination early (before timeout setup)
+        // Get redirect destination from URL query parameter, localStorage backup, or default
+        let nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
+        
+        // Validate and sanitize the redirect path (prevent open redirects)
+        // Only allow relative paths starting with /
+        if (!nextParam.startsWith('/')) {
+            console.warn('⚠️ AuthCallback: Invalid redirect path, defaulting to /course');
+            nextParam = '/course';
+        }
+
+        // Safety timeout - force redirect if taking too long
+        const timeoutId = setTimeout(() => {
+            if (isMounted && status === 'processing') {
+                console.warn('⚠️ AuthCallback: Exchange taking too long, forcing redirect to', nextParam);
+                console.log('Debug info:', debugInfo);
+                toast.warning('Sign-in is taking longer than expected. Redirecting anyway...');
+                navigate(nextParam, { replace: true });
+            }
+        }, 5000);
+
         const handleOAuthCallback = async () => {
             try {
                 // 1. Get code from URL
                 const code = searchParams.get('code');
-                const nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
 
                 console.log('🔐 AuthCallback: Starting exchange...', { code: code ? 'present' : 'missing', next: nextParam });
+                console.log('🔐 AuthCallback: Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+                console.log('🔐 AuthCallback: Supabase Key present:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
+                console.log('🔐 AuthCallback: Supabase client exists:', !!supabase);
 
-                // 2. Clear stored redirect
+                // 3. Clear stored redirect after reading it
                 localStorage.removeItem('oauth_redirect');
 
-                // 3. Handle OAuth errors from provider
+                // 4. Handle OAuth errors from provider
                 const errorParam = searchParams.get('error');
                 const errorDescription = searchParams.get('error_description');
                 if (errorParam) {
                     throw new Error(errorDescription || errorParam);
                 }
 
-                // 4. Check if we already have a session (might have been persisted)
+                // 5. Check if we already have a session (might have been persisted)
                 const { data: { session: existingSession } } = await supabase.auth.getSession();
                 if (existingSession) {
                     console.log('✅ AuthCallback: Existing session found, redirecting...');
@@ -49,12 +87,12 @@ const AuthCallback = () => {
                     return;
                 }
 
-                // 5. If no code and no session, we shouldn't be here
+                // 6. If no code and no session, we shouldn't be here
                 if (!code) {
                     throw new Error('No authorization code found in URL');
                 }
 
-                // 6. Exchange code for session (Only once!)
+                // 7. Exchange code for session (Only once!)
                 hasRun.current = true;
                 console.log('🔐 AuthCallback: Exchanging code...');
                 const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
@@ -88,6 +126,7 @@ const AuthCallback = () => {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, [searchParams, navigate]);
 

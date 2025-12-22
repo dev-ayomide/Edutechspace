@@ -44,9 +44,13 @@ const App = () => {
   const { loading, isInitializing } = useContext(AuthContext);
 
   // Allow auth callback pages to render immediately without waiting for initialization
+  // Also check for OAuth code parameter on root path (fallback for misconfigured redirects)
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasOAuthCode = urlParams.get('code') !== null;
   const isAuthCallbackPath = window.location.pathname === '/auth/callback' ||
     window.location.pathname === '/verify-email' ||
-    window.location.pathname === '/reset-password';
+    window.location.pathname === '/reset-password' ||
+    (window.location.pathname === '/' && hasOAuthCode);
 
   // Show loading screen during initial auth check to prevent flash
   // But skip for auth callback pages that need to handle tokens

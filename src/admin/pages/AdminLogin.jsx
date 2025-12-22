@@ -12,42 +12,42 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Handle Google OAuth callback - check if user is admin after redirect
+  // Check if authenticated user is admin and redirect accordingly
   useEffect(() => {
-    const checkAdminAfterGoogleLogin = async () => {
-      // Check if this is an OAuth callback (has code parameter)
-      const isOAuthCallback = searchParams.get('code') !== null;
-      
-      // Only proceed if we have a user, auth is loaded, and this is an OAuth callback
-      if (!user || authLoading || !isOAuthCallback) {
+    const checkAdminStatus = async () => {
+      // Wait for auth to finish loading
+      if (authLoading) {
         return;
       }
 
-      try {
-        // Fetch fresh user profile to get latest role
-        const userProfile = await fetchProfile();
-        
-        if (userProfile?.role === 'admin') {
-          toast.success('Admin login successful!');
-          // Clear the code parameter from URL
-          navigate('/admin/dashboard', { replace: true });
-        } else {
-          // User is not admin
-          toast.error('Access denied. Admin privileges required.');
-          // Sign out non-admin users
-          const { supabase } = await import('../../utils/supabase');
-          await supabase.auth.signOut();
-          // Clear URL parameters
-          navigate('/admin/login', { replace: true });
+      // If user is authenticated, check if they're admin
+      if (user) {
+        try {
+          // Fetch fresh user profile to get latest role
+          const userProfile = await fetchProfile();
+          
+          if (userProfile?.role === 'admin') {
+            // User is admin, redirect to dashboard
+            toast.success('Admin login successful!');
+            navigate('/admin/dashboard', { replace: true });
+          } else {
+            // User is authenticated but not admin
+            toast.error('Access denied. Admin privileges required.');
+            // Sign out non-admin users
+            const { supabase } = await import('../../utils/supabase');
+            await supabase.auth.signOut();
+            // Clear URL parameters if any
+            navigate('/admin/login', { replace: true });
+          }
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+          toast.error('Failed to verify admin access');
         }
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        toast.error('Failed to verify admin access');
       }
     };
 
-    checkAdminAfterGoogleLogin();
-  }, [user, authLoading, fetchProfile, navigate, searchParams]);
+    checkAdminStatus();
+  }, [user, authLoading, fetchProfile, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
