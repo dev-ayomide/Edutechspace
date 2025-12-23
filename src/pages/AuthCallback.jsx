@@ -21,7 +21,11 @@ const AuthCallback = () => {
     const hasRun = useRef(false);
 
     useEffect(() => {
-        if (hasRun.current) return;
+        // Prevent multiple executions
+        if (hasRun.current) {
+            console.log('⚠️ AuthCallback: Already processing, skipping duplicate call');
+            return;
+        }
 
         let isMounted = true;
 
@@ -46,7 +50,7 @@ const AuthCallback = () => {
             nextParam = '/course';
         }
 
-        // Safety timeout - force redirect if taking too long
+        // Safety timeout - force redirect if taking too long (increased to 15 seconds)
         const timeoutId = setTimeout(() => {
             if (isMounted && status === 'processing') {
                 console.warn('⚠️ AuthCallback: Exchange taking too long, forcing redirect to', nextParam);
@@ -54,7 +58,7 @@ const AuthCallback = () => {
                 toast.warning('Sign-in is taking longer than expected. Redirecting anyway...');
                 navigate(nextParam, { replace: true });
             }
-        }, 5000);
+        }, 15000); // Increased from 5s to 15s
 
         const handleOAuthCallback = async () => {
             try {
@@ -76,40 +80,61 @@ const AuthCallback = () => {
                     throw new Error(errorDescription || errorParam);
                 }
 
-                // 5. Check if we already have a session (might have been persisted)
-                const { data: { session: existingSession } } = await supabase.auth.getSession();
-                if (existingSession) {
-                    console.log('✅ AuthCallback: Existing session found, redirecting...');
-                    if (isMounted) {
-                        setStatus('success');
-                        navigate(nextParam, { replace: true });
-                    }
-                    return;
-                }
-
-                // 6. If no code and no session, we shouldn't be here
+                // 5. If no code, check if we already have a session (might have been persisted)
                 if (!code) {
-                    throw new Error('No authorization code found in URL');
+                    console.log('⚠️ AuthCallback: No code in URL, checking for existing session...');
+                    const { data: { session: existingSession } } = await supabase.auth.getSession();
+                    if (existingSession) {
+                        console.log('✅ AuthCallback: Existing session found, redirecting...');
+                        if (isMounted) {
+                            setStatus('success');
+                            clearTimeout(timeoutId);
+                            navigate(nextParam, { replace: true });
+                        }
+                        return;
+                    }
+                    throw new Error('No authorization code found in URL and no existing session');
                 }
 
-                // 7. Exchange code for session (Only once!)
+                // 6. Exchange code for session (Only once!)
                 hasRun.current = true;
-                console.log('🔐 AuthCallback: Exchanging code...');
+                console.log('🔐 AuthCallback: Exchanging code...', { code: code.substring(0, 20) + '...' });
+                
+                const exchangeStartTime = Date.now();
                 const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+                const exchangeDuration = Date.now() - exchangeStartTime;
+                
+                console.log(`🔐 AuthCallback: Exchange completed in ${exchangeDuration}ms`);
 
                 if (exchangeError) {
                     console.error('❌ AuthCallback: Exchange error:', exchangeError);
+                    console.error('Error details:', {
+                        message: exchangeError.message,
+                        status: exchangeError.status,
+                        code: exchangeError.code
+                    });
+                    
+                    // Handle specific error cases
+                    if (exchangeError.message?.includes('code') || exchangeError.message?.includes('expired')) {
+                        throw new Error('The authentication code has expired or already been used. Please try signing in again.');
+                    }
+                    
                     throw exchangeError;
                 }
 
-                if (data.session) {
-                    console.log('✅ AuthCallback: Exchange successful!');
+                if (data?.session) {
+                    console.log('✅ AuthCallback: Exchange successful!', {
+                        userId: data.session.user?.id,
+                        email: data.session.user?.email
+                    });
                     if (isMounted) {
                         setStatus('success');
+                        clearTimeout(timeoutId); // Clear timeout since we succeeded
                         // Small delay to ensure state and storage are synced
                         setTimeout(() => navigate(nextParam, { replace: true }), 300);
                     }
                 } else {
+                    console.error('❌ AuthCallback: No session in response', data);
                     throw new Error('Authentication succeeded but no session was returned');
                 }
             } catch (err) {
