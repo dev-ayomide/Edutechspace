@@ -405,6 +405,12 @@ export const AuthProvider = ({ children }) => {
         provider: 'google',
         options: {
           redirectTo: callbackUrl,
+          // Request offline access to get refresh token from Google
+          // This ensures we get provider tokens we can use if needed
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
@@ -413,7 +419,8 @@ export const AuthProvider = ({ children }) => {
         throw new Error(error.message || 'Google sign-in failed');
       }
 
-      // Browser will redirect to Google, then back to /auth/callback
+      // signInWithOAuth automatically redirects to Google
+      // After Google auth, user is redirected back to /auth/callback
     } catch (err) {
       console.error('❌ Google login error:', err);
       toast.error(err.message || 'Failed to sign in with Google');
