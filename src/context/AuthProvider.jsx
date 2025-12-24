@@ -73,20 +73,24 @@ export const AuthProvider = ({ children }) => {
 
         if (session?.user) {
           console.log('✅ Found existing session on refresh');
+          // Set initializing to false IMMEDIATELY so App can render
+          // Don't wait for syncUser - let it happen in background
+          setIsInitializing(false);
+          
+          // Set basic user state immediately so app knows user is authenticated
+          setUser({ id: session.user.id, email: session.user.email });
+          setIsAuthenticated(true);
+          setLoading(false);
+          
+          // Sync user data in background (don't block rendering)
           if (!isSyncingUser.current) {
             isSyncingUser.current = true;
-            try {
-              await syncUser(session.user);
-            } catch (err) {
-              console.error('Sync user error on init:', err);
-              // Even if sync fails, keep the session alive
-              setUser({ id: session.user.id, email: session.user.email });
-              setIsAuthenticated(true);
-              setLoading(false);
-            } finally {
+            syncUser(session.user).catch(err => {
+              console.error('Sync user error on init (background):', err);
+              // Don't update state here - already set above
+            }).finally(() => {
               isSyncingUser.current = false;
-              setIsInitializing(false);
-            }
+            });
           }
         } else {
           console.log('ℹ️ No existing session found');
@@ -109,6 +113,7 @@ export const AuthProvider = ({ children }) => {
       // Handle different auth events
       if (event === 'SIGNED_IN' && session) {
         console.log('✅ User signed in');
+        setIsInitializing(false); // Ensure initialization is complete
         if (!isSyncingUser.current) {
           isSyncingUser.current = true;
           try {
@@ -163,6 +168,7 @@ export const AuthProvider = ({ children }) => {
         }
       } else if (event === 'INITIAL_SESSION') {
         console.log('🎬 Initial session detected');
+        setIsInitializing(false); // Ensure initialization is complete
         // This event fires when auth is initialized with an existing session
         if (session?.user && !user) {
           if (!isSyncingUser.current) {
