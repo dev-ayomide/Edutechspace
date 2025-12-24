@@ -4,102 +4,124 @@ import { toast } from 'react-toastify';
 import { supabase } from '../utils/supabase';
 
 /**
- * OAuth Callback Handler
- * Handles the OAuth PKCE code exchange and redirects to the intended destination.
- * Uses window.location.href for redirect to ensure clean state initialization.
+ * OAuth Callback Handler for PKCE flow
  */
 const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
-    const hasRun = useRef(false);
+    const [statusMessage, setStatusMessage] = useState('Initializing...');
+    const hasProcessed = useRef(false);
 
     useEffect(() => {
-        // Prevent multiple executions (React StrictMode protection)
-        if (hasRun.current) return;
-        hasRun.current = true;
+        if (hasProcessed.current) return;
+        hasProcessed.current = true;
 
-        const handleOAuthCallback = async () => {
+        const processCallback = async () => {
             // Get redirect destination
             let nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
-            
-            // Validate path (prevent open redirects)
-            if (!nextParam.startsWith('/')) {
-                nextParam = '/course';
-            }
-
-            // Clear stored redirect
+            if (!nextParam.startsWith('/')) nextParam = '/course';
             localStorage.removeItem('oauth_redirect');
 
+            // Check for OAuth errors from provider
+            const errorParam = searchParams.get('error');
+            if (errorParam) {
+                const errorMsg = searchParams.get('error_description') || errorParam;
+                console.error('❌ OAuth error from provider:', errorMsg);
+                setStatus('error');
+                setError(errorMsg);
+                toast.error(errorMsg);
+                return;
+            }
+
+            if (!supabase) {
+                setStatus('error');
+                setError('App configuration error');
+                return;
+            }
+
+            const code = searchParams.get('code');
+            console.log('🔐 AuthCallback: Starting...', { hasCode: !!code, next: nextParam });
+            setStatusMessage('Checking session...');
+
             try {
-                // Fail fast if Supabase is not configured
-                if (!supabase) {
-                    throw new Error('Supabase is not configured. Check environment variables.');
+                // Check if session already exists
+                const { data: { session: existingSession }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError) {
+                    console.error('❌ getSession error:', sessionError);
                 }
-
-                // Handle OAuth errors from provider
-                const errorParam = searchParams.get('error');
-                if (errorParam) {
-                    throw new Error(searchParams.get('error_description') || errorParam);
-                }
-
-                const code = searchParams.get('code');
-                console.log('🔐 AuthCallback: Processing...', { hasCode: !!code, next: nextParam });
-
-                // FIRST: Check if session already exists (might be from a refresh or race condition)
-                const { data: { session: existingSession } } = await supabase.auth.getSession();
                 
                 if (existingSession) {
-                    console.log('✅ AuthCallback: Session already exists, redirecting...');
+                    console.log('✅ Session exists:', existingSession.user?.email);
                     setStatus('success');
-                    toast.success('Signed in successfully!');
-                    // Use window.location for clean redirect with full state refresh
-                    window.location.href = nextParam;
+                    toast.success('Signed in!');
+                    window.location.replace(nextParam);
                     return;
                 }
 
-                // No existing session - need to exchange the code
                 if (!code) {
-                    throw new Error('No authorization code found. Please try signing in again.');
+                    throw new Error('No authorization code found');
                 }
 
-                console.log('🔐 AuthCallback: Exchanging code for session...');
-                const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-                if (exchangeError) {
-                    console.error('❌ Exchange error:', exchangeError);
-                    
-                    // Handle expired/used code
-                    if (exchangeError.message?.includes('code') || 
-                        exchangeError.message?.includes('expired') ||
-                        exchangeError.message?.includes('invalid')) {
-                        throw new Error('Sign-in link expired. Please try again.');
-                    }
-                    throw exchangeError;
-                }
-
-                if (!data?.session) {
-                    throw new Error('No session returned. Please try again.');
-                }
-
-                console.log('✅ AuthCallback: Session created successfully!');
-                setStatus('success');
-                toast.success('Signed in successfully!');
+                setStatusMessage('Completing sign in...');
+                console.log('🔐 Exchanging code for session...');
                 
-                // CRITICAL: Use window.location.href instead of navigate()
-                // This forces a full page reload which ensures AuthProvider 
-                // initializes fresh with the new session from storage
-                window.location.href = nextParam;
+                // Add timeout wrapper
+                const timeoutMs = 12000;
+                let timeoutId;
+                
+                const timeoutPromise = new Promise((_, reject) => {
+                    timeoutId = setTimeout(() => {
+                        reject(new Error('Request timed out. Please try again.'));
+                    }, timeoutMs);
+                });
 
+                try {
+                    const result = await Promise.race([
+                        supabase.auth.exchangeCodeForSession(code),
+                        timeoutPromise
+                    ]);
+                    
+                    clearTimeout(timeoutId);
+                    
+                    const { data, error: exchangeError } = result;
+
+                    if (exchangeError) {
+                        console.error('❌ Exchange error:', exchangeError);
+                        
+                        // More specific error messages
+                        if (exchangeError.message?.includes('invalid') || 
+                            exchangeError.message?.includes('expired') ||
+                            exchangeError.message?.includes('code')) {
+                            throw new Error('Sign-in link has expired. Please try again.');
+                        }
+                        throw exchangeError;
+                    }
+
+                    if (!data?.session) {
+                        throw new Error('No session returned from server');
+                    }
+
+                    console.log('✅ Session created:', data.session.user?.email);
+                    setStatus('success');
+                    toast.success('Signed in successfully!');
+                    window.location.replace(nextParam);
+                    
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    throw err;
+                }
+                
             } catch (err) {
                 console.error('❌ AuthCallback error:', err);
                 setStatus('error');
-                setError(err.message || 'Authentication failed');
+                setError(err.message || 'Sign in failed. Please try again.');
                 toast.error(err.message || 'Sign in failed');
             }
         };
 
-        handleOAuthCallback();
+        processCallback();
     }, [searchParams]);
 
     if (status === 'processing') {
@@ -108,7 +130,7 @@ const AuthCallback = () => {
                 <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto mb-4"></div>
                     <h2 className="text-xl font-bold text-neutral-900 mb-2">Completing Sign In</h2>
-                    <p className="text-neutral-600">Please wait...</p>
+                    <p className="text-neutral-600">{statusMessage}</p>
                 </div>
             </div>
         );
@@ -129,14 +151,13 @@ const AuthCallback = () => {
                         onClick={() => window.location.href = '/login'}
                         className="bg-blue-950 text-white py-2 px-6 rounded-lg hover:bg-slate-900 transition"
                     >
-                        Back to Login
+                        Try Again
                     </button>
                 </div>
             </div>
         );
     }
 
-    // Success state
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-100">
             <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
