@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Hero from '../component/Hero';
 import {
   AcademicCapIcon,
@@ -13,7 +13,6 @@ import {
 } from '@heroicons/react/24/solid';
 
 const Home = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Handle OAuth callbacks that land on root URL (fallback)
@@ -23,9 +22,9 @@ const Home = () => {
     if (code) {
       // OAuth callback detected on root - redirect to proper handler
       const next = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
-      navigate(`/auth/callback?code=${code}&next=${encodeURIComponent(next)}`, { replace: true });
+      window.location.href = `/auth/callback?code=${code}&next=${encodeURIComponent(next)}`;
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
   const stats = [
     { icon: UserGroupIcon, number: '10,000+', label: 'Active Students', color: 'text-blue-600' },
     { icon: AcademicCapIcon, number: '50+', label: 'Expert Instructors', color: 'text-green-600' },

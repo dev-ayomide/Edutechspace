@@ -1,159 +1,106 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { supabase } from '../utils/supabase';
 
 /**
  * OAuth Callback Handler
- * This page handles the OAuth PKCE code exchange before redirecting to the intended destination.
- * It's designed to be a dedicated endpoint for OAuth callbacks.
+ * Handles the OAuth PKCE code exchange and redirects to the intended destination.
+ * Uses window.location.href for redirect to ensure clean state initialization.
  */
 const AuthCallback = () => {
-    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
-    const [debugInfo] = useState({
-        supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-        code: searchParams.get('code'),
-        next: searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course'
-    });
     const hasRun = useRef(false);
 
     useEffect(() => {
-        // Prevent multiple executions
-        if (hasRun.current) {
-            console.log('⚠️ AuthCallback: Already processing, skipping duplicate call');
-            return;
-        }
-
-        let isMounted = true;
-
-        // Fail fast if Supabase is not configured (prevents infinite spinner)
-        if (!supabase) {
-            console.error('AuthCallback: Supabase client is not initialized. Check environment variables.');
-            setStatus('error');
-            const errMsg = 'Supabase is not configured. Please check Vercel environment variables.';
-            setError(errMsg);
-            toast.error(errMsg);
-            return undefined;
-        }
-
-        // Determine redirect destination early (before timeout setup)
-        // Get redirect destination from URL query parameter, localStorage backup, or default
-        let nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
-        
-        // Validate and sanitize the redirect path (prevent open redirects)
-        // Only allow relative paths starting with /
-        if (!nextParam.startsWith('/')) {
-            console.warn('⚠️ AuthCallback: Invalid redirect path, defaulting to /course');
-            nextParam = '/course';
-        }
-
-        // Safety timeout - force redirect if taking too long (increased to 15 seconds)
-        const timeoutId = setTimeout(() => {
-            if (isMounted && status === 'processing') {
-                console.warn('⚠️ AuthCallback: Exchange taking too long, forcing redirect to', nextParam);
-                console.log('Debug info:', debugInfo);
-                toast.warning('Sign-in is taking longer than expected. Redirecting anyway...');
-                navigate(nextParam, { replace: true });
-            }
-        }, 15000); // Increased from 5s to 15s
+        // Prevent multiple executions (React StrictMode protection)
+        if (hasRun.current) return;
+        hasRun.current = true;
 
         const handleOAuthCallback = async () => {
+            // Get redirect destination
+            let nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
+            
+            // Validate path (prevent open redirects)
+            if (!nextParam.startsWith('/')) {
+                nextParam = '/course';
+            }
+
+            // Clear stored redirect
+            localStorage.removeItem('oauth_redirect');
+
             try {
-                // 1. Get code from URL
-                const code = searchParams.get('code');
+                // Fail fast if Supabase is not configured
+                if (!supabase) {
+                    throw new Error('Supabase is not configured. Check environment variables.');
+                }
 
-                console.log('🔐 AuthCallback: Starting exchange...', { code: code ? 'present' : 'missing', next: nextParam });
-                console.log('🔐 AuthCallback: Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
-                console.log('🔐 AuthCallback: Supabase Key present:', !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-                console.log('🔐 AuthCallback: Supabase client exists:', !!supabase);
-
-                // 3. Clear stored redirect after reading it
-                localStorage.removeItem('oauth_redirect');
-
-                // 4. Handle OAuth errors from provider
+                // Handle OAuth errors from provider
                 const errorParam = searchParams.get('error');
-                const errorDescription = searchParams.get('error_description');
                 if (errorParam) {
-                    throw new Error(errorDescription || errorParam);
+                    throw new Error(searchParams.get('error_description') || errorParam);
                 }
 
-                // 5. If no code, check if we already have a session (might have been persisted)
+                const code = searchParams.get('code');
+                console.log('🔐 AuthCallback: Processing...', { hasCode: !!code, next: nextParam });
+
+                // FIRST: Check if session already exists (might be from a refresh or race condition)
+                const { data: { session: existingSession } } = await supabase.auth.getSession();
+                
+                if (existingSession) {
+                    console.log('✅ AuthCallback: Session already exists, redirecting...');
+                    setStatus('success');
+                    toast.success('Signed in successfully!');
+                    // Use window.location for clean redirect with full state refresh
+                    window.location.href = nextParam;
+                    return;
+                }
+
+                // No existing session - need to exchange the code
                 if (!code) {
-                    console.log('⚠️ AuthCallback: No code in URL, checking for existing session...');
-                    const { data: { session: existingSession } } = await supabase.auth.getSession();
-                    if (existingSession) {
-                        console.log('✅ AuthCallback: Existing session found, redirecting...');
-                        if (isMounted) {
-                            setStatus('success');
-                            clearTimeout(timeoutId);
-                            navigate(nextParam, { replace: true });
-                        }
-                        return;
-                    }
-                    throw new Error('No authorization code found in URL and no existing session');
+                    throw new Error('No authorization code found. Please try signing in again.');
                 }
 
-                // 6. Exchange code for session (Only once!)
-                hasRun.current = true;
-                console.log('🔐 AuthCallback: Exchanging code...', { code: code.substring(0, 20) + '...' });
-                
-                const exchangeStartTime = Date.now();
+                console.log('🔐 AuthCallback: Exchanging code for session...');
                 const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-                const exchangeDuration = Date.now() - exchangeStartTime;
-                
-                console.log(`🔐 AuthCallback: Exchange completed in ${exchangeDuration}ms`);
 
                 if (exchangeError) {
-                    console.error('❌ AuthCallback: Exchange error:', exchangeError);
-                    console.error('Error details:', {
-                        message: exchangeError.message,
-                        status: exchangeError.status,
-                        code: exchangeError.code
-                    });
+                    console.error('❌ Exchange error:', exchangeError);
                     
-                    // Handle specific error cases
-                    if (exchangeError.message?.includes('code') || exchangeError.message?.includes('expired')) {
-                        throw new Error('The authentication code has expired or already been used. Please try signing in again.');
+                    // Handle expired/used code
+                    if (exchangeError.message?.includes('code') || 
+                        exchangeError.message?.includes('expired') ||
+                        exchangeError.message?.includes('invalid')) {
+                        throw new Error('Sign-in link expired. Please try again.');
                     }
-                    
                     throw exchangeError;
                 }
 
-                if (data?.session) {
-                    console.log('✅ AuthCallback: Exchange successful!', {
-                        userId: data.session.user?.id,
-                        email: data.session.user?.email
-                    });
-                    if (isMounted) {
-                        setStatus('success');
-                        clearTimeout(timeoutId); // Clear timeout since we succeeded
-                        // Small delay to ensure state and storage are synced
-                        setTimeout(() => navigate(nextParam, { replace: true }), 300);
-                    }
-                } else {
-                    console.error('❌ AuthCallback: No session in response', data);
-                    throw new Error('Authentication succeeded but no session was returned');
+                if (!data?.session) {
+                    throw new Error('No session returned. Please try again.');
                 }
+
+                console.log('✅ AuthCallback: Session created successfully!');
+                setStatus('success');
+                toast.success('Signed in successfully!');
+                
+                // CRITICAL: Use window.location.href instead of navigate()
+                // This forces a full page reload which ensures AuthProvider 
+                // initializes fresh with the new session from storage
+                window.location.href = nextParam;
+
             } catch (err) {
-                console.error('❌ AuthCallback: Fatal error:', err);
-                if (isMounted) {
-                    setStatus('error');
-                    setError(err.message || 'An unexpected error occurred during sign in');
-                    toast.error(err.message || 'Authentication failed');
-                }
+                console.error('❌ AuthCallback error:', err);
+                setStatus('error');
+                setError(err.message || 'Authentication failed');
+                toast.error(err.message || 'Sign in failed');
             }
         };
 
         handleOAuthCallback();
-
-        return () => {
-            isMounted = false;
-            clearTimeout(timeoutId);
-        };
-    }, [searchParams, navigate]);
+    }, [searchParams]);
 
     if (status === 'processing') {
         return (
@@ -161,7 +108,7 @@ const AuthCallback = () => {
                 <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto mb-4"></div>
                     <h2 className="text-xl font-bold text-neutral-900 mb-2">Completing Sign In</h2>
-                    <p className="text-neutral-600">Please wait while we complete your sign in...</p>
+                    <p className="text-neutral-600">Please wait...</p>
                 </div>
             </div>
         );
@@ -179,7 +126,7 @@ const AuthCallback = () => {
                     <h2 className="text-xl font-bold text-red-600 mb-2">Sign In Failed</h2>
                     <p className="text-neutral-600 mb-4">{error}</p>
                     <button
-                        onClick={() => navigate('/login', { replace: true })}
+                        onClick={() => window.location.href = '/login'}
                         className="bg-blue-950 text-white py-2 px-6 rounded-lg hover:bg-slate-900 transition"
                     >
                         Back to Login
@@ -189,7 +136,7 @@ const AuthCallback = () => {
         );
     }
 
-    // Success state - will redirect shortly
+    // Success state
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-100">
             <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
@@ -198,8 +145,8 @@ const AuthCallback = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
-                <h2 className="text-xl font-bold text-green-600 mb-2">Sign In Successful</h2>
-                <p className="text-neutral-600">Redirecting you now...</p>
+                <h2 className="text-xl font-bold text-green-600 mb-2">Success!</h2>
+                <p className="text-neutral-600">Redirecting...</p>
             </div>
         </div>
     );

@@ -20,12 +20,10 @@ export const supabase = isSupabaseConfigured
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false, // We handle this manually in AuthCallback
+      detectSessionInUrl: true, // Let Supabase help detect OAuth callbacks
       storageKey: 'edutechspace-auth',
       storage: window.localStorage,
-      flowType: 'pkce', // More secure auth flow
-      // Prevent aggressive session refresh that might cause issues
-      debug: false,
+      flowType: 'pkce', // Secure auth flow for OAuth
     },
     global: {
       headers: {
@@ -35,12 +33,6 @@ export const supabase = isSupabaseConfigured
     db: {
       schema: 'public'
     },
-    // Add retry logic for failed requests
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
-    }
   })
   : null; // Return null if not configured - app will show setup instructions
 

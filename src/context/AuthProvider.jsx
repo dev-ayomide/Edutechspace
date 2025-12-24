@@ -386,47 +386,31 @@ export const AuthProvider = ({ children }) => {
   };
 
   const googleLogin = async (redirectTo = '/course') => {
-    setLoading(true);
     try {
-      // Always use window.location.origin to get the correct domain in production
-      // This works for both localhost and deployed versions
       const baseUrl = window.location.origin;
-
-      // Use the auth/callback page to handle the PKCE code exchange
-      // Pass the final destination as a query parameter
       const callbackUrl = `${baseUrl}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
 
       // Store redirect destination in localStorage as backup
       localStorage.setItem('oauth_redirect', redirectTo);
 
-      console.log('🔐 Google OAuth - Starting authentication');
-      console.log('  Callback URL:', callbackUrl);
-      console.log('  Final redirect:', redirectTo);
-      console.log('  Base URL:', baseUrl);
+      console.log('🔐 Google OAuth - Starting', { callbackUrl, redirectTo });
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: callbackUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
         },
       });
 
       if (error) {
         console.error('❌ Google OAuth error:', error);
-        throw new Error(error.message || 'Google authentication failed. Please check your Supabase Google OAuth configuration.');
+        throw new Error(error.message || 'Google sign-in failed');
       }
 
-      // Don't set loading to false here - the redirect will happen
-      // The browser will redirect to Google, then back to /auth/callback
+      // Browser will redirect to Google, then back to /auth/callback
     } catch (err) {
       console.error('❌ Google login error:', err);
-      const errorMessage = err.message || 'Failed to log in with Google';
-      toast.error(errorMessage);
-      setLoading(false);
+      toast.error(err.message || 'Failed to sign in with Google');
       throw err;
     }
   };
