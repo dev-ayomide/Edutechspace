@@ -4,13 +4,14 @@ import { toast } from 'react-toastify';
 import { supabase } from '../utils/supabase';
 
 /**
- * OAuth Callback Handler for PKCE flow
+ * OAuth Callback Handler
+ * Supabase automatically handles PKCE code exchange via INITIAL_SESSION event,
+ * so we just wait for the session to appear.
  */
 const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
-    const [statusMessage, setStatusMessage] = useState('Initializing...');
     const hasProcessed = useRef(false);
 
     useEffect(() => {
@@ -42,76 +43,63 @@ const AuthCallback = () => {
 
             const code = searchParams.get('code');
             console.log('🔐 AuthCallback: Starting...', { hasCode: !!code, next: nextParam });
-            setStatusMessage('Checking session...');
 
             try {
-                // Check if session already exists
-                const { data: { session: existingSession }, error: sessionError } = await supabase.auth.getSession();
+                // Supabase automatically processes the code in the URL when detectSessionInUrl is true
+                // OR when the client initializes. We just need to wait for the session.
                 
-                if (sessionError) {
-                    console.error('❌ getSession error:', sessionError);
-                }
-                
-                if (existingSession) {
-                    console.log('✅ Session exists:', existingSession.user?.email);
-                    setStatus('success');
-                    toast.success('Signed in!');
-                    window.location.replace(nextParam);
-                    return;
-                }
+                // Listen for auth state changes
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+                    console.log('🔐 AuthCallback: Auth event:', event, { hasSession: !!session });
 
-                if (!code) {
-                    throw new Error('No authorization code found');
-                }
-
-                setStatusMessage('Completing sign in...');
-                console.log('🔐 Exchanging code for session...');
-                
-                // Add timeout wrapper
-                const timeoutMs = 12000;
-                let timeoutId;
-                
-                const timeoutPromise = new Promise((_, reject) => {
-                    timeoutId = setTimeout(() => {
-                        reject(new Error('Request timed out. Please try again.'));
-                    }, timeoutMs);
+                    if (event === 'SIGNED_IN' && session) {
+                        console.log('✅ AuthCallback: Sign in successful via event!', session.user?.email);
+                        setStatus('success');
+                        toast.success('Signed in successfully!');
+                        subscription.unsubscribe();
+                        window.location.replace(nextParam);
+                    } else if (event === 'INITIAL_SESSION' && session) {
+                        console.log('✅ AuthCallback: Initial session detected!', session.user?.email);
+                        setStatus('success');
+                        toast.success('Signed in successfully!');
+                        subscription.unsubscribe();
+                        window.location.replace(nextParam);
+                    }
                 });
 
-                try {
-                    const result = await Promise.race([
-                        supabase.auth.exchangeCodeForSession(code),
-                        timeoutPromise
-                    ]);
+                // Also poll for session (in case events fire before we subscribe)
+                let attempts = 0;
+                const maxAttempts = 30; // 15 seconds max (500ms * 30)
+                
+                const checkSession = async () => {
+                    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
                     
-                    clearTimeout(timeoutId);
-                    
-                    const { data, error: exchangeError } = result;
-
-                    if (exchangeError) {
-                        console.error('❌ Exchange error:', exchangeError);
-                        
-                        // More specific error messages
-                        if (exchangeError.message?.includes('invalid') || 
-                            exchangeError.message?.includes('expired') ||
-                            exchangeError.message?.includes('code')) {
-                            throw new Error('Sign-in link has expired. Please try again.');
-                        }
-                        throw exchangeError;
+                    if (sessionError) {
+                        console.error('❌ getSession error:', sessionError);
                     }
-
-                    if (!data?.session) {
-                        throw new Error('No session returned from server');
-                    }
-
-                    console.log('✅ Session created:', data.session.user?.email);
-                    setStatus('success');
-                    toast.success('Signed in successfully!');
-                    window.location.replace(nextParam);
                     
-                } catch (err) {
-                    clearTimeout(timeoutId);
-                    throw err;
-                }
+                    if (session) {
+                        console.log('✅ AuthCallback: Session found via polling!', session.user?.email);
+                        subscription.unsubscribe();
+                        setStatus('success');
+                        toast.success('Signed in successfully!');
+                        window.location.replace(nextParam);
+                        return;
+                    }
+                    
+                    attempts++;
+                    if (attempts < maxAttempts) {
+                        setTimeout(checkSession, 500);
+                    } else {
+                        console.error('❌ Timeout waiting for session');
+                        subscription.unsubscribe();
+                        setStatus('error');
+                        setError('Sign in timed out. Please try again.');
+                    }
+                };
+
+                // Start checking immediately
+                checkSession();
                 
             } catch (err) {
                 console.error('❌ AuthCallback error:', err);
@@ -130,7 +118,7 @@ const AuthCallback = () => {
                 <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-950 mx-auto mb-4"></div>
                     <h2 className="text-xl font-bold text-neutral-900 mb-2">Completing Sign In</h2>
-                    <p className="text-neutral-600">{statusMessage}</p>
+                    <p className="text-neutral-600">Please wait...</p>
                 </div>
             </div>
         );

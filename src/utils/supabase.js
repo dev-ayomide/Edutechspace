@@ -15,7 +15,7 @@ export const supabase = isSupabaseConfigured
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false,
+      detectSessionInUrl: true, // Let Supabase auto-detect and process OAuth codes
       storageKey: 'edutechspace-auth', // MUST keep this consistent
       storage: window.localStorage,
       flowType: 'pkce',
