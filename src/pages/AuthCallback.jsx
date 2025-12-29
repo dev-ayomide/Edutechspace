@@ -68,10 +68,9 @@ const AuthCallback = () => {
                         console.log('✅ AuthCallback: Session already exists (auto-processed)!', existingSessionData.session.user?.email);
                         setStatus('success');
                         toast.success('Signed in successfully!');
-                        setTimeout(() => {
-                            console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                            window.location.href = nextParam;
-                        }, 500);
+                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
+                        redirectAttempted.current = true;
+                        window.location.href = nextParam;
                         return;
                     }
 
@@ -91,9 +90,9 @@ const AuthCallback = () => {
                                 console.log('✅ AuthCallback: Found existing session after exchange error!', retrySessionData.session.user?.email);
                                 setStatus('success');
                                 toast.success('Signed in successfully!');
-                                setTimeout(() => {
-                                    window.location.href = nextParam;
-                                }, 500);
+                                console.log('🔐 AuthCallback: Redirecting to', nextParam);
+                                redirectAttempted.current = true;
+                                window.location.href = nextParam;
                                 return;
                             }
                         }
@@ -109,15 +108,14 @@ const AuthCallback = () => {
                     if (data.session) {
                         console.log('✅ AuthCallback: Session established!', data.session.user?.email);
                         // Session is now established, AuthProvider will pick it up via onAuthStateChange
-                        // Wait a moment for AuthProvider to sync, then redirect
                         setStatus('success');
                         toast.success('Signed in successfully!');
                         
-                        // Give AuthProvider time to sync user data
-                        setTimeout(() => {
-                            console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                            window.location.href = nextParam;
-                        }, 500);
+                        // Redirect immediately - don't wait for user sync
+                        // User sync will happen in background via AuthProvider
+                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
+                        redirectAttempted.current = true;
+                        window.location.href = nextParam;
                         return;
                     }
                 } catch (err) {
@@ -130,9 +128,9 @@ const AuthCallback = () => {
                             console.log('✅ AuthCallback: Found session after exception!', fallbackSessionData.session.user?.email);
                             setStatus('success');
                             toast.success('Signed in successfully!');
-                            setTimeout(() => {
-                                window.location.href = nextParam;
-                            }, 500);
+                            console.log('🔐 AuthCallback: Redirecting to', nextParam);
+                            redirectAttempted.current = true;
+                            window.location.href = nextParam;
                             return;
                         }
                     } catch (sessionErr) {
@@ -165,9 +163,9 @@ const AuthCallback = () => {
                         console.log('✅ AuthCallback: Existing session found!', session.user?.email);
                         setStatus('success');
                         toast.success('Signed in successfully!');
-                        setTimeout(() => {
-                            window.location.href = nextParam;
-                        }, 500);
+                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
+                        redirectAttempted.current = true;
+                        window.location.href = nextParam;
                         return;
                     } else {
                         console.error('❌ AuthCallback: No code and no session');
@@ -189,15 +187,28 @@ const AuthCallback = () => {
     }, [searchParams, navigate]);
 
     // Additional watcher: If user becomes authenticated, redirect
+    // Also add a timeout fallback to prevent infinite loading
     useEffect(() => {
         if (redirectAttempted.current || status === 'error') return;
+        
+        // Fallback: If we've been processing for more than 5 seconds, redirect anyway
+        const timeoutId = setTimeout(() => {
+            if (status === 'success' && !redirectAttempted.current) {
+                console.log('🔐 AuthCallback: Timeout fallback - redirecting to', nextParamRef.current);
+                redirectAttempted.current = true;
+                window.location.href = nextParamRef.current;
+            }
+        }, 5000);
         
         if (status === 'success' && isAuthenticated && user) {
             console.log('✅ AuthCallback: User fully authenticated, ensuring redirect...');
             redirectAttempted.current = true;
+            clearTimeout(timeoutId);
             // User is fully synced, redirect if not already
             window.location.href = nextParamRef.current;
         }
+        
+        return () => clearTimeout(timeoutId);
     }, [isAuthenticated, user, status]);
 
     if (status === 'processing') {
