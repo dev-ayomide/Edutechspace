@@ -1,215 +1,97 @@
-import { useEffect, useState, useRef, useContext } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { supabase } from '../utils/supabase';
-import { AuthContext } from '../context/AuthProvider';
+import { supabase, handleOAuthCallback } from '../utils/supabase';
 
 /**
  * OAuth Callback Handler
  * 
- * For PKCE flow, this component explicitly exchanges the OAuth code for a session.
- * This follows the official Supabase documentation for handling OAuth callbacks.
+ * This component handles the OAuth callback by exchanging the authorization code
+ * for a session. Since detectSessionInUrl is false, we manually handle the exchange.
  * 
  * @see https://supabase.com/docs/guides/auth/social-login/auth-google
  */
 const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const { isAuthenticated, user } = useContext(AuthContext);
     const [status, setStatus] = useState('processing');
     const [error, setError] = useState(null);
     const hasProcessed = useRef(false);
-    const redirectAttempted = useRef(false);
-    const nextParamRef = useRef('/course');
 
     useEffect(() => {
+        // Prevent double processing (React StrictMode)
         if (hasProcessed.current) return;
         hasProcessed.current = true;
 
-        const handleOAuthCallback = async () => {
-            // Get redirect destination from URL param or localStorage backup
-            let nextParam = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
-            if (!nextParam.startsWith('/')) {
-                nextParam = '/course';
-            }
-            nextParamRef.current = nextParam;
-            localStorage.removeItem('oauth_redirect');
+        // Get redirect destination
+        let redirectTo = searchParams.get('next') || localStorage.getItem('oauth_redirect') || '/course';
+        if (!redirectTo.startsWith('/')) {
+            redirectTo = '/course';
+        }
+        localStorage.removeItem('oauth_redirect');
+        
+        // Check for OAuth errors from provider
+        const errorParam = searchParams.get('error');
+        if (errorParam) {
+            const errorMsg = searchParams.get('error_description') || errorParam;
+            console.error('❌ OAuth error from provider:', errorMsg);
+            setStatus('error');
+            setError(errorMsg);
+            toast.error(errorMsg);
+            setTimeout(() => navigate('/login', { replace: true }), 2500);
+            return;
+        }
 
-            // Check for OAuth errors from provider
-            const errorParam = searchParams.get('error');
-            if (errorParam) {
-                const errorMsg = searchParams.get('error_description') || errorParam;
-                console.error('❌ OAuth error from provider:', errorMsg);
-                setStatus('error');
-                setError(errorMsg);
-                toast.error(errorMsg);
-                setTimeout(() => navigate('/login', { replace: true }), 2000);
-                return;
-            }
+        if (!supabase) {
+            setStatus('error');
+            setError('Configuration error');
+            return;
+        }
 
-            if (!supabase) {
-                setStatus('error');
-                setError('App configuration error');
-                setTimeout(() => navigate('/login', { replace: true }), 2000);
-                return;
-            }
-
-            // Get the authorization code from URL
-            const code = searchParams.get('code');
-            console.log('🔐 AuthCallback: Processing...', { hasCode: !!code, next: nextParam });
-
-            if (code) {
-                try {
-                    // First check if detectSessionInUrl already processed the code
-                    // (This can happen because supabase client auto-processes codes on init)
-                    const { data: existingSessionData } = await supabase.auth.getSession();
-                    
-                    if (existingSessionData?.session) {
-                        console.log('✅ AuthCallback: Session already exists (auto-processed)!', existingSessionData.session.user?.email);
-                        setStatus('success');
-                        toast.success('Signed in successfully!');
-                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                        redirectAttempted.current = true;
-                        window.location.href = nextParam;
-                        return;
-                    }
-
-                    // PKCE Flow: Exchange the code for a session
-                    // This is the recommended approach per Supabase docs
-                    console.log('🔐 AuthCallback: Exchanging code for session...');
-                    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-                    if (exchangeError) {
-                        // Check if the error is because the code was already exchanged
-                        // In this case, we should check for existing session
-                        if (exchangeError.message?.includes('code') || exchangeError.message?.includes('expired') || exchangeError.message?.includes('invalid')) {
-                            console.log('🔐 AuthCallback: Code exchange failed, checking for existing session...');
-                            const { data: retrySessionData } = await supabase.auth.getSession();
-                            
-                            if (retrySessionData?.session) {
-                                console.log('✅ AuthCallback: Found existing session after exchange error!', retrySessionData.session.user?.email);
-                                setStatus('success');
-                                toast.success('Signed in successfully!');
-                                console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                                redirectAttempted.current = true;
-                                window.location.href = nextParam;
-                                return;
-                            }
-                        }
-                        
-                        console.error('❌ AuthCallback: Code exchange failed:', exchangeError);
-                        setStatus('error');
-                        setError(exchangeError.message || 'Failed to complete sign in');
-                        toast.error(exchangeError.message || 'Failed to complete sign in');
-                        setTimeout(() => navigate('/login', { replace: true }), 2000);
-                        return;
-                    }
-
-                    if (data.session) {
-                        console.log('✅ AuthCallback: Session established!', data.session.user?.email);
-                        // Session is now established, AuthProvider will pick it up via onAuthStateChange
-                        setStatus('success');
-                        toast.success('Signed in successfully!');
-                        
-                        // Redirect immediately - don't wait for user sync
-                        // User sync will happen in background via AuthProvider
-                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                        redirectAttempted.current = true;
-                        window.location.href = nextParam;
-                        return;
-                    }
-                } catch (err) {
-                    console.error('❌ AuthCallback: Exception during code exchange:', err);
-                    
-                    // On exception, check if there's an existing session anyway
-                    try {
-                        const { data: fallbackSessionData } = await supabase.auth.getSession();
-                        if (fallbackSessionData?.session) {
-                            console.log('✅ AuthCallback: Found session after exception!', fallbackSessionData.session.user?.email);
-                            setStatus('success');
-                            toast.success('Signed in successfully!');
-                            console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                            redirectAttempted.current = true;
-                            window.location.href = nextParam;
-                            return;
-                        }
-                    } catch (sessionErr) {
-                        console.error('❌ AuthCallback: Also failed to get session:', sessionErr);
-                    }
-                    
+        const processOAuth = async () => {
+            console.log('🔐 AuthCallback: Starting OAuth processing...');
+            console.log('🔐 AuthCallback: URL:', window.location.href);
+            
+            try {
+                // Exchange the code for a session
+                const { data, error: authError } = await handleOAuthCallback();
+                
+                if (authError) {
+                    console.error('❌ AuthCallback: Auth error:', authError.message);
                     setStatus('error');
-                    setError(err.message || 'An error occurred during sign in');
-                    toast.error(err.message || 'An error occurred during sign in');
-                    setTimeout(() => navigate('/login', { replace: true }), 2000);
+                    setError(authError.message || 'Authentication failed');
+                    toast.error('Sign in failed. Please try again.');
+                    setTimeout(() => navigate('/login', { replace: true }), 2500);
                     return;
                 }
-            } else {
-                // No code in URL - check if we already have a session
-                // (This can happen if detectSessionInUrl already processed it)
-                console.log('🔐 AuthCallback: No code found, checking for existing session...');
                 
-                try {
-                    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (data?.session) {
+                    console.log('✅ AuthCallback: Got session!', data.session.user?.email);
+                    setStatus('success');
+                    toast.success('Signed in successfully!');
                     
-                    if (sessionError) {
-                        console.error('❌ AuthCallback: Session check failed:', sessionError);
-                        setStatus('error');
-                        setError('Failed to verify sign in');
-                        setTimeout(() => navigate('/login', { replace: true }), 2000);
-                        return;
-                    }
-
-                    if (session) {
-                        console.log('✅ AuthCallback: Existing session found!', session.user?.email);
-                        setStatus('success');
-                        toast.success('Signed in successfully!');
-                        console.log('🔐 AuthCallback: Redirecting to', nextParam);
-                        redirectAttempted.current = true;
-                        window.location.href = nextParam;
-                        return;
-                    } else {
-                        console.error('❌ AuthCallback: No code and no session');
-                        setStatus('error');
-                        setError('Sign in failed. Please try again.');
-                        setTimeout(() => navigate('/login', { replace: true }), 2000);
-                        return;
-                    }
-                } catch (err) {
-                    console.error('❌ AuthCallback: Exception checking session:', err);
+                    // Small delay to ensure session is persisted, then redirect
+                    setTimeout(() => {
+                        window.location.href = redirectTo;
+                    }, 500);
+                } else {
+                    console.error('❌ AuthCallback: No session returned');
                     setStatus('error');
-                    setError('An error occurred. Please try again.');
-                    setTimeout(() => navigate('/login', { replace: true }), 2000);
+                    setError('No session received');
+                    toast.error('Sign in failed. Please try again.');
+                    setTimeout(() => navigate('/login', { replace: true }), 2500);
                 }
+            } catch (err) {
+                console.error('❌ AuthCallback: Exception:', err);
+                setStatus('error');
+                setError(err.message || 'An unexpected error occurred');
+                toast.error('Sign in failed. Please try again.');
+                setTimeout(() => navigate('/login', { replace: true }), 2500);
             }
         };
 
-        handleOAuthCallback();
+        processOAuth();
     }, [searchParams, navigate]);
-
-    // Additional watcher: If user becomes authenticated, redirect
-    // Also add a timeout fallback to prevent infinite loading
-    useEffect(() => {
-        if (redirectAttempted.current || status === 'error') return;
-        
-        // Fallback: If we've been processing for more than 5 seconds, redirect anyway
-        const timeoutId = setTimeout(() => {
-            if (status === 'success' && !redirectAttempted.current) {
-                console.log('🔐 AuthCallback: Timeout fallback - redirecting to', nextParamRef.current);
-                redirectAttempted.current = true;
-                window.location.href = nextParamRef.current;
-            }
-        }, 5000);
-        
-        if (status === 'success' && isAuthenticated && user) {
-            console.log('✅ AuthCallback: User fully authenticated, ensuring redirect...');
-            redirectAttempted.current = true;
-            clearTimeout(timeoutId);
-            // User is fully synced, redirect if not already
-            window.location.href = nextParamRef.current;
-        }
-        
-        return () => clearTimeout(timeoutId);
-    }, [isAuthenticated, user, status]);
 
     if (status === 'processing') {
         return (

@@ -405,11 +405,11 @@ export const AuthProvider = ({ children }) => {
         provider: 'google',
         options: {
           redirectTo: callbackUrl,
-          // Request offline access to get refresh token from Google
-          // This ensures we get provider tokens we can use if needed
+          // Don't force consent every time - it can interfere with PKCE flow
+          // Only use 'select_account' to allow switching accounts
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           },
         },
       });
