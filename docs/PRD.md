@@ -28,7 +28,7 @@ A stack is one curriculum ("stack" is the term used in the UI). **Decided: start
 
 ## 3. Problem with the current system
 
-- Only two roles exist (`user`, `admin`, a `role` column on `users`). Content is created by admins or hardcoded in seven stack pages, seven exam files and eight video modals.
+- Only two roles exist (`user`, `admin`, a `role` column on the legacy `users` table). Content is created by admins or hardcoded in seven stack pages, seven exam files and eight video modals.
 - Progress counts lessons only. Assignments and exams do not feed into it.
 - Exam scoring runs in the browser (`ExamPage.jsx`), so results can be tampered with and cannot back a certificate.
 - RLS policies let any logged-in user edit modules and lessons.
@@ -155,7 +155,7 @@ The entire front end is redesigned and rebuilt, not reskinned. New role screens 
 ## 11. Data model (new or changed)
 
 Fresh schema via ordered migrations (no `DROP TABLE` scripts):
-- `users.role` extended: `student | stack_lead | admin`
+- `profiles` (1:1 with `auth.users`; avoids clashing with the legacy `users` table) with `role`: `student | stack_lead | admin`
 - `stacks` (fresh table, seeded with the 8 stacks), `stack_leads (user_id, stack_id)`
 - `stack_members (id, user_id, stack_id, status active|completed|withdrawn, joined_at, ended_at)` with a **partial unique index allowing one `active` row per user**, so history is kept and a second stack is only possible after completing or withdrawing
 - `stack_applications (id, name, email, phone, stack_id, motivation, status, reviewed_by, reviewed_at)` and `invitations (id, email, role, stack_id, invited_by, token/status, expires_at)`
