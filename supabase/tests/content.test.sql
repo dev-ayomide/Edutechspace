@@ -146,12 +146,16 @@ end $$;
 reset role;
 
 -- ---------------------------------------------------------------- students
+-- a stored file is readable by members only once a lesson they can open points at it
+insert into public.lessons (module_id, title, lesson_type, content_path, is_published)
+  values (current_setting('test.m1')::uuid, 'PDF lesson', 'pdf',
+          current_setting('test.fe') || '/' || current_setting('test.m1') || '/intro.pdf', true);
 -- visible to members: published module m1 -> published lessons l1, l2 only
 set role authenticated;
 select set_config('request.jwt.claim.sub', :s_fe, false);
 do $$ declare n int; begin
   assert (select count(*) from public.modules) = 1, 'member sees only published modules';
-  assert (select count(*) from public.lessons) = 2, 'member sees only published lessons';
+  assert (select count(*) from public.lessons) = 3, 'member sees only published lessons';
   assert (select count(*) from storage.objects) = 1, 'member can read their stack''s files';
   update public.lessons set title = 'x';
   get diagnostics n = row_count;
@@ -177,14 +181,14 @@ set role authenticated;
 select set_config('request.jwt.claim.sub', :s_fe, false);
 do $$ begin
   assert (select count(*) from public.modules) = 2, 'newly published module appears';
-  assert (select count(*) from public.lessons) = 2, 'no lessons leak from the newly published empty module';
+  assert (select count(*) from public.lessons) = 3, 'no lessons leak from the newly published empty module';
 end $$;
 
 -- other students
 select set_config('request.jwt.claim.sub', :s_be, false);
 do $$ begin
   assert (select count(*) from public.modules) = 0, 'member of another stack sees nothing';
-  assert (select count(*) from storage.objects) = 1, 'member sees only their own stack files (backend)';
+  assert (select count(*) from storage.objects) = 0, 'member sees no files that no open lesson links to';
 end $$;
 select set_config('request.jwt.claim.sub', :s_none, false);
 do $$ begin
@@ -215,7 +219,7 @@ reset role;
 set role authenticated;
 select set_config('request.jwt.claim.sub', :admin, false);
 do $$ declare v uuid; begin
-  assert (select count(*) from public.modules) = 3 and (select count(*) from public.lessons) = 3, 'admin sees all content incl. drafts';
+  assert (select count(*) from public.modules) = 3 and (select count(*) from public.lessons) = 4, 'admin sees all content incl. drafts';
   update public.modules set title = 'Admin edit' where id = current_setting('test.m1')::uuid;
   assert (select title from public.modules where id = current_setting('test.m1')::uuid) = 'Admin edit', 'admin can edit content';
 

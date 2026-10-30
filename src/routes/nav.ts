@@ -24,13 +24,14 @@ export const navByRole: Record<Role, NavItem[]> = {
   stack_lead: [
     { to: '/lead', label: 'Overview', end: true },
     { to: '/lead/content', label: 'Content' },
-    { to: '/lead/applications', label: 'Applications', phase: 2 },
+    { to: '/lead/applications', label: 'Applications' },
     { to: '/lead/reviews', label: 'Review queue', phase: 2 },
     { to: '/lead/students', label: 'Students', phase: 2 },
   ],
   admin: [
     { to: '/admin', label: 'Overview', end: true },
     { to: '/admin/stacks', label: 'Stacks' },
+    { to: '/admin/applications', label: 'Applications' },
     { to: '/admin/invitations', label: 'Lead invitations' },
     { to: '/admin/users', label: 'Users' },
     { to: '/admin/signatories', label: 'Signatories', phase: 3 },

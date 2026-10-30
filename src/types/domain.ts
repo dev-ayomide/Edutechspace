@@ -60,3 +60,19 @@ export interface Lesson {
 }
 
 export type ModuleWithLessons = Module & { lessons: Lesson[] }
+
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
+
+export interface Application {
+  id: string
+  full_name: string
+  email: string
+  phone: string | null
+  stack_id: string
+  motivation: string | null
+  status: ApplicationStatus
+  review_note: string | null
+  created_at: string
+  reviewed_at: string | null
+  stacks: { name: string } | null
+}

@@ -1,7 +1,5 @@
-import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState } from '@/components/states'
-import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/features/auth/auth-context'
@@ -36,21 +34,5 @@ export function StudentOverviewPage() {
         <Progress value={0} label="Overall progress" className="mt-4" />
       </Card>
     </>
-  )
-}
-
-export function JoinPage() {
-  return (
-    <div className="mx-auto max-w-xl px-4 py-16">
-      <PageHeader title="Join a stack" description="Applications open soon." />
-      <Card>
-        <CardDescription>
-          The application form is built in Phase 2. Already approved?{' '}
-          <Button asChild variant="ghost" size="sm" className="inline-flex">
-            <Link to="/login">Sign in</Link>
-          </Button>
-        </CardDescription>
-      </Card>
-    </div>
   )
 }
