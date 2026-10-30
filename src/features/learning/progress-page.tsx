@@ -1,0 +1,167 @@
+import { CheckCircle2, Circle, Lock } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { PageHeader } from '@/components/page-header'
+import { EmptyState, ErrorState, LoadingState } from '@/components/states'
+import { Card, CardDescription, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { friendlyError } from '@/lib/errors'
+import { useMyLearning } from './hooks'
+import { moduleStatus, percent } from './utils'
+
+function Bar({
+  label,
+  weight,
+  value,
+  detail,
+}: {
+  label: string
+  weight: number
+  value: number
+  detail: string
+}) {
+  return (
+    <div>
+      <div className="mb-1 flex items-baseline justify-between gap-2">
+        <p className="text-sm font-medium">
+          {label}{' '}
+          <span className="font-normal text-muted-foreground">({weight}% of the total)</span>
+        </p>
+        <p className="text-sm tabular-nums">{value}%</p>
+      </div>
+      <Progress value={value} label={label} />
+      <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+    </div>
+  )
+}
+
+export function ProgressPage() {
+  const learning = useMyLearning()
+  if (learning.isPending) {
+    return (
+      <>
+        <PageHeader title="Progress" />
+        <LoadingState />
+      </>
+    )
+  }
+  if (learning.error)
+    return (
+      <ErrorState message={friendlyError(learning.error)} onRetry={() => void learning.refetch()} />
+    )
+  if (!learning.hasAccess) {
+    return (
+      <>
+        <PageHeader title="Progress" />
+        <EmptyState
+          title="Nothing to track yet"
+          description="Once you are in a stack, your progress toward certification shows here."
+        />
+      </>
+    )
+  }
+
+  const p = learning.progress
+  const lessonsPct = percent(p?.lessons_done ?? 0, p?.lessons_total ?? 0)
+  const assignmentsPct = Math.round((p?.assignment_pct ?? 0) * 100)
+
+  return (
+    <>
+      <PageHeader title="Progress" description="How close you are to your certificate." />
+      <Card>
+        <div className="flex items-center justify-between gap-4">
+          <CardTitle className="text-lg">Overall</CardTitle>
+          <p className="text-3xl font-bold tabular-nums">{p?.overall ?? 0}%</p>
+        </div>
+        <Progress value={p?.overall ?? 0} label="Overall progress" className="mt-3 h-3" />
+        <div className="mt-6 space-y-5">
+          <Bar
+            label="Lessons"
+            weight={40}
+            value={lessonsPct}
+            detail={`${p?.lessons_done ?? 0} of ${p?.lessons_total ?? 0} required lessons completed`}
+          />
+          <Bar
+            label="Assignments"
+            weight={30}
+            value={assignmentsPct}
+            detail={`${p?.assignments_passed ?? 0} of ${p?.assignments_total ?? 0} passed. Your best score on each counts.`}
+          />
+          <Bar
+            label="Final exam"
+            weight={30}
+            value={0}
+            detail="The final exam is not available yet."
+          />
+        </div>
+      </Card>
+
+      <h2 className="mt-8 mb-3 text-lg font-semibold">What is left</h2>
+      <Card className="p-0">
+        <ul className="divide-y">
+          {learning.modules.map((m, i) => {
+            const state = learning.states.find((s) => s.module_id === m.id)
+            const status = moduleStatus(state)
+            const lessonsLeft = (state?.lessons_total ?? 0) - (state?.lessons_done ?? 0)
+            const assignmentLeft = !!state?.assignment_id && !state.assignment_passed
+            return (
+              <li key={m.id} className="flex items-start gap-3 p-4">
+                {status === 'complete' && (
+                  <CheckCircle2
+                    className="mt-0.5 size-5 shrink-0 text-success"
+                    aria-label="Complete"
+                  />
+                )}
+                {status === 'in_progress' && (
+                  <Circle
+                    className="mt-0.5 size-5 shrink-0 text-primary"
+                    aria-label="In progress"
+                  />
+                )}
+                {status === 'locked' && (
+                  <Lock
+                    className="mt-0.5 size-5 shrink-0 text-muted-foreground"
+                    aria-label="Locked"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">
+                    Module {i + 1}. {m.title}
+                  </p>
+                  <CardDescription className="mt-0.5">
+                    {status === 'complete' && 'All done.'}
+                    {status === 'locked' && 'Unlocks after the previous module.'}
+                    {status === 'in_progress' &&
+                      [
+                        lessonsLeft > 0 &&
+                          `${lessonsLeft} lesson${lessonsLeft === 1 ? '' : 's'} to complete`,
+                        assignmentLeft && 'assignment to pass',
+                      ]
+                        .filter(Boolean)
+                        .join(' and ')}
+                  </CardDescription>
+                </div>
+                {status === 'in_progress' && (
+                  <Link
+                    className="text-sm font-medium text-primary underline"
+                    to="/dashboard/stack"
+                  >
+                    Open
+                  </Link>
+                )}
+              </li>
+            )
+          })}
+          <li className="flex items-start gap-3 p-4">
+            <Lock className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-medium">Final exam</p>
+              <CardDescription className="mt-0.5">
+                Opens after you complete every module.
+              </CardDescription>
+            </div>
+          </li>
+        </ul>
+      </Card>
+    </>
+  )
+}

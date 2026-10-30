@@ -47,6 +47,7 @@ const modules: ModuleWithLessons[] = [
     description: null,
     order_index: 1,
     is_published: true,
+    assignments: [],
     lessons: [lesson('l1', 'Tags', 1, true), lesson('l2', 'Forms', 2, false)],
   },
   {
@@ -56,6 +57,7 @@ const modules: ModuleWithLessons[] = [
     description: null,
     order_index: 2,
     is_published: false,
+    assignments: [],
     lessons: [],
   },
 ]

@@ -1,9 +1,19 @@
-import { ChevronDown, ChevronUp, FileText, Pencil, Plus, Trash2, Type, Video } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  ClipboardCheck,
+  FileText,
+  Pencil,
+  Plus,
+  Trash2,
+  Type,
+  Video,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { Lesson, LessonType, ModuleWithLessons } from '@/types/domain'
+import type { Assignment, Lesson, LessonType, ModuleWithLessons } from '@/types/domain'
 import { LessonPreview } from './lesson-preview'
 
 const typeIcon: Record<LessonType, typeof Video> = { video: Video, pdf: FileText, text: Type }
@@ -19,6 +29,8 @@ interface Handlers {
   onEditLesson: (lesson: Lesson) => void
   onDeleteLesson: (lesson: Lesson) => void
   onTogglePublishLesson: (lesson: Lesson) => void
+  onEditAssignment: (assignment: Assignment | null) => void
+  onDeleteAssignment: (assignment: Assignment) => void
 }
 
 export function ModuleCard({
@@ -166,6 +178,52 @@ export function ModuleCard({
           })}
         </ol>
       )}
+      <div className="border-t p-3">
+        {module.assignments[0] ? (
+          <div className="flex flex-wrap items-center gap-3 px-1">
+            <ClipboardCheck className="size-5 shrink-0 text-primary" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">{module.assignments[0].title}</p>
+              <p className="text-xs text-muted-foreground">
+                {module.assignments[0].type === 'quiz' ? 'Quiz' : 'Project'} · pass mark{' '}
+                {module.assignments[0].pass_mark}%
+              </p>
+            </div>
+            <Badge variant={module.assignments[0].is_published ? 'success' : 'warning'}>
+              {module.assignments[0].is_published ? 'Published' : 'Draft'}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={busy}
+              aria-label={`Edit assignment ${module.assignments[0].title}`}
+              onClick={() => h.onEditAssignment(module.assignments[0]!)}
+            >
+              <Pencil className="size-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={busy}
+              aria-label={`Delete assignment ${module.assignments[0].title}`}
+              onClick={() => h.onDeleteAssignment(module.assignments[0]!)}
+            >
+              <Trash2 className="size-4 text-danger" aria-hidden="true" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            aria-label={`Add assignment to ${module.title}`}
+            onClick={() => h.onEditAssignment(null)}
+          >
+            <Plus className="size-4" aria-hidden="true" />
+            Add assignment
+          </Button>
+        )}
+      </div>
       <div className="border-t p-3">
         <Button
           variant="ghost"

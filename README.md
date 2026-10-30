@@ -47,6 +47,22 @@ supabase secrets set SITE_URL=https://your-app-domain
 
 Also add `https://your-app-domain/accept-invite` (and `http://localhost:5173/accept-invite` for development) to **Authentication > URL Configuration > Redirect URLs**. Invited people land on that page to choose their name and password. The function has not yet been exercised against a live project.
 
+## Admissions (Edge Function)
+
+Students apply on the public **Join a stack** page. The stack's leads (and admins) review applications in the app. Approving one calls the `review-application` Edge Function: it records the decision as the signed-in reviewer (Postgres enforces who may review) and, for a new person, sends the invitation email.
+
+```bash
+supabase functions deploy review-application
+```
+
+It uses the same `SITE_URL` secret and `/accept-invite` redirect URL as `invite-user`. If the email cannot be sent, the application stays approved and the reviewer is told to follow up. Rejection emails are not sent yet.
+
+## Learning rules (enforced in the database)
+
+- Modules unlock in order: every earlier published module must be complete (required lessons done and its assignment passed). Locked lessons are unreadable, not just hidden.
+- Quizzes are graded in Postgres; the answer keys live in a table students cannot read. Projects are graded by the stack's leads, with resubmission requests.
+- Progress is computed by the database: lessons 40%, assignments 30%, final exam 30% (the exam arrives in Phase 3, so the maximum is 70% until then).
+
 ## Lesson files
 
 Uploaded videos and PDFs go to the private `lesson-media` storage bucket (created by the migrations, 100 MB limit, PDF/MP4/WebM). Paths start with the stack id, which is what the storage policies check, so a lead can only touch their own stack's files.

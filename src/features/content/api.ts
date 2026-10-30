@@ -9,7 +9,7 @@ export const contentKeys = {
 export async function listModulesWithLessons(stackId: string): Promise<ModuleWithLessons[]> {
   const { data, error } = await supabase
     .from('modules')
-    .select('*, lessons(*)')
+    .select('*, lessons(*), assignments(*)')
     .eq('stack_id', stackId)
     .order('order_index')
   if (error) throw error

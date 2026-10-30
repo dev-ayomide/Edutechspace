@@ -6,7 +6,7 @@ import { AcceptInvitePage } from '@/features/auth/accept-invite-page'
 import { LoginPage } from '@/features/auth/login-page'
 import { RequireRole } from '@/features/auth/require-role'
 import { JoinPage } from '@/features/admissions/join-page'
-import { ComingSoonPage, StudentOverviewPage } from '@/features/dashboard/pages'
+import { ComingSoonPage } from '@/features/dashboard/pages'
 import { NotFoundPage } from '@/features/dashboard/not-found-page'
 import { HomePage } from '@/features/home/home-page'
 import type { Role } from '@/types/domain'
@@ -36,7 +36,7 @@ function area(role: Role, base: string, children: RouteObject[]): RouteObject {
   }
 }
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
     element: <PublicShell />,
     children: [
@@ -46,12 +46,65 @@ export const router = createBrowserRouter([
       { path: 'accept-invite', element: <AcceptInvitePage /> },
     ],
   },
-  area('student', '/dashboard', [{ index: true, element: <StudentOverviewPage /> }]),
+  area('student', '/dashboard', [
+    {
+      index: true,
+      ...page(() =>
+        import('@/features/learning/overview-page').then((m) => ({
+          default: m.StudentOverviewPage,
+        })),
+      ),
+    },
+    {
+      path: 'stack',
+      ...page(() =>
+        import('@/features/learning/stack-page').then((m) => ({ default: m.StackPage })),
+      ),
+    },
+    {
+      path: 'stack/lessons/:lessonId',
+      ...page(() =>
+        import('@/features/learning/lesson-page').then((m) => ({ default: m.LessonPage })),
+      ),
+    },
+    {
+      path: 'stack/assignments/:assignmentId',
+      ...page(() =>
+        import('@/features/learning/assignment-page').then((m) => ({ default: m.AssignmentPage })),
+      ),
+    },
+    {
+      path: 'progress',
+      ...page(() =>
+        import('@/features/learning/progress-page').then((m) => ({ default: m.ProgressPage })),
+      ),
+    },
+  ]),
   area('stack_lead', '/lead', [
     {
       index: true,
       ...page(() =>
         import('@/features/lead/overview-page').then((m) => ({ default: m.LeadOverviewPage })),
+      ),
+    },
+    {
+      path: 'applications',
+      ...page(() =>
+        import('@/features/admissions/applications-page').then((m) => ({
+          default: m.ApplicationsPage,
+        })),
+      ),
+    },
+    {
+      path: 'reviews',
+      ...page(() =>
+        import('@/features/reviews/review-page').then((m) => ({ default: m.ReviewPage })),
+      ),
+    },
+    {
+      path: 'students',
+      ...page(() =>
+        import('@/features/roster/students-page').then((m) => ({ default: m.StudentsPage })),
       ),
     },
     {
@@ -66,6 +119,14 @@ export const router = createBrowserRouter([
       index: true,
       ...page(() =>
         import('@/features/admin/overview-page').then((m) => ({ default: m.AdminOverviewPage })),
+      ),
+    },
+    {
+      path: 'applications',
+      ...page(() =>
+        import('@/features/admissions/applications-page').then((m) => ({
+          default: m.ApplicationsPage,
+        })),
       ),
     },
     {
@@ -86,4 +147,6 @@ export const router = createBrowserRouter([
     },
   ]),
   { path: '*', element: <NotFoundPage /> },
-])
+]
+
+export const router = createBrowserRouter(routes)

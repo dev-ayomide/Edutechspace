@@ -9,8 +9,10 @@ import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { useMyStacks } from '@/features/lead/use-my-stacks'
 import { leadKeys } from '@/features/lead/api'
+import { deleteAssignment } from '@/features/assignments/api'
+import { AssignmentDialog } from '@/features/assignments/assignment-dialog'
 import { friendlyError } from '@/lib/errors'
-import type { Lesson, Module, ModuleWithLessons } from '@/types/domain'
+import type { Assignment, Lesson, Module, ModuleWithLessons } from '@/types/domain'
 import {
   contentKeys,
   deleteLesson,
@@ -46,8 +48,16 @@ export function ContentPage() {
     open: false,
     target: null,
   })
+  const [assignmentDialog, setAssignmentDialog] = useState<{
+    open: boolean
+    module: ModuleWithLessons | null
+    assignment: Assignment | null
+  }>({ open: false, module: null, assignment: null })
   const [deleteTarget, setDeleteTarget] = useState<
-    { kind: 'module'; module: Module } | { kind: 'lesson'; lesson: Lesson } | null
+    | { kind: 'module'; module: Module }
+    | { kind: 'lesson'; lesson: Lesson }
+    | { kind: 'assignment'; assignment: Assignment }
+    | null
   >(null)
 
   const refresh = async () => {
@@ -66,10 +76,14 @@ export function ContentPage() {
     const action =
       deleteTarget.kind === 'module'
         ? () => deleteModule(deleteTarget.module.id)
-        : () => deleteLesson(deleteTarget.lesson)
+        : deleteTarget.kind === 'lesson'
+          ? () => deleteLesson(deleteTarget.lesson)
+          : () => deleteAssignment(deleteTarget.assignment.id)
     run.mutate(action, {
       onSuccess: () => {
-        toast.success(deleteTarget.kind === 'module' ? 'Module deleted.' : 'Lesson deleted.')
+        toast.success(
+          `${deleteTarget.kind[0]!.toUpperCase()}${deleteTarget.kind.slice(1)} deleted.`,
+        )
         setDeleteTarget(null)
       },
       onError: () => setDeleteTarget(null),
@@ -169,6 +183,10 @@ export function ContentPage() {
               run.mutate(() => setModulePublished(module.id, !module.is_published))
             }
             onAddLesson={() => setLessonDialog({ open: true, target: { module, lesson: null } })}
+            onEditAssignment={(assignment) =>
+              setAssignmentDialog({ open: true, module, assignment })
+            }
+            onDeleteAssignment={(assignment) => setDeleteTarget({ kind: 'assignment', assignment })}
             onMoveLesson={(i, dir) =>
               run.mutate(() =>
                 reorderLessons(
@@ -207,16 +225,28 @@ export function ContentPage() {
           onSaved={() => void refresh()}
         />
       )}
+      {assignmentDialog.module && (
+        <AssignmentDialog
+          open={assignmentDialog.open}
+          onOpenChange={(open) => setAssignmentDialog((st) => ({ ...st, open }))}
+          moduleId={assignmentDialog.module.id}
+          moduleTitle={assignmentDialog.module.title}
+          assignment={assignmentDialog.assignment}
+          onSaved={() => void refresh()}
+        />
+      )}
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title={deleteTarget?.kind === 'module' ? 'Delete this module?' : 'Delete this lesson?'}
+        title={`Delete this ${deleteTarget?.kind ?? 'item'}?`}
         description={
           deleteTarget?.kind === 'module'
             ? `"${deleteTarget.module.title}" and all of its lessons will be permanently deleted.`
-            : deleteTarget
+            : deleteTarget?.kind === 'lesson'
               ? `"${deleteTarget.lesson.title}" will be permanently deleted.`
-              : ''
+              : deleteTarget?.kind === 'assignment'
+                ? `"${deleteTarget.assignment.title}" and every student's attempts at it will be permanently deleted.`
+                : ''
         }
         loading={run.isPending}
         onConfirm={confirmDelete}

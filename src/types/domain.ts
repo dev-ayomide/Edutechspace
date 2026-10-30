@@ -59,7 +59,79 @@ export interface Lesson {
   is_published: boolean
 }
 
-export type ModuleWithLessons = Module & { lessons: Lesson[] }
+export type AssignmentType = 'quiz' | 'submission'
+
+export interface Assignment {
+  id: string
+  module_id: string
+  title: string
+  type: AssignmentType
+  instructions: string | null
+  max_score: number
+  pass_mark: number
+  max_attempts: number | null
+  is_published: boolean
+}
+
+export type ModuleWithLessons = Module & { lessons: Lesson[]; assignments: Assignment[] }
+
+export interface QuizQuestion {
+  id: string
+  assignment_id: string
+  prompt: string
+  options: string[]
+  points: number
+  order_index: number
+}
+
+export type SubmissionStatus = 'submitted' | 'graded' | 'needs_resubmission'
+
+export interface Submission {
+  id: string
+  assignment_id: string
+  user_id: string
+  attempt: number
+  content_text: string | null
+  content_url: string | null
+  file_path: string | null
+  status: SubmissionStatus
+  score: number | null
+  feedback: string | null
+  graded_at: string | null
+  submitted_at: string
+}
+
+/** Per-module state computed by the database (my_modules). The server decides what is locked or complete. */
+export interface ModuleState {
+  module_id: string
+  unlocked: boolean
+  complete: boolean
+  lessons_total: number
+  lessons_done: number
+  assignment_id: string | null
+  assignment_passed: boolean | null
+  attempts_used: number
+  best_score: number | null
+}
+
+export interface Progress {
+  lessons_total: number
+  lessons_done: number
+  assignments_total: number
+  assignments_passed: number
+  assignment_pct: number
+  exam_pct: number
+  overall: number
+}
+
+export type MemberStatus = 'active' | 'completed' | 'withdrawn'
+
+export interface Membership {
+  id: string
+  status: MemberStatus
+  joined_at: string
+  stacks: Pick<Stack, 'id' | 'name' | 'slug'>
+}
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected'
 

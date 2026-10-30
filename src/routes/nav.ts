@@ -17,16 +17,16 @@ export const areaLabel: Record<Role, string> = {
 export const navByRole: Record<Role, NavItem[]> = {
   student: [
     { to: '/dashboard', label: 'Overview', end: true },
-    { to: '/dashboard/stack', label: 'My stack', phase: 2 },
-    { to: '/dashboard/progress', label: 'Progress', phase: 2 },
+    { to: '/dashboard/stack', label: 'My stack' },
+    { to: '/dashboard/progress', label: 'Progress' },
     { to: '/dashboard/certificate', label: 'Certificate', phase: 3 },
   ],
   stack_lead: [
     { to: '/lead', label: 'Overview', end: true },
     { to: '/lead/content', label: 'Content' },
     { to: '/lead/applications', label: 'Applications' },
-    { to: '/lead/reviews', label: 'Review queue', phase: 2 },
-    { to: '/lead/students', label: 'Students', phase: 2 },
+    { to: '/lead/reviews', label: 'Review queue' },
+    { to: '/lead/students', label: 'Students' },
   ],
   admin: [
     { to: '/admin', label: 'Overview', end: true },
