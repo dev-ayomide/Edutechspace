@@ -192,6 +192,7 @@ export function UsersPage() {
             : ''
         }
         confirmLabel="Change role"
+        tone="primary"
         loading={changeRole.isPending}
         onConfirm={() => pendingRole && changeRole.mutate(pendingRole)}
       />

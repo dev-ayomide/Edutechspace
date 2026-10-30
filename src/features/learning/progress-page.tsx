@@ -1,9 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
 import { CheckCircle2, Circle, Lock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { examKeys, fetchMyExam } from '@/features/exams/api'
+import { examStateLabel } from '@/features/exams/utils'
 import { friendlyError } from '@/lib/errors'
 import { useMyLearning } from './hooks'
 import { moduleStatus, percent } from './utils'
@@ -36,6 +39,11 @@ function Bar({
 
 export function ProgressPage() {
   const learning = useMyLearning()
+  const exam = useQuery({
+    queryKey: examKeys.mine,
+    queryFn: fetchMyExam,
+    enabled: learning.hasAccess,
+  })
   if (learning.isPending) {
     return (
       <>
@@ -63,6 +71,8 @@ export function ProgressPage() {
   const p = learning.progress
   const lessonsPct = percent(p?.lessons_done ?? 0, p?.lessons_total ?? 0)
   const assignmentsPct = Math.round((p?.assignment_pct ?? 0) * 100)
+  const examPct = Math.round((p?.exam_pct ?? 0) * 100)
+  const examLabel = examStateLabel(exam.data ?? null)
 
   return (
     <>
@@ -89,8 +99,8 @@ export function ProgressPage() {
           <Bar
             label="Final exam"
             weight={30}
-            value={0}
-            detail="The final exam is not available yet."
+            value={examPct}
+            detail={`${examLabel.text}. ${examLabel.hint}.`}
           />
         </div>
       </Card>
@@ -156,7 +166,14 @@ export function ProgressPage() {
             <div>
               <p className="text-sm font-medium">Final exam</p>
               <CardDescription className="mt-0.5">
-                Opens after you complete every module.
+                {exam.data?.state === 'passed'
+                  ? 'Passed.'
+                  : 'Opens after you complete every module.'}{' '}
+                {(exam.data?.state === 'ready' || exam.data?.state === 'in_progress') && (
+                  <Link className="font-medium text-primary underline" to="/dashboard/exam">
+                    Go to the exam
+                  </Link>
+                )}
               </CardDescription>
             </div>
           </li>

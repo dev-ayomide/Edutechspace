@@ -44,6 +44,12 @@ export const routes: RouteObject[] = [
       { path: 'login', element: <LoginPage /> },
       { path: 'join', element: <JoinPage /> },
       { path: 'accept-invite', element: <AcceptInvitePage /> },
+      {
+        path: 'verify/:number?',
+        ...page(() =>
+          import('@/features/certificates/verify-page').then((m) => ({ default: m.VerifyPage })),
+        ),
+      },
     ],
   },
   area('student', '/dashboard', [
@@ -71,6 +77,18 @@ export const routes: RouteObject[] = [
       path: 'stack/assignments/:assignmentId',
       ...page(() =>
         import('@/features/learning/assignment-page').then((m) => ({ default: m.AssignmentPage })),
+      ),
+    },
+    {
+      path: 'exam',
+      ...page(() => import('@/features/exams/exam-page').then((m) => ({ default: m.ExamPage }))),
+    },
+    {
+      path: 'certificate',
+      ...page(() =>
+        import('@/features/certificates/certificate-page').then((m) => ({
+          default: m.CertificatePage,
+        })),
       ),
     },
     {
@@ -108,6 +126,12 @@ export const routes: RouteObject[] = [
       ),
     },
     {
+      path: 'exam',
+      ...page(() =>
+        import('@/features/exams/exam-builder-page').then((m) => ({ default: m.ExamBuilderPage })),
+      ),
+    },
+    {
       path: 'content',
       ...page(() =>
         import('@/features/content/content-page').then((m) => ({ default: m.ContentPage })),
@@ -139,6 +163,22 @@ export const routes: RouteObject[] = [
       path: 'invitations',
       ...page(() =>
         import('@/features/admin/invitations-page').then((m) => ({ default: m.InvitationsPage })),
+      ),
+    },
+    {
+      path: 'signatories',
+      ...page(() =>
+        import('@/features/certificates/signatories-page').then((m) => ({
+          default: m.SignatoriesPage,
+        })),
+      ),
+    },
+    {
+      path: 'certificates',
+      ...page(() =>
+        import('@/features/certificates/admin-certificates-page').then((m) => ({
+          default: m.AdminCertificatesPage,
+        })),
       ),
     },
     {

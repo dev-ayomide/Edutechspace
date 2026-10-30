@@ -1,20 +1,5 @@
 import { z } from 'zod'
-
-const optionalInt = (min: number, max: number, message: string) =>
-  z
-    .string()
-    .trim()
-    .refine((v) => v === '' || (/^\d+$/.test(v) && Number(v) >= min && Number(v) <= max), message)
-
-export const questionSchema = z.object({
-  prompt: z.string().trim().min(1, 'Write the question').max(1000, 'Keep it under 1000 characters'),
-  options: z
-    .array(z.object({ text: z.string().trim().min(1, 'Fill in this option') }))
-    .min(2, 'Add at least two options')
-    .max(6, 'Use at most six options'),
-  correct_index: z.number().int().min(0),
-  points: optionalInt(1, 100, 'Points must be 1 to 100'),
-})
+import { checkCorrectAnswers, optionalInt, questionSchema } from '@/features/quiz/schemas'
 
 export const assignmentSchema = z
   .object({
@@ -48,22 +33,8 @@ export const assignmentSchema = z
         message: 'Add at least one question before publishing',
       })
     }
-    v.questions.forEach((q, i) => {
-      if (q.correct_index >= q.options.length) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['questions', i, 'correct_index'],
-          message: 'Choose the correct answer',
-        })
-      }
-    })
+    checkCorrectAnswers(v.questions, ctx)
   })
 export type AssignmentInput = z.infer<typeof assignmentSchema>
-export type QuestionInput = z.infer<typeof questionSchema>
 
-export const blankQuestion = (): QuestionInput => ({
-  prompt: '',
-  options: [{ text: '' }, { text: '' }],
-  correct_index: 0,
-  points: '1',
-})
+export { blankQuestion, type QuestionInput } from '@/features/quiz/schemas'

@@ -148,3 +148,63 @@ export interface Application {
   reviewed_at: string | null
   stacks: { name: string } | null
 }
+
+export type ExamState = 'locked' | 'ready' | 'in_progress' | 'cooldown' | 'exhausted' | 'passed'
+
+/** The student's exam situation, computed by the database (my_exam). */
+export interface MyExam {
+  exam_id: string
+  title: string
+  instructions: string | null
+  time_limit_minutes: number | null
+  pass_mark: number
+  max_attempts: number | null
+  cooldown_hours: number
+  question_count: number
+  attempts_used: number
+  best_score: number | null
+  passed: boolean
+  state: ExamState
+  next_available_at: string | null
+  certificate_id: string | null
+  attempt_id: string | null
+  started_at: string | null
+  deadline: string | null
+}
+
+export interface ExamQuestion {
+  id: string
+  exam_id: string
+  prompt: string
+  options: string[]
+  points: number
+  order_index: number
+}
+
+export interface Exam {
+  id: string
+  stack_id: string
+  title: string
+  instructions: string | null
+  time_limit_minutes: number | null
+  pass_mark: number
+  max_attempts: number | null
+  cooldown_hours: number
+  is_published: boolean
+}
+
+export interface Certificate {
+  id: string
+  certificate_no: string
+  user_id: string
+  stack_id: string
+  student_name: string
+  stack_name: string
+  final_score: number
+  issued_at: string
+  signatories: { name: string; title: string; signature_path: string | null }[]
+  revoked_at: string | null
+  revoked_reason: string | null
+  replaced_by: string | null
+  emailed_at: string | null
+}

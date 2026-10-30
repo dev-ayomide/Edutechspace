@@ -12,6 +12,10 @@ vi.mock('@/features/auth/auth-context', () => ({
 }))
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 vi.mock('./api', async (orig) => ({ ...(await orig<typeof api>()), withdrawFromStack: vi.fn() }))
+vi.mock('@/features/exams/api', () => ({
+  examKeys: { mine: ['exam', 'mine'] },
+  fetchMyExam: vi.fn().mockResolvedValue(null),
+}))
 
 const stack = { id: 'fe', name: 'Frontend Development', slug: 'frontend' }
 const active = {
@@ -50,6 +54,7 @@ describe('StudentOverviewPage', () => {
   it('shows overall progress, stats and the next step', () => {
     renderWithProviders(<StudentOverviewPage />)
     expect(screen.getByText('Welcome, Sam')).toBeInTheDocument()
+    expect(screen.getByText('Final exam')).toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: /Overall progress/ })).toHaveAttribute(
       'aria-valuenow',
       '54',

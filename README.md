@@ -63,6 +63,25 @@ It uses the same `SITE_URL` secret and `/accept-invite` redirect URL as `invite-
 - Quizzes are graded in Postgres; the answer keys live in a table students cannot read. Projects are graded by the stack's leads, with resubmission requests.
 - Progress is computed by the database: lessons 40%, assignments 30%, final exam 30% (the exam arrives in Phase 3, so the maximum is 70% until then).
 
+## Final exam and certificates
+
+- **Exam:** each stack has one exam, built by its leads. Students can open it only after every module is complete. Questions are readable only while an attempt is running, grading happens in Postgres, and there is a time limit (with a 2 minute grace), an attempt limit and a waiting period between attempts (defaults: 60% pass mark, 3 attempts, 24 hours).
+- **Certificates** exist only because `submit_exam()` passed with every requirement met. They snapshot the student's name, the stack and the active signatories, cannot be edited (there are no direct write privileges), and can be revoked or reissued by an admin. Passing marks the stack membership as completed.
+- **Verification:** `/verify/<number>` is public and shows only what is printed on the certificate (name, stack, date, valid or revoked).
+- **PDF:** generated in the browser (jsPDF, loaded on demand) with a vector QR code that links to the verification page. The PDF font only covers Latin-1, so diacritics (e.g. Yoruba `ọ`, `ẹ`) are reduced to base letters in the PDF; the on-screen certificate and verification page show the exact name.
+- **Signatories:** admins manage them under **Admin > Signatories** (President, Technical Lead, Staff Patron, and the VC when available). Signature images go to the public `signatures` bucket and are never deleted, because issued certificates keep pointing at them. If a certificate is issued before any signatory exists, add them and use **Reissue**.
+
+```bash
+supabase functions deploy send-certificate-email
+supabase secrets set RESEND_API_KEY=... EMAIL_FROM="RUNTech Space <certificates@your-domain>"
+```
+
+The email carries a link to the certificate page and the verification link (not an attachment) and is sent once on issue, plus on request. Resend is assumed as the provider; it is isolated in that one function.
+
+## Security notes
+
+Supabase grants `EXECUTE` on new functions to signed-in users by default, so every migration that adds an internal helper must also revoke it from `authenticated` (see the hardening block at the end of `20261102000001_exam_and_certificates.sql`). The database tests assert that the audit writer, progress probes and the certificate issuer are not callable through the API.
+
 ## Lesson files
 
 Uploaded videos and PDFs go to the private `lesson-media` storage bucket (created by the migrations, 100 MB limit, PDF/MP4/WebM). Paths start with the stack id, which is what the storage policies check, so a lead can only touch their own stack's files.

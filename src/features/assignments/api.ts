@@ -1,13 +1,9 @@
 import { supabase } from '@/lib/supabase'
 import type { Assignment } from '@/types/domain'
+import { toRpcQuestions, type QuestionWithKey } from '@/features/quiz/schemas'
 import type { AssignmentInput } from './schemas'
 
-export interface QuizQuestionWithKey {
-  prompt: string
-  options: string[]
-  correct_index: number
-  points: number
-}
+export type QuizQuestionWithKey = QuestionWithKey
 
 /** Lead/admin only: questions together with their answer keys. */
 export async function fetchQuizForEditing(assignmentId: string): Promise<QuizQuestionWithKey[]> {
@@ -64,12 +60,7 @@ export async function saveAssignment(
   }
 
   if (input.type === 'quiz') {
-    const questions = input.questions.map((q) => ({
-      prompt: q.prompt,
-      options: q.options.map((o) => o.text),
-      correct_index: q.correct_index,
-      points: Number(q.points || 1),
-    }))
+    const questions = toRpcQuestions(input.questions)
     const { error } = await supabase.rpc('save_quiz', {
       p_assignment_id: id,
       p_questions: questions,

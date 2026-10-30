@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/features/auth/auth-context'
+import { examKeys, fetchMyExam } from '@/features/exams/api'
+import { examStateLabel } from '@/features/exams/utils'
 import { friendlyError } from '@/lib/errors'
 import { learningKeys, withdrawFromStack } from './api'
 import { useMyLearning } from './hooks'
@@ -21,6 +23,11 @@ export function StudentOverviewPage() {
   const { profile } = useAuth()
   const queryClient = useQueryClient()
   const learning = useMyLearning()
+  const exam = useQuery({
+    queryKey: examKeys.mine,
+    queryFn: fetchMyExam,
+    enabled: learning.hasAccess,
+  })
   const [confirmWithdraw, setConfirmWithdraw] = useState(false)
   const name = profile?.full_name?.split(' ')[0]
 
@@ -39,6 +46,21 @@ export function StudentOverviewPage() {
 
   const { membership, progress } = learning
   const next = nextUp(learning.modules, learning.states, learning.completedLessonIds)
+  const examLabel = examStateLabel(exam.data ?? null)
+  const examStep =
+    !next && exam.data && (exam.data.state === 'ready' || exam.data.state === 'in_progress')
+      ? {
+          to: '/dashboard/exam',
+          title: exam.data.title,
+          cta: exam.data.state === 'ready' ? 'Start the exam' : 'Continue the exam',
+        }
+      : !next && exam.data?.state === 'passed'
+        ? {
+            to: '/dashboard/certificate',
+            title: 'You passed. Your certificate is ready.',
+            cta: 'View certificate',
+          }
+        : null
   const title = name ? `Welcome, ${name}` : 'Welcome'
 
   if (learning.isPending) {
@@ -128,6 +150,22 @@ export function StudentOverviewPage() {
             </Button>
           </div>
         )}
+        {examStep && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted p-4">
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                Up next
+              </p>
+              <p className="font-medium">{examStep.title}</p>
+            </div>
+            <Button asChild>
+              <Link to={examStep.to}>
+                {examStep.cta}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+        )}
         {!next && learning.modules.length === 0 && (
           <p className="mt-5 text-sm text-muted-foreground">
             Your stack lead has not published any modules yet. Check back soon.
@@ -143,7 +181,7 @@ export function StudentOverviewPage() {
           label="Assignments passed"
           value={`${progress?.assignments_passed ?? 0} / ${progress?.assignments_total ?? 0}`}
         />
-        <StatCard label="Final exam" value="Not yet" hint="Opens once the exam is available" />
+        <StatCard label="Final exam" value={examLabel.text} hint={examLabel.hint} />
       </dl>
       <Button asChild variant="ghost" className="mt-4">
         <Link to="/dashboard/stack">View all modules</Link>

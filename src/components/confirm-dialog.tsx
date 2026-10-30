@@ -8,6 +8,7 @@ export function ConfirmDialog({
   description,
   confirmLabel = 'Delete',
   loading = false,
+  tone = 'danger',
   onConfirm,
 }: {
   open: boolean
@@ -16,6 +17,8 @@ export function ConfirmDialog({
   description: string
   confirmLabel?: string
   loading?: boolean
+  /** `danger` for destructive actions (delete, withdraw); `primary` for everything else. */
+  tone?: 'danger' | 'primary'
   onConfirm: () => void
 }) {
   return (
@@ -25,7 +28,7 @@ export function ConfirmDialog({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button variant="danger" loading={loading} onClick={onConfirm}>
+          <Button variant={tone} loading={loading} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </DialogFooter>
