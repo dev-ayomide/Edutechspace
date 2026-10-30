@@ -15,9 +15,18 @@ trap cleanup EXIT
 "$PG_BIN/pg_ctl" -D "$DIR/data" -o "-p $PORT -k $DIR -c listen_addresses=''" -w -l "$DIR/log" start >/dev/null || { cat "$DIR/log"; exit 1; }
 PSQL=("$PG_BIN/psql" -h "$DIR" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q -X)
 
-"${PSQL[@]}" -c "create database app" >/dev/null
-PSQL+=(-d app)
-"${PSQL[@]}" -f tests/stub.sql
-for f in migrations/*.sql; do echo "migrate: $f"; "${PSQL[@]}" -f "$f"; done
-for f in tests/*.test.sql; do echo "test:    $f"; "${PSQL[@]}" -f "$f"; done
+BASE=("$PG_BIN/psql" -h "$DIR" -p "$PORT" -U postgres -v ON_ERROR_STOP=1 -q -X)
+
+# Every test file gets its own fresh database, so tests never depend on each other's data.
+n=0
+for t in tests/*.test.sql; do
+  n=$((n + 1)); db="app$n"
+  "${BASE[@]}" -c "create database $db" >/dev/null
+  PSQL=("${BASE[@]}" -d "$db")
+  "${PSQL[@]}" -f tests/stub.sql >/dev/null
+  for f in migrations/*.sql; do "${PSQL[@]}" -f "$f" >/dev/null; done
+  # Query output is discarded; assertion failures go to stderr and fail the run.
+  "${PSQL[@]}" -f "$t" >/dev/null
+  echo "pass: $t"
+done
 echo "All database tests passed."

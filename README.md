@@ -36,6 +36,21 @@ Schema changes live only in `supabase/migrations` and are applied in order. Row 
 
 **Supabase project setup:** disable public sign-ups. Accounts are created only through invitations (admin-invited leads, lead-approved students). Apply the migrations to a fresh project; do not run them against a database that still holds the old Edutechspace tables.
 
+## Inviting stack leads (Edge Function)
+
+Admins invite leads from **Admin > Lead invitations**. The page calls the `invite-user` Edge Function, which asks the database to create the invitation (as the signed-in admin, so the "admins only" rule is enforced by Postgres) and then sends the Supabase Auth invite email.
+
+```bash
+supabase functions deploy invite-user
+supabase secrets set SITE_URL=https://your-app-domain
+```
+
+Also add `https://your-app-domain/accept-invite` (and `http://localhost:5173/accept-invite` for development) to **Authentication > URL Configuration > Redirect URLs**. Invited people land on that page to choose their name and password. The function has not yet been exercised against a live project.
+
+## Lesson files
+
+Uploaded videos and PDFs go to the private `lesson-media` storage bucket (created by the migrations, 100 MB limit, PDF/MP4/WebM). Paths start with the stack id, which is what the storage policies check, so a lead can only touch their own stack's files.
+
 ## Project layout
 
 See section 2 of the frontend standards. In short: `src/app` (shells, providers), `src/components/ui` (design system), `src/features/*` (one folder per feature), `src/routes`, `src/lib`, `supabase/migrations`.

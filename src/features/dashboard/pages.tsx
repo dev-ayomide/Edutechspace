@@ -39,32 +39,6 @@ export function StudentOverviewPage() {
   )
 }
 
-export function LeadOverviewPage() {
-  const { profile } = useAuth()
-  return (
-    <>
-      <PageHeader title={greeting(profile?.full_name)} description="Your stack at a glance." />
-      <EmptyState
-        title="No stack assigned yet"
-        description="An admin assigns you to a stack when they invite you. Students, applications and submissions will show up here."
-      />
-    </>
-  )
-}
-
-export function AdminOverviewPage() {
-  const { profile } = useAuth()
-  return (
-    <>
-      <PageHeader title={greeting(profile?.full_name)} description="Platform overview." />
-      <EmptyState
-        title="Nothing to review yet"
-        description="Stacks, lead invitations and certificates will be managed from here."
-      />
-    </>
-  )
-}
-
 export function JoinPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-16">

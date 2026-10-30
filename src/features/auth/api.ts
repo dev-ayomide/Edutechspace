@@ -20,3 +20,13 @@ export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
+
+export async function setPasswordAndName(password: string, fullName: string, userId: string) {
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) throw error
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ full_name: fullName })
+    .eq('id', userId)
+  if (profileError) throw profileError
+}
