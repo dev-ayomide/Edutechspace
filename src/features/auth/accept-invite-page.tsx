@@ -50,7 +50,7 @@ export function AcceptInvitePage() {
   if (status === 'unauthenticated' || !session) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
-        <Card className="p-8">
+        <Card lift="lg" className="p-8">
           <CardTitle className="text-xl">This invitation link is not valid</CardTitle>
           <CardDescription className="mt-2">
             It may have expired or already been used. Ask your administrator or stack lead to send a
@@ -80,7 +80,7 @@ export function AcceptInvitePage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
-      <Card className="p-8">
+      <Card lift="lg" className="p-8">
         <CardTitle className="text-xl">Finish setting up your account</CardTitle>
         <CardDescription className="mt-1">
           Welcome! Choose your name and a password to continue.

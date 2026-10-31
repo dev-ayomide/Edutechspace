@@ -187,3 +187,63 @@ describe('percent', () => {
     expect(percent(0, 0)).toBe(0)
   })
 })
+
+import { buildJourney, momentumMessage } from './utils'
+
+describe('momentumMessage', () => {
+  it('speaks to each stage', () => {
+    expect(momentumMessage(0)).toBe('Your journey starts here.')
+    expect(momentumMessage(10)).toBe('Good start. Keep going.')
+    expect(momentumMessage(30)).toBe('You are building momentum.')
+    expect(momentumMessage(54)).toBe('More than halfway. Keep the momentum.')
+    expect(momentumMessage(80)).toBe('Almost there. Finish strong.')
+    expect(momentumMessage(100)).toBe('You did it. Certificate earned.')
+  })
+})
+
+describe('buildJourney', () => {
+  const mod = (id: string, title: string) => ({
+    id,
+    stack_id: 's',
+    title,
+    description: null,
+    order_index: 1,
+    is_published: true,
+    lessons: [],
+    assignments: [],
+  })
+  const st = (module_id: string, over = {}) => ({
+    module_id,
+    unlocked: true,
+    complete: false,
+    lessons_total: 5,
+    lessons_done: 2,
+    assignment_id: null,
+    assignment_passed: null,
+    attempts_used: 0,
+    best_score: null,
+    ...over,
+  })
+
+  it('marks done, current and locked modules, then the exam and certificate', () => {
+    const stops = buildJourney(
+      [mod('a', 'HTML'), mod('b', 'CSS'), mod('c', 'JS')],
+      [st('a', { complete: true }), st('b'), st('c', { unlocked: false })],
+      'locked',
+      false,
+    )
+    expect(stops.map((s) => s.status)).toEqual(['done', 'now', 'lock', 'lock', 'lock'])
+    expect(stops[1]!.detail).toBe('2 of 5 lessons')
+    expect(stops.at(-1)!.label).toBe('Certificate')
+  })
+  it('has only one current stop', () => {
+    const stops = buildJourney([mod('a', 'A'), mod('b', 'B')], [st('a'), st('b')], null, false)
+    expect(stops.filter((s) => s.status === 'now')).toHaveLength(1)
+  })
+  it('opens the exam after every module, and turns the certificate gold once earned', () => {
+    const done = buildJourney([mod('a', 'A')], [st('a', { complete: true })], 'ready', false)
+    expect(done[1]!.status).toBe('now')
+    const earned = buildJourney([mod('a', 'A')], [st('a', { complete: true })], 'passed', true)
+    expect(earned.map((s) => s.status)).toEqual(['done', 'done', 'gold'])
+  })
+})

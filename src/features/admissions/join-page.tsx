@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { CheckCircle2 } from 'lucide-react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { FormField } from '@/components/form-field'
 import { PageHeader } from '@/components/page-header'
 import { ErrorState } from '@/components/states'
@@ -22,6 +23,8 @@ export function JoinPage() {
     register,
     handleSubmit,
     setError,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ApplicationInput>({
     resolver: zodResolver(applicationSchema),
@@ -34,6 +37,14 @@ export function JoinPage() {
       website: '',
     },
   })
+
+  // A stack row on the landing page links here with ?stack=<slug>.
+  const [params] = useSearchParams()
+  const wanted = params.get('stack')
+  useEffect(() => {
+    const match = stacks.data?.find((st) => st.slug === wanted && st.is_active)
+    if (match && !getValues('stack_id')) setValue('stack_id', match.id)
+  }, [stacks.data, wanted, setValue, getValues])
 
   const submit = useMutation({
     mutationFn: submitApplication,
@@ -76,7 +87,7 @@ export function JoinPage() {
       {stacks.error && (
         <ErrorState message={friendlyError(stacks.error)} onRetry={() => void stacks.refetch()} />
       )}
-      <Card className="p-6">
+      <Card lift="lg" className="p-6 sm:p-8">
         <form onSubmit={handleSubmit((v) => submit.mutate(v))} className="space-y-4" noValidate>
           <FormField id="apply-name" label="Full name" error={errors.full_name?.message}>
             <Input

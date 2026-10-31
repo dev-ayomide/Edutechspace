@@ -53,8 +53,8 @@ describe('StudentOverviewPage', () => {
 
   it('shows overall progress, stats and the next step', () => {
     renderWithProviders(<StudentOverviewPage />)
-    expect(screen.getByText('Welcome, Sam')).toBeInTheDocument()
-    expect(screen.getByText('Final exam')).toBeInTheDocument()
+    expect(screen.getByText('Good to see you, Sam.')).toBeInTheDocument()
+    expect(screen.getAllByText('Final exam').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByRole('progressbar', { name: /Overall progress/ })).toHaveAttribute(
       'aria-valuenow',
       '54',
@@ -66,6 +66,15 @@ describe('StudentOverviewPage', () => {
       'href',
       '/dashboard/stack/lessons/l2',
     )
+  })
+
+  it('draws the journey with the current module marked', () => {
+    renderWithProviders(<StudentOverviewPage />)
+    expect(screen.getByRole('heading', { name: 'Your journey' })).toBeInTheDocument()
+    const current = document.querySelector('[aria-current="step"]')
+    expect(current).toHaveTextContent('HTML')
+    expect(screen.getByText('Certificate')).toBeInTheDocument()
+    expect(screen.getByText('More than halfway. Keep the momentum.')).toBeInTheDocument()
   })
 
   it('invites someone with no stack to apply', () => {

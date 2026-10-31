@@ -10,14 +10,15 @@ import { StatCard } from '@/components/stat-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
+import { ProgressRing } from '@/components/ui/progress-ring'
 import { useAuth } from '@/features/auth/auth-context'
 import { examKeys, fetchMyExam } from '@/features/exams/api'
 import { examStateLabel } from '@/features/exams/utils'
 import { friendlyError } from '@/lib/errors'
 import { learningKeys, withdrawFromStack } from './api'
 import { useMyLearning } from './hooks'
-import { nextUp } from './utils'
+import { JourneyTrack } from './journey-track'
+import { buildJourney, momentumMessage, nextUp } from './utils'
 
 export function StudentOverviewPage() {
   const { profile } = useAuth()
@@ -61,7 +62,26 @@ export function StudentOverviewPage() {
             cta: 'View certificate',
           }
         : null
-  const title = name ? `Welcome, ${name}` : 'Welcome'
+  const upNext = next
+    ? {
+        title: next.title,
+        context: next.moduleTitle,
+        cta: 'Continue',
+        to:
+          next.kind === 'lesson'
+            ? `/dashboard/stack/lessons/${next.lessonId}`
+            : `/dashboard/stack/assignments/${next.assignmentId}`,
+      }
+    : examStep
+      ? { title: examStep.title, context: '', cta: examStep.cta, to: examStep.to }
+      : null
+  const journey = buildJourney(
+    learning.modules,
+    learning.states,
+    exam.data?.state ?? null,
+    exam.data?.state === 'passed',
+  )
+  const title = name ? `Good to see you, ${name}.` : 'Good to see you.'
 
   if (learning.isPending) {
     return (
@@ -112,66 +132,68 @@ export function StudentOverviewPage() {
           )
         }
       />
-      <Card>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-lg">{membership.stacks.name}</CardTitle>
-          <Badge variant={membership.status === 'completed' ? 'success' : 'primary'}>
-            {membership.status === 'completed' ? 'Completed' : 'In progress'}
-          </Badge>
-        </div>
-        <div className="mt-4 flex items-center gap-4">
-          <Progress
+      <p className="-mt-4 mb-6 flex flex-wrap items-center gap-2 text-base text-muted-foreground">
+        {membership.stacks.name}
+        <Badge variant={membership.status === 'completed' ? 'gold' : 'primary'}>
+          {membership.status === 'completed' ? 'Completed' : 'In progress'}
+        </Badge>
+      </p>
+      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+        <Card className="grid items-center gap-8 p-7 sm:grid-cols-[auto_1fr] sm:p-9">
+          <ProgressRing
             value={progress?.overall ?? 0}
             label="Overall progress toward certification"
-            className="flex-1"
+            className="mx-auto"
           />
-          <span className="text-lg font-bold tabular-nums">{progress?.overall ?? 0}%</span>
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">Progress toward your certificate.</p>
-        {next && (
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted p-4">
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                Up next · {next.moduleTitle}
-              </p>
-              <p className="font-medium">{next.title}</p>
-            </div>
-            <Button asChild>
-              <Link
-                to={
-                  next.kind === 'lesson'
-                    ? `/dashboard/stack/lessons/${next.lessonId}`
-                    : `/dashboard/stack/assignments/${next.assignmentId}`
-                }
-              >
-                Continue
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
+          <div>
+            <h2 className="font-display text-3xl leading-[1.05] font-extrabold tracking-tight">
+              {momentumMessage(progress?.overall ?? 0)}
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              {progress?.lessons_done ?? 0} of {progress?.lessons_total ?? 0} lessons done ·{' '}
+              {progress?.assignments_passed ?? 0} of {progress?.assignments_total ?? 0} assignments
+              passed
+            </p>
           </div>
-        )}
-        {examStep && (
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted p-4">
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                Up next
-              </p>
-              <p className="font-medium">{examStep.title}</p>
-            </div>
-            <Button asChild>
-              <Link to={examStep.to}>
-                {examStep.cta}
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
-        )}
-        {!next && learning.modules.length === 0 && (
-          <p className="mt-5 text-sm text-muted-foreground">
-            Your stack lead has not published any modules yet. Check back soon.
-          </p>
-        )}
-      </Card>
+        </Card>
+        <Card tone="accent" lift="lg" className="flex flex-col justify-between gap-8 p-7">
+          {upNext ? (
+            <>
+              <div>
+                <p className="text-xs font-extrabold tracking-[0.14em] uppercase">
+                  Up next{upNext.context ? ` · ${upNext.context}` : ''}
+                </p>
+                <p className="mt-3 font-display text-3xl leading-none font-extrabold tracking-tight">
+                  {upNext.title}
+                </p>
+              </div>
+              <Button asChild size="lg" className="w-full justify-between">
+                <Link to={upNext.to}>
+                  {upNext.cta}
+                  <ArrowRight className="size-5" aria-hidden="true" />
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <p className="font-display text-2xl leading-tight font-extrabold tracking-tight">
+              {learning.modules.length === 0
+                ? 'Your stack lead has not published any modules yet. Check back soon.'
+                : 'Nothing waiting for you right now.'}
+            </p>
+          )}
+        </Card>
+      </div>
+      <section aria-labelledby="journey-heading" className="mt-10">
+        <h2
+          id="journey-heading"
+          className="mb-5 font-display text-2xl font-extrabold tracking-tight"
+        >
+          Your journey
+        </h2>
+        <Card className="p-6 sm:p-8">
+          <JourneyTrack stops={journey} />
+        </Card>
+      </section>
       <dl className="mt-6 grid gap-4 sm:grid-cols-3">
         <StatCard
           label="Lessons completed"

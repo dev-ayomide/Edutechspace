@@ -7,21 +7,21 @@ export function CertificateView({ certificate: c }: { certificate: Certificate }
   return (
     <figure
       aria-label={`Certificate of completion for ${c.student_name}`}
-      className="mx-auto w-full max-w-3xl rounded-lg border-4 border-brand bg-card p-2 shadow-sm"
+      className="mx-auto w-full max-w-3xl rounded-[1.75rem] border-2 border-outline bg-card p-2 shadow-hard-gold"
     >
-      <div className="flex flex-col items-center rounded border border-brand/40 px-5 py-8 text-center sm:px-10 sm:py-12">
-        <p className="text-sm font-bold tracking-widest text-brand uppercase dark:text-primary">
-          RUNTech Space
-        </p>
-        <h2 className="mt-3 text-2xl font-bold text-brand sm:text-4xl dark:text-primary">
+      <div className="flex flex-col items-center rounded-[1.4rem] border border-outline/40 px-5 py-8 text-center sm:px-10 sm:py-12">
+        <p className="text-sm font-bold tracking-[0.2em] text-link uppercase">RUNTech Space</p>
+        <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-5xl">
           Certificate of Completion
         </h2>
         <p className="mt-6 text-sm text-muted-foreground">This is to certify that</p>
-        <p className="mt-2 border-b border-brand/50 px-4 pb-1 text-2xl font-bold sm:text-4xl">
+        <p className="mt-2 border-b-4 border-accent px-4 pb-1 font-display text-3xl font-extrabold tracking-tight sm:text-5xl">
           {c.student_name}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">has successfully completed the</p>
-        <p className="mt-1 text-xl font-bold sm:text-2xl">{c.stack_name}</p>
+        <p className="mt-1 font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
+          {c.stack_name}
+        </p>
         <p className="mt-3 max-w-md text-sm text-muted-foreground">
           by completing every module and assignment and passing the final examination with a score
           of {c.final_score}%.

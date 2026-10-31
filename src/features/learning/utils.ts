@@ -111,3 +111,72 @@ export function currentMembership<T extends { status: string; joined_at: string 
 
 export const percent = (part: number, total: number) =>
   total === 0 ? 0 : Math.round((part / total) * 100)
+
+/** A one-line, human read of overall progress for the dashboard headline. */
+export function momentumMessage(overall: number): string {
+  if (overall >= 100) return 'You did it. Certificate earned.'
+  if (overall >= 75) return 'Almost there. Finish strong.'
+  if (overall >= 50) return 'More than halfway. Keep the momentum.'
+  if (overall >= 25) return 'You are building momentum.'
+  if (overall > 0) return 'Good start. Keep going.'
+  return 'Your journey starts here.'
+}
+
+export type StopStatus = 'done' | 'now' | 'lock' | 'gold'
+export interface JourneyStop {
+  key: string
+  label: string
+  detail: string
+  status: StopStatus
+  symbol: string
+}
+
+/** Modules, then the final exam, then the certificate, as one ordered path with a "you are here" marker. */
+export function buildJourney(
+  modules: readonly ModuleWithLessons[],
+  states: readonly ModuleState[],
+  examState: 'locked' | 'ready' | 'in_progress' | 'cooldown' | 'exhausted' | 'passed' | null,
+  hasCertificate: boolean,
+): JourneyStop[] {
+  const stops: JourneyStop[] = []
+  let currentFound = false
+  modules.forEach((m, i) => {
+    const st = moduleStatus(states.find((s) => s.module_id === m.id))
+    const state = states.find((s) => s.module_id === m.id)
+    let status: StopStatus = st === 'complete' ? 'done' : st === 'locked' ? 'lock' : 'now'
+    if (status === 'now') {
+      if (currentFound) status = 'lock'
+      else currentFound = true
+    }
+    stops.push({
+      key: m.id,
+      label: m.title,
+      detail:
+        status === 'done'
+          ? 'Complete'
+          : status === 'now'
+            ? `${state?.lessons_done ?? 0} of ${state?.lessons_total ?? 0} lessons`
+            : 'Locked',
+      status,
+      symbol: status === 'done' ? '✓' : String(i + 1),
+    })
+  })
+  const examDone = examState === 'passed'
+  const examOpen = examState === 'ready' || examState === 'in_progress'
+  const allModulesDone = stops.length > 0 && stops.every((s) => s.status === 'done')
+  stops.push({
+    key: 'exam',
+    label: 'Final exam',
+    detail: examDone ? 'Passed' : examOpen ? 'Ready' : 'Locked',
+    status: examDone ? 'done' : examOpen && allModulesDone ? 'now' : 'lock',
+    symbol: examDone ? '✓' : '★',
+  })
+  stops.push({
+    key: 'certificate',
+    label: 'Certificate',
+    detail: hasCertificate ? 'Earned' : 'Ahead',
+    status: hasCertificate ? 'gold' : 'lock',
+    symbol: '✦',
+  })
+  return stops
+}
