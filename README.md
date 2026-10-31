@@ -4,6 +4,8 @@ A structured, stack-led learning platform. Students join one stack, learn module
 
 - Product requirements: [docs/PRD.md](docs/PRD.md)
 - Frontend standards: [docs/FRONTEND_STANDARDS.md](docs/FRONTEND_STANDARDS.md)
+- Design direction: [docs/DESIGN_DIRECTION.md](docs/DESIGN_DIRECTION.md)
+- **Launching?** Start with [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md)
 
 ## Stack
 
@@ -20,15 +22,17 @@ npm run dev
 
 ## Scripts
 
-| Command             | What it does                                                      |
-| ------------------- | ----------------------------------------------------------------- |
-| `npm run dev`       | Start the dev server on http://localhost:5173                     |
-| `npm run build`     | Type-check and build for production                               |
-| `npm run typecheck` | TypeScript only                                                   |
-| `npm run lint`      | ESLint (includes accessibility rules)                             |
-| `npm test`          | Unit and component tests (includes colour-contrast checks)        |
-| `npm run db:test`   | Applies the migrations to a throwaway Postgres and runs RLS tests |
-| `npm run test:e2e`  | Playwright end-to-end tests                                       |
+| Command             | What it does                                                               |
+| ------------------- | -------------------------------------------------------------------------- |
+| `npm run dev`       | Start the dev server on http://localhost:5173                              |
+| `npm run build`     | Type-check and build for production                                        |
+| `npm run typecheck` | TypeScript only                                                            |
+| `npm run lint`      | ESLint (includes accessibility rules)                                      |
+| `npm test`          | Unit and component tests (includes colour-contrast checks)                 |
+| `npm run db:test`   | Applies the migrations to a throwaway Postgres and runs RLS tests          |
+| `npm run images`    | Builds responsive AVIF/WebP/JPEG photos from `src/assets/photos/originals` |
+| `npm run logos`     | Rebuilds the logo files from the artwork in `design/logos`                 |
+| `npm run test:e2e`  | Playwright end-to-end tests                                                |
 
 ## Database
 

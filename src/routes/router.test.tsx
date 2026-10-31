@@ -21,6 +21,8 @@ describe('routes', () => {
     '/login',
     '/join',
     '/accept-invite',
+    '/forgot-password',
+    '/reset-password',
     '/verify',
     '/verify/RTS-2026-ABCDEF1234',
     '/dashboard/stack/lessons/abc',

@@ -3,7 +3,9 @@ import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { AppShell } from '@/app/app-shell'
 import { PublicShell } from '@/app/public-shell'
 import { AcceptInvitePage } from '@/features/auth/accept-invite-page'
+import { ForgotPasswordPage } from '@/features/auth/forgot-password-page'
 import { LoginPage } from '@/features/auth/login-page'
+import { ResetPasswordPage } from '@/features/auth/reset-password-page'
 import { RequireRole } from '@/features/auth/require-role'
 import { JoinPage } from '@/features/admissions/join-page'
 import { ComingSoonPage } from '@/features/dashboard/pages'
@@ -11,6 +13,7 @@ import { NotFoundPage } from '@/features/dashboard/not-found-page'
 import { HomePage } from '@/features/home/home-page'
 import type { Role } from '@/types/domain'
 import { navByRole } from './nav'
+import { RouteError } from './route-error'
 
 /** Route-level code splitting: each screen is downloaded only when it is first visited. */
 const page = (load: () => Promise<{ default: ComponentType }>): Pick<RouteObject, 'lazy'> => ({
@@ -29,6 +32,7 @@ function placeholders(role: Role, base: string): RouteObject[] {
 function area(role: Role, base: string, children: RouteObject[]): RouteObject {
   return {
     path: base,
+    errorElement: <RouteError />,
     element: <RequireRole roles={[role]} />,
     children: [
       { element: <AppShell role={role} />, children: [...children, ...placeholders(role, base)] },
@@ -50,11 +54,14 @@ const devRoutes: RouteObject[] = import.meta.env.DEV
 export const routes: RouteObject[] = [
   {
     element: <PublicShell />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'join', element: <JoinPage /> },
       { path: 'accept-invite', element: <AcceptInvitePage /> },
+      { path: 'forgot-password', element: <ForgotPasswordPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
       {
         path: 'verify/:number?',
         ...page(() =>
@@ -198,7 +205,7 @@ export const routes: RouteObject[] = [
     },
   ]),
   ...devRoutes,
-  { path: '*', element: <NotFoundPage /> },
+  { path: '*', element: <NotFoundPage />, errorElement: <RouteError /> },
 ]
 
 export const router = createBrowserRouter(routes)

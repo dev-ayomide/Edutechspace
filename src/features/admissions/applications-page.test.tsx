@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Application } from '@/types/domain'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import * as api from './api'
 import { ApplicationsPage } from './applications-page'
@@ -74,5 +75,14 @@ describe('ApplicationsPage', () => {
     vi.mocked(api.listApplications).mockResolvedValue([])
     renderWithProviders(<ApplicationsPage />)
     expect(await screen.findByText('No applications waiting')).toBeInTheDocument()
+  })
+})
+
+describe('ApplicationsPage accessibility', () => {
+  it('has no violations', async () => {
+    vi.mocked(api.listApplications).mockResolvedValue([app('a1', 'Ada Pending', 'pending')])
+    const { container } = renderWithProviders(<ApplicationsPage />)
+    await screen.findByText('Ada Pending')
+    await expectAccessible(container)
   })
 })

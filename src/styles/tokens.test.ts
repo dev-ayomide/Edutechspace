@@ -69,3 +69,9 @@ describe.each([
     expect(contrast(tokens[fg]!, tokens[bg]!)).toBeGreaterThanOrEqual(min)
   })
 })
+
+describe('theme switching', () => {
+  it('makes the dark: variant follow the app theme class, not the operating system', () => {
+    expect(css).toMatch(/@custom-variant dark \(&:where\(\.dark, \.dark \*\)\)/)
+  })
+})

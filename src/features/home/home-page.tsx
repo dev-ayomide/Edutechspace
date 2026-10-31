@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import heroPhoto from '@/assets/photos/hero.jpg'
+import { Photo } from '@/components/photo'
 import { Button } from '@/components/ui/button'
 import { listStacks, stackKeys } from '@/features/stacks/api'
 
@@ -88,12 +88,13 @@ export function HomePage() {
             className="absolute inset-0 translate-x-6 translate-y-6 rounded-[2.25rem] border-2 border-outline bg-accent"
           />
           <div className="relative aspect-[1/1.05] overflow-hidden rounded-[2.25rem] border-2 border-outline bg-muted">
-            <img
-              src={heroPhoto}
+            <Photo
+              name="hero"
               alt="Three students working together on a laptop"
+              sizes="(min-width: 1024px) 46vw, 90vw"
               width={1000}
               height={667}
-              fetchPriority="high"
+              priority
               className="h-full w-full object-cover object-[60%_40%]"
             />
           </div>

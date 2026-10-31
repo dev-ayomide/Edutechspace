@@ -30,3 +30,16 @@ export async function setPasswordAndName(password: string, fullName: string, use
     .eq('id', userId)
   if (profileError) throw profileError
 }
+
+/** Sends a password-reset email. The caller must not reveal whether the address has an account. */
+export async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  })
+  if (error) throw error
+}
+
+export async function updatePassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) throw error
+}

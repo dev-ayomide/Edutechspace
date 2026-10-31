@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import { assignment, lesson, moduleState, moduleWith } from '@/test/fixtures'
 import { StackPage } from './stack-page'
@@ -84,5 +85,24 @@ describe('StackPage', () => {
     learning.current = { ...base, modules: [], states: [] }
     renderWithProviders(<StackPage />)
     expect(screen.getByText('No modules yet')).toBeInTheDocument()
+  })
+})
+
+describe('StackPage accessibility', () => {
+  it('has no violations', async () => {
+    learning.current = {
+      ...base,
+      modules: [
+        moduleWith('m1', {
+          title: 'HTML',
+          lessons: [lesson('l1')],
+          assignments: [assignment('a1', { title: 'HTML quiz' })],
+        }),
+        moduleWith('m2', { title: 'CSS' }),
+      ],
+      states: [moduleState('m1', { assignment_id: 'a1' }), moduleState('m2', { unlocked: false })],
+    }
+    const { container } = renderWithProviders(<StackPage />)
+    await expectAccessible(container)
   })
 })

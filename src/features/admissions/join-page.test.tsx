@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import { JoinPage } from './join-page'
 
@@ -86,5 +87,13 @@ describe('JoinPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Send application' }))
     await waitFor(() => expect(screen.queryByText('Application received')).not.toBeInTheDocument())
     expect(submit.impl).not.toHaveBeenCalled()
+  })
+})
+
+describe('JoinPage accessibility', () => {
+  it('has no violations', async () => {
+    const { container } = renderWithProviders(<JoinPage />)
+    await screen.findByRole('option', { name: 'Frontend Development' })
+    await expectAccessible(container)
   })
 })

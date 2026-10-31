@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { areaLabel, navByRole } from '@/routes/nav'
 import type { Role } from '@/types/domain'
 import { ThemeToggle } from './theme'
+import { useDocumentTitle } from './use-document-title'
 
 const skipLink =
   'bg-primary text-primary-foreground sr-only z-50 rounded-lg px-4 py-2 font-bold focus:not-sr-only focus:absolute focus:top-2 focus:left-2'
@@ -53,6 +54,7 @@ function UserBar() {
  * Students get a top tab bar (few destinations, content-first); leads and admins get a sidebar (many tools).
  */
 export function AppShell({ role }: { role: Role }) {
+  useDocumentTitle()
   const items = navByRole[role]
 
   if (role === 'student') {

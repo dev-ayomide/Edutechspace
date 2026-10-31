@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -87,6 +87,11 @@ export function LoginPage() {
           <Button type="submit" className="w-full" loading={submitting}>
             Sign in
           </Button>
+          <p className="text-center text-sm">
+            <Link to="/forgot-password" className="font-semibold text-link underline">
+              Forgot your password?
+            </Link>
+          </p>
         </form>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           New here? Accounts are created when your application to join a stack is approved.

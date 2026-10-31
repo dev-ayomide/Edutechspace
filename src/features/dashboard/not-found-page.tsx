@@ -1,7 +1,11 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 
 export function NotFoundPage() {
+  useEffect(() => {
+    document.title = 'Page not found · RUNTech Space'
+  }, [])
   return (
     <div className="mx-auto max-w-md px-4 py-24 text-center">
       <p className="text-sm font-semibold text-primary">404</p>

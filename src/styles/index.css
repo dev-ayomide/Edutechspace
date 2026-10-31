@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* `dark:` follows the app's own theme switch (the .dark class), not the operating system setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * Design tokens: Direction B (bright, bold, human). White canvas, ink-navy blocks, electric cyan and
  * the logo's ultramarine as accents, gold reserved for achievement. Components use semantic names

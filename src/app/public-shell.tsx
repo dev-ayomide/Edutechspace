@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/auth-context'
 import { homeForRole } from '@/features/auth/roles'
 import { ThemeToggle } from './theme'
+import { useDocumentTitle } from './use-document-title'
 
 const skipLink =
   'bg-primary text-primary-foreground sr-only z-50 rounded-lg px-4 py-2 font-bold focus:not-sr-only focus:absolute focus:top-2 focus:left-2'
 
 export function PublicShell() {
+  useDocumentTitle()
   const { status, role } = useAuth()
   return (
     <div className="flex min-h-dvh flex-col">

@@ -1,6 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation } from 'react-router-dom'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import * as api from './api'
 import { VerifyPage } from './verify-page'
@@ -71,5 +72,14 @@ describe('VerifyPage', () => {
       expect(screen.getByTestId('where')).toHaveTextContent('/verify/RTS-2026-ABCDEF1234'),
     )
     expect(await screen.findByText('This certificate is valid')).toBeInTheDocument()
+  })
+})
+
+describe('VerifyPage accessibility', () => {
+  it('has no violations', async () => {
+    vi.mocked(api.verifyCertificate).mockResolvedValue(row())
+    const { container } = show('/verify/RTS-2026-ABCDEF1234')
+    await screen.findByText('This certificate is valid')
+    await expectAccessible(container)
   })
 })

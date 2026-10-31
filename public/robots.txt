@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /lead
+Disallow: /admin
+Disallow: /accept-invite
+Disallow: /reset-password

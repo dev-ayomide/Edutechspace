@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import type { Certificate } from '@/types/domain'
 import * as api from './api'
@@ -102,5 +103,14 @@ describe('CertificatePage', () => {
     expect(await screen.findByText('This certificate was revoked')).toBeInTheDocument()
     expect(screen.getByText(/Issued in error/)).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Download PDF/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('CertificatePage accessibility', () => {
+  it('has no violations', async () => {
+    vi.mocked(api.listMyCertificates).mockResolvedValue([cert()])
+    const { container } = renderWithProviders(<CertificatePage />)
+    await screen.findByText('Ṣọlá Adéyẹmí')
+    await expectAccessible(container)
   })
 })

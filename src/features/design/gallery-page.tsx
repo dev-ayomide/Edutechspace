@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LogoMark, Logo } from '@/components/logo'
+import { Logo } from '@/components/logo'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { StatCard } from '@/components/stat-card'
@@ -55,7 +55,7 @@ export function GalleryPage() {
         <div className="flex flex-wrap items-center gap-10">
           <Logo />
           <Logo className="origin-left scale-125" />
-          <LogoMark className="h-14" />
+          <Logo markOnly className="h-14" />
         </div>
       </Section>
 

@@ -1,3 +1,4 @@
+import { expectAccessible } from '@/test/a11y'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -36,5 +37,16 @@ describe('LoginPage', () => {
     await userEvent.type(screen.getByLabelText('Password'), 'secret')
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
     expect(signIn).toHaveBeenCalledWith('a@b.co', 'secret')
+  })
+})
+
+describe('LoginPage accessibility', () => {
+  it('has no violations', async () => {
+    const { container } = render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>,
+    )
+    await expectAccessible(container)
   })
 })

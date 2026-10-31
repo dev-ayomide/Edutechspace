@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { expectAccessible } from '@/test/a11y'
 import { renderWithProviders } from '@/test/render'
 import * as api from './api'
 import { UsersPage } from './users-page'
@@ -90,5 +91,14 @@ describe('UsersPage', () => {
     await userEvent.type(screen.getByLabelText('Search users'), 'sam')
     expect(screen.queryByText('Lee Lead')).not.toBeInTheDocument()
     expect(screen.getByText('Sam Student')).toBeInTheDocument()
+  })
+})
+
+describe('UsersPage accessibility', () => {
+  it('has no violations', async () => {
+    vi.mocked(api.listUsers).mockResolvedValue(users)
+    const { container } = renderWithProviders(<UsersPage />)
+    await screen.findByText('Lee Lead')
+    await expectAccessible(container)
   })
 })
