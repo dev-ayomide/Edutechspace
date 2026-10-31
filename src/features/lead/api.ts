@@ -4,6 +4,7 @@ import type { Stack } from '@/types/domain'
 export const leadKeys = {
   stacks: (userId: string) => ['lead', 'stacks', userId] as const,
   summary: (stackId: string) => ['lead', 'summary', stackId] as const,
+  attention: ['lead', 'attention'] as const,
 }
 
 export async function listMyStacks(userId: string): Promise<Stack[]> {
@@ -49,4 +50,21 @@ export async function fetchStackSummary(stackId: string): Promise<StackContentSu
     publishedLessons: lessons.data.filter((l) => l.is_published).length,
     students: students.count ?? 0,
   }
+}
+
+export interface LeadAttention {
+  applications: number
+  submissions: number
+}
+
+/** What is waiting for this lead (the database only counts what their stacks allow them to see). */
+export async function fetchLeadAttention(): Promise<LeadAttention> {
+  const head = { count: 'exact', head: true } as const
+  const [apps, subs] = await Promise.all([
+    supabase.from('stack_applications').select('*', head).eq('status', 'pending'),
+    supabase.from('assignment_submissions').select('*', head).eq('status', 'submitted'),
+  ])
+  if (apps.error) throw apps.error
+  if (subs.error) throw subs.error
+  return { applications: apps.count ?? 0, submissions: subs.count ?? 0 }
 }

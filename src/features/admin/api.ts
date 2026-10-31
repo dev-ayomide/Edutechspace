@@ -12,6 +12,8 @@ export interface AdminOverview {
   leads: number
   students: number
   pendingInvitations: number
+  pendingApplications: number
+  activeSignatories: number
 }
 
 async function headCount(
@@ -25,13 +27,16 @@ async function headCount(
 const head = { count: 'exact', head: true } as const
 
 export async function fetchOverview(): Promise<AdminOverview> {
-  const [stacks, leads, students, pendingInvitations] = await Promise.all([
-    headCount(supabase.from('stacks').select('*', head).eq('is_active', true)),
-    headCount(supabase.from('profiles').select('*', head).eq('role', 'stack_lead')),
-    headCount(supabase.from('stack_members').select('*', head).eq('status', 'active')),
-    headCount(supabase.from('invitations').select('*', head).eq('status', 'pending')),
-  ])
-  return { stacks, leads, students, pendingInvitations }
+  const [stacks, leads, students, pendingInvitations, pendingApplications, activeSignatories] =
+    await Promise.all([
+      headCount(supabase.from('stacks').select('*', head).eq('is_active', true)),
+      headCount(supabase.from('profiles').select('*', head).eq('role', 'stack_lead')),
+      headCount(supabase.from('stack_members').select('*', head).eq('status', 'active')),
+      headCount(supabase.from('invitations').select('*', head).eq('status', 'pending')),
+      headCount(supabase.from('stack_applications').select('*', head).eq('status', 'pending')),
+      headCount(supabase.from('certificate_signatories').select('*', head).eq('is_active', true)),
+    ])
+  return { stacks, leads, students, pendingInvitations, pendingApplications, activeSignatories }
 }
 
 export async function listInvitations(): Promise<Invitation[]> {

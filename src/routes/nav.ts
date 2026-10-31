@@ -1,3 +1,19 @@
+import {
+  Award,
+  BookOpen,
+  ClipboardCheck,
+  GraduationCap,
+  Inbox,
+  Layers,
+  LayoutDashboard,
+  Mail,
+  PenLine,
+  PenSquare,
+  Route as RouteIcon,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 import type { Role } from '@/types/domain'
 
 export interface NavItem {
@@ -6,6 +22,7 @@ export interface NavItem {
   /** Phase of the PRD in which this screen is built; absent when it exists already. */
   phase?: number
   end?: boolean
+  icon: LucideIcon
 }
 
 export const areaLabel: Record<Role, string> = {
@@ -16,27 +33,27 @@ export const areaLabel: Record<Role, string> = {
 
 export const navByRole: Record<Role, NavItem[]> = {
   student: [
-    { to: '/dashboard', label: 'Overview', end: true },
-    { to: '/dashboard/stack', label: 'My stack' },
-    { to: '/dashboard/progress', label: 'Progress' },
-    { to: '/dashboard/exam', label: 'Final exam' },
-    { to: '/dashboard/certificate', label: 'Certificate' },
+    { to: '/dashboard', label: 'Overview', end: true, icon: LayoutDashboard },
+    { to: '/dashboard/stack', label: 'My stack', icon: RouteIcon },
+    { to: '/dashboard/progress', label: 'Progress', icon: TrendingUp },
+    { to: '/dashboard/exam', label: 'Final exam', icon: PenSquare },
+    { to: '/dashboard/certificate', label: 'Certificate', icon: Award },
   ],
   stack_lead: [
-    { to: '/lead', label: 'Overview', end: true },
-    { to: '/lead/content', label: 'Content' },
-    { to: '/lead/exam', label: 'Final exam' },
-    { to: '/lead/applications', label: 'Applications' },
-    { to: '/lead/reviews', label: 'Review queue' },
-    { to: '/lead/students', label: 'Students' },
+    { to: '/lead', label: 'Overview', end: true, icon: LayoutDashboard },
+    { to: '/lead/content', label: 'Content', icon: BookOpen },
+    { to: '/lead/exam', label: 'Final exam', icon: PenSquare },
+    { to: '/lead/applications', label: 'Applications', icon: Inbox },
+    { to: '/lead/reviews', label: 'Review queue', icon: ClipboardCheck },
+    { to: '/lead/students', label: 'Students', icon: GraduationCap },
   ],
   admin: [
-    { to: '/admin', label: 'Overview', end: true },
-    { to: '/admin/stacks', label: 'Stacks' },
-    { to: '/admin/applications', label: 'Applications' },
-    { to: '/admin/invitations', label: 'Lead invitations' },
-    { to: '/admin/users', label: 'Users' },
-    { to: '/admin/signatories', label: 'Signatories' },
-    { to: '/admin/certificates', label: 'Certificates' },
+    { to: '/admin', label: 'Overview', end: true, icon: LayoutDashboard },
+    { to: '/admin/stacks', label: 'Stacks', icon: Layers },
+    { to: '/admin/applications', label: 'Applications', icon: Inbox },
+    { to: '/admin/invitations', label: 'Lead invitations', icon: Mail },
+    { to: '/admin/users', label: 'Users', icon: Users },
+    { to: '/admin/signatories', label: 'Signatories', icon: PenLine },
+    { to: '/admin/certificates', label: 'Certificates', icon: Award },
   ],
 }

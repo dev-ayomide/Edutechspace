@@ -42,12 +42,19 @@ export function ModuleCard({
 }: { module: ModuleWithLessons; index: number; total: number; busy: boolean } & Handlers) {
   const lessonCount = module.lessons.length
   return (
-    <Card className={cn('p-0', busy && 'opacity-70')} aria-busy={busy}>
-      <div className="flex flex-wrap items-start gap-3 border-b p-4">
+    <Card className={cn('overflow-hidden p-0', busy && 'opacity-70')} aria-busy={busy}>
+      <div className="flex flex-wrap items-start gap-4 border-b-2 border-outline bg-surface p-4">
+        <span
+          aria-hidden="true"
+          className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-outline bg-accent font-display text-xl font-extrabold text-accent-foreground"
+        >
+          {index + 1}
+        </span>
         <div className="min-w-0 flex-1 basis-full sm:basis-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold">
-              <span className="text-muted-foreground">Module {index + 1}.</span> {module.title}
+            <h3 className="font-display text-lg font-extrabold tracking-tight">
+              <span className="sr-only">Module {index + 1}. </span>
+              {module.title}
             </h3>
             <Badge variant={module.is_published ? 'success' : 'warning'}>
               {module.is_published ? 'Published' : 'Draft'}

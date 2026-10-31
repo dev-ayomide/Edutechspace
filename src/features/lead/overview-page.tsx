@@ -1,5 +1,6 @@
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { AttentionCard } from '@/components/attention-card'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { StatCard } from '@/components/stat-card'
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/features/auth/auth-context'
 import { friendlyError } from '@/lib/errors'
-import { fetchStackSummary, leadKeys } from './api'
+import { fetchLeadAttention, fetchStackSummary, leadKeys } from './api'
 import { useMyStacks } from './use-my-stacks'
 
 export function LeadOverviewPage() {
@@ -18,6 +19,11 @@ export function LeadOverviewPage() {
       queryKey: leadKeys.summary(s.id),
       queryFn: () => fetchStackSummary(s.id),
     })),
+  })
+  const attention = useQuery({
+    queryKey: leadKeys.attention,
+    queryFn: fetchLeadAttention,
+    enabled: stacks.length > 0,
   })
   const name = profile?.full_name?.split(' ')[0]
 
@@ -35,13 +41,37 @@ export function LeadOverviewPage() {
           description="An admin assigns you to a stack. Once that happens, your content and students show up here."
         />
       )}
+      {stacks.length > 0 && (
+        <section aria-labelledby="needs-you" className="mb-10">
+          <h2 id="needs-you" className="mb-4 font-display text-2xl font-extrabold tracking-tight">
+            Needs you
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <AttentionCard
+              to="/lead/applications"
+              count={attention.data?.applications ?? 0}
+              label="applications to review"
+              emptyLabel="No applications waiting"
+            />
+            <AttentionCard
+              to="/lead/reviews"
+              count={attention.data?.submissions ?? 0}
+              label="projects to grade"
+              emptyLabel="Nothing to grade"
+            />
+          </div>
+        </section>
+      )}
       <div className="space-y-8">
         {stacks.map((stack, i) => {
           const summary = summaries[i]?.data
           return (
             <section key={stack.id} aria-labelledby={`stack-${stack.id}`}>
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                <CardTitle id={`stack-${stack.id}`} className="text-lg">
+                <CardTitle
+                  id={`stack-${stack.id}`}
+                  className="font-display text-2xl tracking-tight"
+                >
                   {stack.name}
                 </CardTitle>
                 <Button asChild variant="outline" size="sm">

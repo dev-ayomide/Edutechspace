@@ -112,6 +112,7 @@ export function AppShell({ role }: { role: Role }) {
             {items.map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} end={item.end} className={linkClass}>
+                  <item.icon className="mr-3 size-4 shrink-0" aria-hidden="true" />
                   {item.label}
                 </NavLink>
               </li>
