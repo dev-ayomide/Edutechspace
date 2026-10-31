@@ -24,9 +24,9 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-outline/40 px-6 py-12 text-center">
       <Inbox className="size-8 text-muted-foreground" aria-hidden="true" />
-      <h2 className="text-base font-semibold">{title}</h2>
+      <h2 className="font-display text-lg font-extrabold">{title}</h2>
       {description && <p className="max-w-sm text-sm text-muted-foreground">{description}</p>}
       {action}
     </div>
@@ -43,7 +43,7 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="flex flex-col items-start gap-3 rounded-xl bg-danger-soft p-5 text-danger-soft-foreground"
+      className="flex flex-col items-start gap-3 rounded-2xl border-2 border-danger bg-danger-soft p-5 text-danger-soft-foreground"
     >
       <div className="flex items-center gap-2 font-semibold">
         <AlertTriangle className="size-5" aria-hidden="true" />

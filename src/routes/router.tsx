@@ -36,6 +36,17 @@ function area(role: Role, base: string, children: RouteObject[]): RouteObject {
   }
 }
 
+const devRoutes: RouteObject[] = import.meta.env.DEV
+  ? [
+      {
+        path: '_design',
+        ...page(() =>
+          import('@/features/design/gallery-page').then((m) => ({ default: m.GalleryPage })),
+        ),
+      },
+    ]
+  : []
+
 export const routes: RouteObject[] = [
   {
     element: <PublicShell />,
@@ -186,6 +197,7 @@ export const routes: RouteObject[] = [
       ...page(() => import('@/features/admin/users-page').then((m) => ({ default: m.UsersPage }))),
     },
   ]),
+  ...devRoutes,
   { path: '*', element: <NotFoundPage /> },
 ]
 

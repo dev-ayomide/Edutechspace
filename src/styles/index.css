@@ -1,28 +1,39 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens. RUNTech Space brand: deep navy/blue on white with a cyan accent.
- * Components use semantic names (bg-primary, text-muted-foreground...), never raw hex.
+ * Design tokens: Direction B (bright, bold, human). White canvas, ink-navy blocks, electric cyan and
+ * the logo's ultramarine as accents, gold reserved for achievement. Components use semantic names
+ * (bg-primary, border-outline, text-link...), never raw hex.
  * Every foreground/background pair is checked for WCAG AA in src/styles/tokens.test.ts.
  */
 :root {
   --background: #ffffff;
-  --foreground: #172554;
-  --surface: #f4f8ff;
+  --foreground: #0a1744;
+  --surface: #f2f6ff;
   --card: #ffffff;
-  --card-foreground: #172554;
-  --muted: #eaf1ff;
-  --muted-foreground: #475a85;
-  --border: #d3def4;
-  --input: #7487b3;
-  --primary: #1e3a8a;
-  --primary-hover: #1e40af;
+  --card-foreground: #0a1744;
+  --muted: #e8efff;
+  --muted-foreground: #51618f;
+  --border: #dbe4fb;
+  --outline: #0a1744;
+  --input: #51618f;
+  --primary: #0a1744;
+  --primary-hover: #1d1fc8;
   --primary-foreground: #ffffff;
-  --brand: #1e3a8a;
+  --primary-shadow: #08f1ff;
+  --brand: #0a1744;
   --brand-foreground: #ffffff;
   --accent: #08f1ff;
-  --accent-foreground: #172554;
-  --ring: #2563eb;
+  --accent-foreground: #0a1744;
+  --accent-soft: #c9fbff;
+  --accent-soft-foreground: #0a1744;
+  --link: #1d1fc8;
+  --logo-run: #1818c8;
+  --ring: #2f5bea;
+  --gold: #f5b700;
+  --gold-foreground: #0a1744;
+  --gold-soft: #fff1c2;
+  --gold-soft-foreground: #5c4300;
   --success: #15803d;
   --success-foreground: #ffffff;
   --success-soft: #e7f7ee;
@@ -35,27 +46,37 @@
   --danger-foreground: #ffffff;
   --danger-soft: #fdecec;
   --danger-soft-foreground: #7f1d1d;
-  --radius: 0.625rem;
+  --radius: 1rem;
 }
 
 .dark {
-  --background: #0a1330;
-  --foreground: #eef4ff;
-  --surface: #0d1a40;
-  --card: #0f1c45;
-  --card-foreground: #eef4ff;
-  --muted: #16265a;
+  --background: #060d2b;
+  --foreground: #eef3ff;
+  --surface: #0a1440;
+  --card: #0e1a52;
+  --card-foreground: #eef3ff;
+  --muted: #14226a;
   --muted-foreground: #a9bbe3;
   --border: #243a78;
-  --input: #5573bd;
-  --primary: #5b8def;
-  --primary-hover: #7aa3f5;
-  --primary-foreground: #08122e;
-  --brand: #1e3a8a;
+  --outline: #8fa8ee;
+  --input: #7f98e0;
+  --primary: #08f1ff;
+  --primary-hover: #7ff7ff;
+  --primary-foreground: #060d2b;
+  --primary-shadow: #8fa8ee;
+  --brand: #14226a;
   --brand-foreground: #ffffff;
   --accent: #08f1ff;
-  --accent-foreground: #08122e;
-  --ring: #7aa3f5;
+  --accent-foreground: #060d2b;
+  --accent-soft: #0b3a63;
+  --accent-soft-foreground: #c9fbff;
+  --link: #8aa8ff;
+  --logo-run: #8b94ff;
+  --ring: #8aa8ff;
+  --gold: #f5b700;
+  --gold-foreground: #060d2b;
+  --gold-soft: #3a2c05;
+  --gold-soft-foreground: #ffe08a;
   --success: #4ade80;
   --success-foreground: #052e16;
   --success-soft: #0f2e22;
@@ -71,7 +92,10 @@
 }
 
 @theme inline {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans:
+    'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-display: 'Sora Variable', 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -81,6 +105,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-outline: var(--outline);
   --color-input: var(--input);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
@@ -89,7 +114,15 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-link: var(--link);
+  --color-logo-run: var(--logo-run);
   --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-soft-foreground: var(--gold-soft-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-soft: var(--success-soft);
@@ -103,10 +136,18 @@
   --color-danger-soft: var(--danger-soft);
   --color-danger-soft-foreground: var(--danger-soft-foreground);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
+
+  /* Hard offset shadows: the signature "lift" */
+  --shadow-hard: 4px 4px 0 var(--outline);
+  --shadow-hard-lg: 8px 8px 0 var(--outline);
+  --shadow-hard-gold: 8px 8px 0 var(--gold);
+  --shadow-hard-primary: 4px 4px 0 var(--primary-shadow);
 }
 
 @layer base {
@@ -115,6 +156,7 @@
   }
   html {
     color-scheme: light;
+    scroll-behavior: smooth;
   }
   html.dark {
     color-scheme: dark;
@@ -125,11 +167,20 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+  }
   :focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
   }
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *,
     *::before,
     *::after {
@@ -137,5 +188,14 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+@keyframes mark-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }

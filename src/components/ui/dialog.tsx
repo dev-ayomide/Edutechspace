@@ -21,14 +21,16 @@ export function DialogContent({
 }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/50" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/60" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border bg-card p-6 text-card-foreground shadow-xl',
+          'fixed top-1/2 left-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border-2 border-outline bg-card p-6 text-card-foreground shadow-hard-lg',
           className,
         )}
       >
-        <DialogPrimitive.Title className="text-lg font-semibold">{title}</DialogPrimitive.Title>
+        <DialogPrimitive.Title className="font-display text-xl font-extrabold">
+          {title}
+        </DialogPrimitive.Title>
         <DialogPrimitive.Description
           className={cn('mt-1 text-sm text-muted-foreground', !description && 'sr-only')}
         >

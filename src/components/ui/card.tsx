@@ -1,18 +1,33 @@
+import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn('rounded-xl border bg-card p-5 text-card-foreground shadow-sm', className)}
-      {...props}
-    />
-  )
+const cardVariants = cva('rounded-2xl border-2 border-outline p-5', {
+  variants: {
+    tone: {
+      default: 'bg-card text-card-foreground',
+      accent: 'bg-accent text-accent-foreground',
+      ink: 'bg-brand text-brand-foreground',
+      gold: 'bg-gold text-gold-foreground',
+      soft: 'bg-surface text-foreground',
+    },
+    lift: { none: '', sm: 'shadow-hard', lg: 'shadow-hard-lg' },
+  },
+  defaultVariants: { tone: 'default', lift: 'none' },
+})
+
+export function Card({
+  className,
+  tone,
+  lift,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & VariantProps<typeof cardVariants>) {
+  return <div className={cn(cardVariants({ tone, lift }), className)} {...props} />
 }
 
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-base font-semibold', className)} {...props}>
+    <h3 className={cn('text-lg font-extrabold', className)} {...props}>
       {children}
     </h3>
   )
