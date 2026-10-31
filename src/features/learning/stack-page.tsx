@@ -94,7 +94,7 @@ export function StackPage() {
           description="Your stack lead has not published any modules yet. Check back soon."
         />
       )}
-      <ol className="space-y-4">
+      <ol className="space-y-6">
         {modules.map((module, index) => (
           <li key={module.id}>
             <ModuleSection
@@ -131,33 +131,53 @@ function ModuleSection({
   const assignment: Assignment | undefined = module.assignments[0]
   const pct = state ? percent(state.lessons_done, state.lessons_total) : 0
 
+  const tile = {
+    locked: 'border-border bg-muted text-muted-foreground',
+    in_progress: 'border-outline bg-accent text-accent-foreground',
+    complete: 'border-outline bg-primary text-primary-foreground',
+  }[status]
+
   return (
-    <Card className={cn('p-0', status === 'locked' && 'bg-muted/40')}>
-      <div className="flex flex-wrap items-start justify-between gap-3 p-4">
-        <div className="min-w-0">
+    <Card
+      lift={status === 'in_progress' ? 'lg' : 'none'}
+      className={cn('overflow-hidden p-0', status === 'locked' && 'border-border bg-surface')}
+    >
+      <div
+        className={cn(
+          'flex flex-wrap items-center gap-4 p-5',
+          status !== 'locked' && 'border-b-2 border-outline bg-surface',
+        )}
+      >
+        <span
+          aria-hidden="true"
+          className={cn(
+            'grid size-14 shrink-0 place-items-center rounded-2xl border-2 font-display text-2xl font-extrabold',
+            tile,
+          )}
+        >
+          {status === 'complete' ? (
+            <CheckCircle2 className="size-6" />
+          ) : status === 'locked' ? (
+            <Lock className="size-5" />
+          ) : (
+            index + 1
+          )}
+        </span>
+        <div className="min-w-0 flex-1 basis-60">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-base font-semibold">
-              <span className="text-muted-foreground">Module {index + 1}.</span> {module.title}
+            <h2 className="font-display text-xl font-extrabold tracking-tight">
+              <span className="sr-only">Module {index + 1}. </span>
+              {module.title}
             </h2>
-            {status === 'locked' && (
-              <Badge>
-                <Lock className="mr-1 size-3" aria-hidden="true" />
-                Locked
-              </Badge>
-            )}
+            {status === 'locked' && <Badge>Locked</Badge>}
             {status === 'in_progress' && <Badge variant="primary">In progress</Badge>}
-            {status === 'complete' && (
-              <Badge variant="success">
-                <CheckCircle2 className="mr-1 size-3" aria-hidden="true" />
-                Complete
-              </Badge>
-            )}
+            {status === 'complete' && <Badge variant="success">Complete</Badge>}
           </div>
           {module.description && (
             <p className="mt-1 text-sm text-muted-foreground">{module.description}</p>
           )}
           {status === 'locked' && (
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               {previousTitle
                 ? `Complete “${previousTitle}” to unlock this module.`
                 : 'This module is not available yet.'}
@@ -165,11 +185,11 @@ function ModuleSection({
           )}
         </div>
         {status !== 'locked' && state && state.lessons_total > 0 && (
-          <div className="w-40 shrink-0">
-            <p className="mb-1 text-xs text-muted-foreground">
+          <div className="w-44 shrink-0">
+            <p className="mb-1 text-xs font-bold tabular-nums">
               {state.lessons_done} of {state.lessons_total} lessons
             </p>
-            <Progress value={pct} label={`${module.title} lesson progress`} className="h-2" />
+            <Progress value={pct} label={`${module.title} lesson progress`} className="h-3" />
           </div>
         )}
       </div>
@@ -177,7 +197,7 @@ function ModuleSection({
       {status !== 'locked' && (
         <>
           {module.lessons.length > 0 && (
-            <ul className="divide-y border-t">
+            <ul className="divide-y divide-border">
               {module.lessons.map((lesson) => {
                 const Icon = lessonIcon[lesson.lesson_type]
                 const done = completed.has(lesson.id)
@@ -185,25 +205,22 @@ function ModuleSection({
                   <li key={lesson.id}>
                     <Link
                       to={`/dashboard/stack/lessons/${lesson.id}`}
-                      className="flex min-h-12 items-center gap-3 px-4 py-2 hover:bg-muted"
+                      className="flex min-h-16 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent-soft"
                     >
                       {done ? (
                         <CheckCircle2
-                          className="size-5 shrink-0 text-success"
+                          className="size-6 shrink-0 text-success"
                           aria-label="Completed"
                         />
                       ) : (
-                        <Icon
-                          className="size-5 shrink-0 text-muted-foreground"
-                          aria-hidden="true"
-                        />
+                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted">
+                          <Icon className="size-4" aria-hidden="true" />
+                        </span>
                       )}
-                      <span className="flex-1 text-sm font-medium">{lesson.title}</span>
-                      {!lesson.is_required && (
-                        <span className="text-xs text-muted-foreground">Optional</span>
-                      )}
+                      <span className="flex-1 text-base font-semibold">{lesson.title}</span>
+                      {!lesson.is_required && <Badge>Optional</Badge>}
                       {lesson.duration_minutes && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-muted-foreground tabular-nums">
                           {lesson.duration_minutes} min
                         </span>
                       )}
@@ -216,12 +233,14 @@ function ModuleSection({
           {assignment && (
             <Link
               to={`/dashboard/stack/assignments/${assignment.id}`}
-              className="flex min-h-14 items-center gap-3 border-t px-4 py-2 hover:bg-muted"
+              className="flex min-h-[4.5rem] items-center gap-4 border-t-2 border-outline bg-accent-soft px-5 py-3 text-accent-soft-foreground transition-colors hover:bg-accent"
             >
-              <ClipboardCheck className="size-5 shrink-0 text-primary" aria-hidden="true" />
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-card">
+                <ClipboardCheck className="size-5" aria-hidden="true" />
+              </span>
               <span className="flex-1">
-                <span className="block text-sm font-medium">{assignment.title}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="block text-base font-extrabold">{assignment.title}</span>
+                <span className="text-sm opacity-80">
                   {assignment.type === 'quiz' ? 'Quiz' : 'Project assignment'}
                 </span>
               </span>
@@ -232,9 +251,7 @@ function ModuleSection({
             </Link>
           )}
           {module.lessons.length === 0 && !assignment && (
-            <p className="border-t p-4 text-sm text-muted-foreground">
-              Nothing in this module yet.
-            </p>
+            <p className="p-5 text-sm text-muted-foreground">Nothing in this module yet.</p>
           )}
         </>
       )}

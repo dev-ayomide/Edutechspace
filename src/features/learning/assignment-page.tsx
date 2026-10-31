@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { FormField } from '@/components/form-field'
+import { OptionTile } from '@/components/option-tile'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -92,8 +93,10 @@ export function AssignmentPage() {
           Back to my stack
         </Link>
       </Button>
-      <p className="text-sm text-muted-foreground">{a.modules.title}</p>
-      <h1 className="mt-1 text-2xl font-bold tracking-tight">{a.title}</h1>
+      <p className="text-sm font-bold tracking-[0.12em] text-link uppercase">{a.modules.title}</p>
+      <h1 className="mt-2 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
+        {a.title}
+      </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {a.type === 'quiz' ? 'Quiz' : 'Project'} · Pass mark {a.pass_mark}% ·{' '}
         {a.max_attempts === null
@@ -191,7 +194,12 @@ function QuizForm({
   if (result) {
     const pct = Math.round((result.score * 100) / result.max_score)
     return (
-      <Card role="status" className="text-center">
+      <Card
+        role="status"
+        tone={result.passed ? 'gold' : 'default'}
+        lift="lg"
+        className="text-center"
+      >
         {result.passed ? (
           <CheckCircle2 className="mx-auto size-10 text-success" aria-hidden="true" />
         ) : (
@@ -221,28 +229,37 @@ function QuizForm({
         e.preventDefault()
         if (complete) submit.mutate()
       }}
-      className="space-y-6"
+      className="space-y-5"
     >
       {questions.map((q, qi) => (
-        <fieldset key={q.id} className="space-y-2">
-          <legend className="font-medium">
-            {qi + 1}. {q.prompt}
+        <fieldset
+          key={q.id}
+          className="space-y-3 rounded-2xl border-2 border-outline bg-card p-5 sm:p-6"
+        >
+          <legend className="sr-only">
+            Question {qi + 1}: {q.prompt}
           </legend>
-          {q.options.map((option, oi) => (
-            <label
-              key={oi}
-              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 text-sm hover:bg-muted"
-            >
-              <input
-                type="radio"
+          <p
+            aria-hidden="true"
+            className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold tracking-tight"
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-accent text-base">
+              {qi + 1}
+            </span>
+            {q.prompt}
+          </p>
+          <div className="grid gap-2.5">
+            {q.options.map((option, oi) => (
+              <OptionTile
+                key={oi}
                 name={`q-${q.id}`}
-                className="size-4"
                 checked={answers[qi] === oi}
                 onChange={() => setAnswers((prev) => prev.map((v, i) => (i === qi ? oi : v)))}
-              />
-              {option}
-            </label>
-          ))}
+              >
+                {option}
+              </OptionTile>
+            ))}
+          </div>
         </fieldset>
       ))}
       <Button type="submit" size="lg" disabled={!complete} loading={submit.isPending}>

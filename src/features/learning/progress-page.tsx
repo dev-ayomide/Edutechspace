@@ -23,16 +23,19 @@ function Bar({
   detail: string
 }) {
   return (
-    <div>
-      <div className="mb-1 flex items-baseline justify-between gap-2">
-        <p className="text-sm font-medium">
-          {label}{' '}
-          <span className="font-normal text-muted-foreground">({weight}% of the total)</span>
+    <div className="rounded-2xl border-2 border-outline bg-surface p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-lg font-extrabold tracking-tight">{label}</p>
+          <p className="text-xs font-semibold text-muted-foreground">{weight}% of the total</p>
+        </div>
+        <p className="font-display text-4xl leading-none font-extrabold tracking-tighter tabular-nums">
+          {value}
+          <span className="text-xl">%</span>
         </p>
-        <p className="text-sm tabular-nums">{value}%</p>
       </div>
-      <Progress value={value} label={label} />
-      <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
+      <Progress value={value} label={label} className="mt-4" />
+      <p className="mt-2 text-sm text-muted-foreground">{detail}</p>
     </div>
   )
 }
@@ -80,10 +83,13 @@ export function ProgressPage() {
       <Card>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-lg">Overall</CardTitle>
-          <p className="text-3xl font-bold tabular-nums">{p?.overall ?? 0}%</p>
+          <p className="font-display text-6xl leading-none font-extrabold tracking-tighter tabular-nums">
+            {p?.overall ?? 0}
+            <span className="text-3xl">%</span>
+          </p>
         </div>
         <Progress value={p?.overall ?? 0} label="Overall progress" className="mt-3 h-3" />
-        <div className="mt-6 space-y-5">
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
           <Bar
             label="Lessons"
             weight={40}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { OptionTile } from '@/components/option-tile'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { Button } from '@/components/ui/button'
@@ -150,7 +151,7 @@ function Details({ exam }: { exam: MyExam }) {
         ].map(([label, value]) => (
           <div key={label}>
             <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="text-lg font-semibold">{value}</dd>
+            <dd className="font-display text-2xl font-extrabold tracking-tight">{value}</dd>
           </div>
         ))}
       </dl>
@@ -166,13 +167,13 @@ function Details({ exam }: { exam: MyExam }) {
 function ResultCard({ result, passMark }: { result: ExamResult; passMark: number }) {
   const ok = result.passed
   return (
-    <Card role="status" className="mb-6 text-center">
+    <Card role="status" tone={ok ? 'gold' : 'default'} lift="lg" className="mb-6 text-center">
       {ok ? (
         <CheckCircle2 className="mx-auto size-10 text-success" aria-hidden="true" />
       ) : (
         <XCircle className="mx-auto size-10 text-danger" aria-hidden="true" />
       )}
-      <h2 className="mt-3 text-xl font-bold">
+      <h2 className="mt-3 font-display text-4xl font-extrabold tracking-tight">
         {result.expired ? 'Time ran out' : ok ? 'You passed!' : 'Not this time'}
       </h2>
       <p className="mt-1 text-muted-foreground">
@@ -266,28 +267,37 @@ function ExamTaker({
           ev.preventDefault()
           if (complete) setConfirm(true)
         }}
-        className="space-y-8"
+        className="space-y-5"
       >
         {list.map((q, qi) => (
-          <fieldset key={q.id} className="space-y-2">
-            <legend className="font-medium">
-              {qi + 1}. {q.prompt}
+          <fieldset
+            key={q.id}
+            className="space-y-3 rounded-2xl border-2 border-outline bg-card p-5 sm:p-6"
+          >
+            <legend className="sr-only">
+              Question {qi + 1}: {q.prompt}
             </legend>
-            {q.options.map((option, oi) => (
-              <label
-                key={oi}
-                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 text-sm hover:bg-muted"
-              >
-                <input
-                  type="radio"
+            <p
+              aria-hidden="true"
+              className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold tracking-tight"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-accent text-base">
+                {qi + 1}
+              </span>
+              {q.prompt}
+            </p>
+            <div className="grid gap-2.5">
+              {q.options.map((option, oi) => (
+                <OptionTile
+                  key={oi}
                   name={`q-${q.id}`}
-                  className="size-4"
                   checked={answers[q.id] === oi}
                   onChange={() => setAnswers((a) => ({ ...a, [q.id]: oi }))}
-                />
-                {option}
-              </label>
-            ))}
+                >
+                  {option}
+                </OptionTile>
+              ))}
+            </div>
           </fieldset>
         ))}
         <div className="flex flex-wrap items-center gap-3">
