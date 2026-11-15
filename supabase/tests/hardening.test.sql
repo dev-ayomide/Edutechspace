@@ -38,7 +38,7 @@ do $$ declare t text; allowed text[] := array[
   'admin_set_role', 'remove_lead_from_stack', 'reorder_modules', 'reorder_lessons', 'complete_lesson',
   'submit_quiz', 'submit_assignment', 'grade_submission', 'save_quiz', 'my_progress', 'my_modules',
   'stack_roster', 'save_exam_questions', 'my_exam', 'start_exam', 'submit_exam', 'revoke_certificate',
-  'reissue_certificate', 'verify_certificate'];
+  'reissue_certificate', 'verify_certificate', 'grant_extra_attempts', 'attempt_overview'];
 begin
   select string_agg(p.proname, ', ') into t
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace

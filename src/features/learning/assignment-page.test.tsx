@@ -61,6 +61,7 @@ const detail = (type: 'quiz' | 'submission', submissions: Submission[] = [], ove
   },
   questions: type === 'quiz' ? questions : [],
   submissions,
+  extraAttempts: 0,
 })
 const show = () =>
   renderWithProviders(
@@ -193,8 +194,18 @@ describe('AssignmentPage', () => {
         detail('submission', [sub()], { max_attempts: 1 }),
       )
       show()
-      expect(await screen.findByText(/used all attempts/)).toBeInTheDocument()
+      expect(await screen.findByText(/used all your attempts/)).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Submit' })).not.toBeInTheDocument()
+    })
+
+    it('counts extra attempts granted by the lead', async () => {
+      vi.mocked(api.fetchAssignmentDetail).mockResolvedValue({
+        ...detail('submission', [sub()], { max_attempts: 1 }),
+        extraAttempts: 1,
+      })
+      show()
+      expect(await screen.findByText(/1 of 2 attempts used/)).toBeInTheDocument()
+      expect(screen.queryByText(/used all your attempts/)).not.toBeInTheDocument()
     })
   })
 

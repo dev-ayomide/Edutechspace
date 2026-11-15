@@ -38,7 +38,12 @@ export function ApplicationsPage() {
     mutationFn: ({ application, approve }: { application: Application; approve: boolean }) =>
       reviewApplication(application.id, approve, note),
     onSuccess: async (result, vars) => {
-      if (result.status === 'rejected') toast.success('Application rejected.')
+      if (result.status === 'rejected')
+        toast.success(
+          result.emailSent
+            ? 'Application rejected. The applicant was emailed.'
+            : 'Application rejected.',
+        )
       else if (result.status === 'added')
         toast.success(`${vars.application.full_name} was added to the stack.`)
       else if (result.emailSent)
@@ -153,13 +158,17 @@ export function ApplicationsPage() {
             description={
               review.approve
                 ? 'They get an email with a link to set up their account and join the stack.'
-                : 'The application is closed. The applicant can apply again later.'
+                : 'The application is closed and the applicant gets a polite email. They can apply again later.'
             }
           >
             <FormField
               id="review-note"
-              label="Note (optional)"
-              hint="Saved with the application. It is not emailed."
+              label={review.approve ? 'Note (optional)' : 'Reason (optional)'}
+              hint={
+                review.approve
+                  ? 'Saved with the application. It is not emailed.'
+                  : 'Saved with the application and included in the email to the applicant.'
+              }
             >
               <Textarea
                 id="review-note"

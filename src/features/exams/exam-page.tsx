@@ -115,7 +115,7 @@ export function ExamPage() {
         <Card className="mt-6">
           <CardTitle>No attempts left</CardTitle>
           <CardDescription className="mt-1">
-            You have used every attempt. Please contact your stack lead.
+            You have used every attempt. Your stack lead can give you another one if you ask.
           </CardDescription>
         </Card>
       )}

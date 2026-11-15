@@ -19,9 +19,14 @@ if (reach instanceof Error || reach.status >= 500) {
   console.error('Check VITE_SUPABASE_URL, your internet connection, and that the project is not paused.')
   process.exit(2)
 }
-if (reach.status === 401 || reach.status === 403) {
-  console.error('The server rejected the anon key. Check VITE_SUPABASE_ANON_KEY (use the "anon public" key, not a service key).')
-  process.exit(2)
+// Newer projects answer 401 on the API root even with a valid key, so test the key on a real, public query.
+const probe = await fetch(`${url}/rest/v1/stacks?select=id&limit=1`, { headers: { apikey: key } }).catch((e) => e)
+if (!(probe instanceof Error) && (probe.status === 401 || probe.status === 403)) {
+  const body = await probe.text().catch(() => '')
+  if (/invalid api key|jwt|apikey/i.test(body)) {
+    console.error('The server rejected the anon key. Check VITE_SUPABASE_ANON_KEY (use the "anon public" key, not a service key).')
+    process.exit(2)
+  }
 }
 const isNetwork = (error) => /fetch failed|network|ECONN|ENOTFOUND/i.test(error?.message ?? '')
 
@@ -72,6 +77,14 @@ await check('Certificate verification works for unknown numbers (returns nothing
 await check('Admin functions are closed to visitors', async () => {
   const { error } = await sb.rpc('create_lead_invitation', { p_email: 'x@example.invalid', p_stack_id: '00000000-0000-0000-0000-000000000000' })
   return error && isNetwork(error) ? ['FAIL', error.message] : error ? ['PASS', 'denied'] : ['FAIL', 'a visitor could call an admin function']
+})
+
+await check('Latest database update is applied (extra attempts, profile details)', async () => {
+  const { error } = await sb.rpc('attempt_overview', { p_user_id: '00000000-0000-0000-0000-000000000000', p_stack_id: '00000000-0000-0000-0000-000000000000' })
+  if (error && isNetwork(error)) return ['FAIL', error.message]
+  if (error && (error.code === 'PGRST202' || /could not find the function/i.test(error.message)))
+    return ['FAIL', 'paste supabase/migrations/20261115000001_attempt_grants_and_profile_details.sql into the SQL editor and run it']
+  return error ? ['PASS', 'installed and closed to visitors'] : ['FAIL', 'a visitor could call attempt_overview']
 })
 
 await check('Private file buckets are not listable by visitors', async () => {

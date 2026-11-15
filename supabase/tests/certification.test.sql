@@ -230,6 +230,22 @@ do $$ begin
 end $$;
 reset role;
 
+-- a lead grants one more exam attempt: the student is no longer exhausted (the usual waiting period still applies)
+set role authenticated;
+select set_config('request.jwt.claim.sub', :lead_fe, false);
+do $$ begin
+  perform public.grant_extra_attempts('c1000000-0000-0000-0000-000000000001', null, current_setting('test.exam')::uuid);
+  begin perform public.grant_extra_attempts('c3000000-0000-0000-0000-000000000001', null, current_setting('test.exam')::uuid);
+    raise exception 'withdrawn students cannot be granted attempts';
+  exception when check_violation then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', :s2, false);
+do $$ begin
+  assert public.my_exam() ->> 'state' = 'cooldown', 'extra attempt lifts the exhausted state';
+  assert (public.my_exam() ->> 'max_attempts')::int = 3, 'the student sees their own attempt limit';
+end $$;
+reset role;
+
 -- ---------------------------------------------------------------- other students cannot take or read this exam
 set role authenticated;
 select set_config('request.jwt.claim.sub', :s_be, false);

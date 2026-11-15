@@ -11,7 +11,7 @@ Nothing here has been run against a live Supabase project yet, so treat the firs
 - [ ] **Authentication > Password:** minimum length 10 or more; enable leaked-password protection if your plan offers it.
 - [ ] **Authentication > SMTP:** configure a real sender (the built-in mailer is heavily rate limited and unsuitable for launch). Customise the **Invite user** and **Reset password** templates with the RUNTech Space name.
 - [ ] Apply the migrations in order (`supabase db push`, or paste each file into the SQL editor):
-  `20261030000001_core`, `20261030000002_seed_stacks`, `20261031000001_content_and_lead_management`, `20261101000001_learning`, `20261102000001_exam_and_certificates`, `20261103000001_privilege_hardening`.
+  `20261030000001_core`, `20261030000002_seed_stacks`, `20261031000001_content_and_lead_management`, `20261101000001_learning`, `20261102000001_exam_and_certificates`, `20261103000001_privilege_hardening`, `20261115000001_attempt_grants_and_profile_details`.
 - [ ] Confirm the three storage buckets exist: `lesson-media` (private), `submissions` (private), `signatures` (public).
 - [ ] Create the first admin: add the user in Authentication > Users, then run `supabase/seed/first-admin.sql`.
 - [ ] Turn on daily backups / point-in-time recovery (Settings > Database) before real data arrives.
@@ -60,5 +60,6 @@ Nothing here has been run against a live Supabase project yet, so treat the firs
 
 - Lesson videos cannot carry caption tracks yet (accessibility gap; needs a design decision on caption upload).
 - The PDF certificate uses a built-in font covering Latin-1, so diacritics (e.g. Yoruba ọ, ẹ) print as their base letters; the on-screen certificate and verification page are exact.
-- Rejection emails are not sent; a failed invitation email is reported to the reviewer but has no resend button.
+- A failed invitation email is reported to the reviewer but has no resend button; the person can use "Forgot password" with the invited address to get in.
+- Leads are not emailed about new applications; they see them on their overview.
 - The hero image is a stock photo; the dark-theme logo is derived from the supplied light logo (the supplied dark file had smudged edges). Vector (SVG) logo files would be better than PNG.

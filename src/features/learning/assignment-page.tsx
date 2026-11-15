@@ -75,12 +75,13 @@ export function AssignmentPage() {
     )
   }
 
-  const { assignment: a, questions, submissions } = detail.data
+  const { assignment: a, questions, submissions, extraAttempts } = detail.data
+  const allowedAttempts = a.max_attempts === null ? null : a.max_attempts + extraAttempts
   const state = learning.states.find((s) => s.assignment_id === a.id)
   const passed = !!state?.assignment_passed
   const pending = submissions.some((s) => s.status === 'submitted')
   const attemptsLeft =
-    a.max_attempts === null ? null : Math.max(0, a.max_attempts - submissions.length)
+    allowedAttempts === null ? null : Math.max(0, allowedAttempts - submissions.length)
   const canAttempt =
     learning.membership?.status === 'active' && !passed && !pending && attemptsLeft !== 0
   const latestNote = submissions.find((s) => s.status === 'needs_resubmission')
@@ -99,9 +100,9 @@ export function AssignmentPage() {
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {a.type === 'quiz' ? 'Quiz' : 'Project'} · Pass mark {a.pass_mark}% ·{' '}
-        {a.max_attempts === null
+        {allowedAttempts === null
           ? 'Unlimited attempts'
-          : `${submissions.length} of ${a.max_attempts} attempts used`}
+          : `${submissions.length} of ${allowedAttempts} attempts used`}
       </p>
       {a.instructions && <p className="mt-4 max-w-prose whitespace-pre-wrap">{a.instructions}</p>}
 
@@ -137,7 +138,7 @@ export function AssignmentPage() {
           role="status"
           className="mt-6 rounded-lg bg-danger-soft p-4 text-danger-soft-foreground"
         >
-          You have used all attempts. Please contact your stack lead.
+          You have used all your attempts. Your stack lead can give you another one.
         </div>
       )}
 

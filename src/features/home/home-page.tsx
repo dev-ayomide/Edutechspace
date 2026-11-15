@@ -115,7 +115,7 @@ export function HomePage() {
       <section className="border-y-2 border-outline bg-brand text-brand-foreground">
         <dl className="mx-auto grid max-w-6xl gap-8 px-5 py-14 sm:grid-cols-3">
           {[
-            [String(stacks.length), 'stacks, each led by practitioners'],
+            [String(stacks.length), 'stacks, each a full path to a certificate'],
             ['1', 'final exam, graded fairly and on the clock'],
             ['100%', 'of certificates publicly verifiable'],
           ].map(([n, label]) => (

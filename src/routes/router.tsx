@@ -115,6 +115,12 @@ export const routes: RouteObject[] = [
         import('@/features/learning/progress-page').then((m) => ({ default: m.ProgressPage })),
       ),
     },
+    {
+      path: 'profile',
+      ...page(() =>
+        import('@/features/profile/profile-page').then((m) => ({ default: m.ProfilePage })),
+      ),
+    },
   ]),
   area('stack_lead', '/lead', [
     {
@@ -153,6 +159,12 @@ export const routes: RouteObject[] = [
       path: 'content',
       ...page(() =>
         import('@/features/content/content-page').then((m) => ({ default: m.ContentPage })),
+      ),
+    },
+    {
+      path: 'profile',
+      ...page(() =>
+        import('@/features/profile/profile-page').then((m) => ({ default: m.ProfilePage })),
       ),
     },
   ]),
@@ -200,8 +212,42 @@ export const routes: RouteObject[] = [
       ),
     },
     {
+      path: 'content',
+      ...page(() =>
+        import('@/features/content/content-page').then((m) => ({ default: m.ContentPage })),
+      ),
+    },
+    {
+      path: 'exam',
+      ...page(() =>
+        import('@/features/exams/exam-builder-page').then((m) => ({ default: m.ExamBuilderPage })),
+      ),
+    },
+    {
+      path: 'students',
+      ...page(() =>
+        import('@/features/roster/students-page').then((m) => ({ default: m.StudentsPage })),
+      ),
+    },
+    {
+      path: 'reviews',
+      ...page(() =>
+        import('@/features/reviews/review-page').then((m) => ({ default: m.ReviewPage })),
+      ),
+    },
+    {
+      path: 'audit',
+      ...page(() => import('@/features/admin/audit-page').then((m) => ({ default: m.AuditPage }))),
+    },
+    {
       path: 'users',
       ...page(() => import('@/features/admin/users-page').then((m) => ({ default: m.UsersPage }))),
+    },
+    {
+      path: 'profile',
+      ...page(() =>
+        import('@/features/profile/profile-page').then((m) => ({ default: m.ProfilePage })),
+      ),
     },
   ]),
   ...devRoutes,

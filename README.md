@@ -61,7 +61,7 @@ Students apply on the public **Join a stack** page. The stack's leads (and admin
 supabase functions deploy review-application
 ```
 
-It uses the same `SITE_URL` secret and `/accept-invite` redirect URL as `invite-user`. If the email cannot be sent, the application stays approved and the reviewer is told to follow up. Rejection emails are not sent yet.
+It uses the same `SITE_URL` secret and `/accept-invite` redirect URL as `invite-user`. If the email cannot be sent, the application stays approved and the reviewer is told to follow up. Rejecting sends the applicant a polite email (with the reviewer's reason, if given) when `RESEND_API_KEY` and `EMAIL_FROM` are set.
 
 ## Learning rules (enforced in the database)
 

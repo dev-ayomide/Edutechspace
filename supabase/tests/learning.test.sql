@@ -237,6 +237,41 @@ do $$ begin
   exception when check_violation then null; end;
   assert (public.my_progress()).overall = 0, 'nothing completed yet -> 0';
 end $$;
+
+-- extra attempts: only the stack's leads (or admins) can grant them, and they lift the limit
+do $$ begin
+  begin perform public.grant_extra_attempts(auth.uid(), current_setting('test.qz')::uuid);
+    raise exception 'a student must not grant themselves attempts';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', :lead_be, false);
+do $$ begin
+  begin perform public.grant_extra_attempts('c1000000-0000-0000-0000-000000000001', current_setting('test.qz')::uuid);
+    raise exception 'another stack''s lead must not grant attempts';
+  exception when insufficient_privilege then null; end;
+  begin perform public.attempt_overview('c1000000-0000-0000-0000-000000000001', current_setting('test.fe')::uuid);
+    raise exception 'another stack''s lead must not see attempts';
+  exception when insufficient_privilege then null; end;
+end $$;
+select set_config('request.jwt.claim.sub', :lead_fe, false);
+do $$ declare r record; begin
+  begin insert into public.attempt_grants (user_id, assignment_id, extra)
+    values ('c1000000-0000-0000-0000-000000000001', current_setting('test.qz')::uuid, 5);
+    raise exception 'grants must not be written directly';
+  exception when insufficient_privilege then null; end;
+  perform public.grant_extra_attempts('c1000000-0000-0000-0000-000000000001', current_setting('test.qz')::uuid, null, 1, 'retry');
+  select * into r from public.attempt_overview('c1000000-0000-0000-0000-000000000001', current_setting('test.fe')::uuid)
+    where target_id = current_setting('test.qz')::uuid;
+  assert r.attempts_used = 2 and r.attempts_allowed = 3 and not r.passed, 'overview shows the extra attempt';
+end $$;
+select set_config('request.jwt.claim.sub', :s2, false);
+do $$ begin
+  assert (select sum(extra) from public.attempt_grants) = 1, 'the student sees their own grant';
+  perform public.submit_quiz(current_setting('test.qz')::uuid, array[0, 1]);
+  begin perform public.submit_quiz(current_setting('test.qz')::uuid, array[0, 1]);
+    raise exception 'the limit applies again after the extra attempt is used';
+  exception when check_violation then null; end;
+end $$;
 select set_config('request.jwt.claim.sub', :s_be, false);
 do $$ begin
   begin perform public.complete_lesson(current_setting('test.l1')::uuid);

@@ -38,8 +38,8 @@ do $$ begin
 end $$;
 
 -- anon can apply, but only as a pending application
-insert into public.stack_applications (full_name, email, stack_id, motivation)
-  select 'Ada Applicant', 'ada@x.test', id, 'I want to learn' from public.stacks where slug = 'frontend';
+insert into public.stack_applications (full_name, email, stack_id, motivation, phone)
+  select 'Ada Applicant', 'ada@x.test', id, 'I want to learn', '0800' from public.stacks where slug = 'frontend';
 do $$ begin
   begin
     insert into public.stack_applications (full_name, email, stack_id, status)
@@ -139,6 +139,8 @@ do $$ begin
     where m.user_id = 'c2000000-0000-0000-0000-000000000001' and s.slug = 'frontend' and m.status = 'active'
   ), 'invited student is joined to the stack';
   assert (select status from public.invitations where email = 'ada@x.test') = 'accepted', 'invitation accepted';
+  assert (select full_name from public.profiles where email = 'ada@x.test') = 'Ada Applicant', 'name copied from the application';
+  assert (select phone from public.profiles where email = 'ada@x.test') = '0800', 'phone copied from the application';
 end $$;
 
 -- a lead of another stack cannot see or review this stack's applications

@@ -15,7 +15,11 @@ describe('AcceptInvitePage', () => {
   it('explains an invalid or expired link when there is no session', () => {
     auth.current = { status: 'unauthenticated', session: null, role: undefined }
     renderWithProviders(<AcceptInvitePage />)
-    expect(screen.getByText('This invitation link is not valid')).toBeInTheDocument()
+    expect(screen.getByText('This invitation link has expired')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Set my password' })).toHaveAttribute(
+      'href',
+      '/forgot-password',
+    )
   })
 
   describe('with a valid invitation session', () => {
@@ -36,6 +40,12 @@ describe('AcceptInvitePage', () => {
       expect(await screen.findByText('Use at least 10 characters')).toBeInTheDocument()
       expect(screen.getByText('Passwords do not match')).toBeInTheDocument()
       expect(setPasswordAndName).not.toHaveBeenCalled()
+    })
+
+    it('starts from the name on the application', async () => {
+      auth.current = { ...auth.current, profile: { full_name: 'Ada Applicant' } }
+      renderWithProviders(<AcceptInvitePage />)
+      await waitFor(() => expect(screen.getByLabelText('Full name')).toHaveValue('Ada Applicant'))
     })
 
     it('saves the name and password', async () => {

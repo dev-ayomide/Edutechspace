@@ -98,6 +98,8 @@ export interface AssignmentDetail {
   assignment: Assignment & { modules: { title: string; stack_id: string } }
   questions: QuizQuestion[]
   submissions: Submission[]
+  /** Extra attempts a stack lead granted this student on top of the assignment's limit. */
+  extraAttempts: number
 }
 
 export async function fetchAssignmentDetail(
@@ -111,7 +113,7 @@ export async function fetchAssignmentDetail(
     .maybeSingle()
   if (error) throw error
   if (!assignment) return null
-  const [questions, submissions] = await Promise.all([
+  const [questions, submissions, grants] = await Promise.all([
     supabase.from('assignment_questions').select('*').eq('assignment_id', id).order('order_index'),
     supabase
       .from('assignment_submissions')
@@ -119,13 +121,16 @@ export async function fetchAssignmentDetail(
       .eq('assignment_id', id)
       .eq('user_id', userId)
       .order('attempt', { ascending: false }),
+    supabase.from('attempt_grants').select('extra').eq('assignment_id', id).eq('user_id', userId),
   ])
   if (questions.error) throw questions.error
   if (submissions.error) throw submissions.error
+  if (grants.error) throw grants.error
   return {
     assignment: assignment as AssignmentDetail['assignment'],
     questions: questions.data as QuizQuestion[],
     submissions: submissions.data as Submission[],
+    extraAttempts: (grants.data ?? []).reduce((sum, g) => sum + (g.extra as number), 0),
   }
 }
 

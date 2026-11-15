@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -28,15 +28,23 @@ type FormValues = z.infer<typeof schema>
  * their account by choosing a name and password.
  */
 export function AcceptInvitePage() {
-  const { status, session, role } = useAuth()
+  const { status, session, role, profile } = useAuth()
   const queryClient = useQueryClient()
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const {
     register,
     handleSubmit,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
+
+  // The name from the join application is already on the profile: start from it.
+  const knownName = profile?.full_name ?? ''
+  useEffect(() => {
+    if (knownName && !getValues('fullName')) setValue('fullName', knownName)
+  }, [knownName, getValues, setValue])
 
   if (status === 'loading') {
     return (
@@ -51,14 +59,19 @@ export function AcceptInvitePage() {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
         <Card lift="lg" className="p-8">
-          <CardTitle className="text-xl">This invitation link is not valid</CardTitle>
+          <CardTitle className="text-xl">This invitation link has expired</CardTitle>
           <CardDescription className="mt-2">
-            It may have expired or already been used. Ask your administrator or stack lead to send a
-            new invitation, or sign in if you already finished setting up.
+            Invitation links only work once and for a limited time. Your account is already set up:
+            choose a password using the email address the invitation was sent to, then sign in.
           </CardDescription>
-          <Button asChild className="mt-6">
-            <Link to="/login">Go to sign in</Link>
-          </Button>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild>
+              <Link to="/forgot-password">Set my password</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/login">Go to sign in</Link>
+            </Button>
+          </div>
         </Card>
       </div>
     )

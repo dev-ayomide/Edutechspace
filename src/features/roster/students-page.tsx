@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Select } from '@/components/ui/select'
 import { Table, Td, Th } from '@/components/ui/table'
 import { useMyStacks } from '@/features/lead/use-my-stacks'
 import { friendlyError } from '@/lib/errors'
-import { fetchRoster, rosterKeys } from './api'
+import { fetchRoster, rosterKeys, type RosterRow } from './api'
+import { AttemptsDialog } from './attempts-dialog'
 
 const daysAgo = (iso: string | null) => {
   if (!iso) return 'No activity yet'
@@ -18,6 +21,7 @@ const daysAgo = (iso: string | null) => {
 export function StudentsPage() {
   const { stacks, selected, select, isPending: stacksPending, error: stacksError } = useMyStacks()
   const stackId = selected?.id ?? ''
+  const [attemptsFor, setAttemptsFor] = useState<RosterRow | null>(null)
   const roster = useQuery({
     queryKey: rosterKeys.stack(stackId),
     queryFn: () => fetchRoster(stackId),
@@ -78,6 +82,9 @@ export function StudentsPage() {
               <Th>Lessons</Th>
               <Th>Assignments</Th>
               <Th>Last activity</Th>
+              <Th>
+                <span className="sr-only">Actions</span>
+              </Th>
             </tr>
           </thead>
           <tbody>
@@ -108,11 +115,21 @@ export function StudentsPage() {
                   {r.assignments_passed} / {r.assignments_total}
                 </Td>
                 <Td className="text-muted-foreground">{daysAgo(r.last_activity)}</Td>
+                <Td>
+                  <Button size="sm" variant="outline" onClick={() => setAttemptsFor(r)}>
+                    Attempts
+                  </Button>
+                </Td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+      <AttemptsDialog
+        stackId={stackId}
+        student={attemptsFor}
+        onOpenChange={(open) => !open && setAttemptsFor(null)}
+      />
     </>
   )
 }

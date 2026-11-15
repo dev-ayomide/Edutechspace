@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { Logo } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/auth-context'
+import { homeForRole } from '@/features/auth/roles'
 import { cn } from '@/lib/utils'
 import { areaLabel, navByRole } from '@/routes/nav'
 import type { Role } from '@/types/domain'
@@ -30,15 +31,21 @@ function UserBar() {
     .join('')
   return (
     <div className="flex items-center gap-2">
-      <span className="hidden max-w-40 truncate text-sm font-semibold text-foreground sm:block">
-        {profile?.full_name ?? profile?.email}
-      </span>
-      <span
-        aria-hidden="true"
-        className="grid size-10 place-items-center rounded-full border-2 border-outline bg-gold text-sm font-extrabold text-gold-foreground"
+      <Link
+        to={profile ? `${homeForRole(profile.role)}/profile` : '/'}
+        className="flex items-center gap-2 rounded-full"
+        aria-label="Your profile"
       >
-        {initials}
-      </span>
+        <span className="hidden max-w-40 truncate text-sm font-semibold text-foreground sm:block">
+          {profile?.full_name ?? profile?.email}
+        </span>
+        <span
+          aria-hidden="true"
+          className="grid size-10 place-items-center rounded-full border-2 border-outline bg-gold text-sm font-extrabold text-gold-foreground"
+        >
+          {initials}
+        </span>
+      </Link>
       <ThemeToggle />
       <Button variant="outline" size="sm" onClick={() => void signOut()}>
         <LogOut className="size-4" aria-hidden="true" />

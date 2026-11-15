@@ -100,3 +100,38 @@ export async function removeLeadFromStack(userId: string, stackId: string) {
   })
   if (error) throw error
 }
+
+export interface AuditEntry {
+  id: number
+  actor_id: string | null
+  actor: string | null
+  action: string
+  entity: string
+  entity_id: string | null
+  meta: Record<string, unknown>
+  created_at: string
+}
+
+export const auditKeys = { list: (limit: number) => ['admin', 'audit', limit] as const }
+
+/** The latest audit entries, newest first, with the actor's name (admins only, by RLS). */
+export async function listAuditLog(limit: number): Promise<AuditEntry[]> {
+  const { data, error } = await supabase
+    .from('audit_log')
+    .select('id, actor_id, action, entity, entity_id, meta, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  const rows = (data ?? []) as Omit<AuditEntry, 'actor'>[]
+  const ids = [...new Set(rows.map((r) => r.actor_id).filter((id): id is string => !!id))]
+  const names = new Map<string, string>()
+  if (ids.length > 0) {
+    const { data: people, error: peopleError } = await supabase
+      .from('profiles')
+      .select('id, full_name, email')
+      .in('id', ids)
+    if (peopleError) throw peopleError
+    for (const p of people ?? []) names.set(p.id as string, (p.full_name || p.email) as string)
+  }
+  return rows.map((r) => ({ ...r, actor: r.actor_id ? (names.get(r.actor_id) ?? null) : null }))
+}

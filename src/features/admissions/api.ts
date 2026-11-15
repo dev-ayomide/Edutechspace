@@ -32,7 +32,9 @@ export async function listApplications(): Promise<Application[]> {
 }
 
 export type ReviewResult =
-  { status: 'rejected' } | { status: 'added' } | { status: 'approved'; emailSent: boolean }
+  | { status: 'rejected'; emailSent?: boolean }
+  | { status: 'added' }
+  | { status: 'approved'; emailSent: boolean }
 
 export async function reviewApplication(
   id: string,
