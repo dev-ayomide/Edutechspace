@@ -44,7 +44,7 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md items-center px-4 py-10">
-      <Card lift="lg" className="w-full p-8">
+      <Card lift="sm" className="w-full p-8">
         {sent ? (
           <div role="status" className="text-center">
             <MailCheck className="mx-auto size-10 text-success" aria-hidden="true" />

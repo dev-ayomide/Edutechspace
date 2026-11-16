@@ -17,20 +17,25 @@ export function AttentionCard({
 }) {
   const active = count > 0
   return (
-    <Link to={to} className="group block rounded-2xl focus-visible:outline-offset-4">
+    <Link to={to} className="group block rounded-lg">
       <Card
-        tone={active ? 'accent' : 'default'}
-        lift={active ? 'sm' : 'none'}
         className={cn(
-          'flex items-center justify-between gap-4 transition duration-150 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5',
-          !active && 'opacity-80',
+          'flex items-center justify-between gap-4 transition-colors group-hover:bg-surface',
+          active && 'border-l-4 border-l-primary',
         )}
       >
         <div className="flex items-center gap-4">
-          <span className="font-display text-5xl leading-none font-extrabold tracking-tighter tabular-nums">
+          <span
+            className={cn(
+              'text-3xl leading-none font-extrabold tabular-nums',
+              !active && 'text-muted-foreground',
+            )}
+          >
             {count}
           </span>
-          <span className="text-base font-bold">{active ? label : emptyLabel}</span>
+          <span className={cn('text-base font-semibold', !active && 'text-muted-foreground')}>
+            {active ? label : emptyLabel}
+          </span>
         </div>
         <ArrowRight className="size-5 shrink-0" aria-hidden="true" />
       </Card>

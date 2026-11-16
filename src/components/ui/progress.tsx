@@ -16,10 +16,7 @@ export function Progress({ value, label, className }: ProgressProps) {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={clamped}
-      className={cn(
-        'h-3.5 w-full overflow-hidden rounded-full border-2 border-outline bg-muted',
-        className,
-      )}
+      className={cn('h-2 w-full overflow-hidden rounded-full bg-muted', className)}
     >
       <div
         className="h-full rounded-full bg-primary transition-[width] duration-700"

@@ -4,6 +4,7 @@ const SITE = 'RUNTech Space'
 
 const publicTitles: [RegExp, string][] = [
   [/^\/$/, 'Learn. Grow. Build.'],
+  [/^\/stacks/, 'Stacks'],
   [/^\/login/, 'Sign in'],
   [/^\/join/, 'Join a stack'],
   [/^\/accept-invite/, 'Finish setting up your account'],

@@ -34,6 +34,7 @@ describe('LessonPage', () => {
       isPending: false,
       error: null,
       membership: { status: 'active' },
+      states: [],
       completedLessonIds: new Set<string>(),
       modules: [moduleWith('m1', { lessons: [lesson('l1'), lesson('l2')] })],
     }

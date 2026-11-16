@@ -23,15 +23,15 @@ function Bar({
   detail: string
 }) {
   return (
-    <div className="rounded-2xl border-2 border-outline bg-surface p-5">
+    <div className="rounded-lg border bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-display text-lg font-extrabold tracking-tight">{label}</p>
-          <p className="text-xs font-semibold text-muted-foreground">{weight}% of the total</p>
+          <p className="font-bold">{label}</p>
+          <p className="text-xs text-muted-foreground">{weight}% of the total</p>
         </div>
-        <p className="font-display text-4xl leading-none font-extrabold tracking-tighter tabular-nums">
+        <p className="text-2xl leading-none font-extrabold tabular-nums">
           {value}
-          <span className="text-xl">%</span>
+          <span className="text-base">%</span>
         </p>
       </div>
       <Progress value={value} label={label} className="mt-4" />
@@ -83,12 +83,12 @@ export function ProgressPage() {
       <Card>
         <div className="flex items-center justify-between gap-4">
           <CardTitle className="text-lg">Overall</CardTitle>
-          <p className="font-display text-6xl leading-none font-extrabold tracking-tighter tabular-nums">
+          <p className="text-3xl leading-none font-extrabold tabular-nums">
             {p?.overall ?? 0}
-            <span className="text-3xl">%</span>
+            <span className="text-lg">%</span>
           </p>
         </div>
-        <Progress value={p?.overall ?? 0} label="Overall progress" className="mt-3 h-3" />
+        <Progress value={p?.overall ?? 0} label="Overall progress" className="mt-3" />
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <Bar
             label="Lessons"

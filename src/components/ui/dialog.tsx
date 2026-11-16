@@ -24,13 +24,11 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/60" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed top-1/2 left-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border-2 border-outline bg-card p-6 text-card-foreground shadow-hard-lg',
+          'fixed top-1/2 left-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border bg-card p-6 text-card-foreground shadow-float',
           className,
         )}
       >
-        <DialogPrimitive.Title className="font-display text-xl font-extrabold">
-          {title}
-        </DialogPrimitive.Title>
+        <DialogPrimitive.Title className="text-xl font-bold">{title}</DialogPrimitive.Title>
         <DialogPrimitive.Description
           className={cn('mt-1 text-sm text-muted-foreground', !description && 'sr-only')}
         >

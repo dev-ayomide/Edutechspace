@@ -12,24 +12,23 @@ vi.mock('@/features/stacks/api', () => ({
 }))
 
 describe('HomePage', () => {
-  it('invites people to join and shows how it works', () => {
+  it('introduces the platform and shows how it works', () => {
     renderWithProviders(<HomePage />)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Learn\.\s*Grow\.\s*Build\./,
-    )
-    expect(screen.getAllByRole('link', { name: /Join a stack/ })[0]).toHaveAttribute(
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Learn a tech skill/)
+    expect(screen.getByRole('link', { name: 'Explore the stacks' })).toHaveAttribute(
       'href',
-      '/join',
+      '#stacks',
     )
-    expect(screen.getByText('Three beats. One certificate.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'How a stack works' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Apply to join' })).toHaveAttribute('href', '/join')
   })
 
-  it('lists live stacks and links each to the join form with the stack preselected', async () => {
+  it('lists live stacks as cards that open each stack page', async () => {
     renderWithProviders(<HomePage />)
     await waitFor(() =>
-      expect(screen.getByRole('link', { name: /Apply to Frontend Development/ })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: /Frontend Development/ })).toHaveAttribute(
         'href',
-        '/join?stack=frontend',
+        '/stacks/frontend',
       ),
     )
     expect(screen.queryByText('Retired')).not.toBeInTheDocument()

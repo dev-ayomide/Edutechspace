@@ -63,7 +63,7 @@ export function JoinPage() {
       <div className="mx-auto max-w-xl px-4 py-16">
         <Card className="p-8 text-center">
           <CheckCircle2 className="mx-auto size-10 text-success" aria-hidden="true" />
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">Application received</h1>
+          <h1 className="mt-4 text-2xl font-bold">Application received</h1>
           <p className="mt-2 text-muted-foreground">
             A stack lead will review your application. If you are approved, you will get an email
             with a link to set up your account.
@@ -87,7 +87,7 @@ export function JoinPage() {
       {stacks.error && (
         <ErrorState message={friendlyError(stacks.error)} onRetry={() => void stacks.refetch()} />
       )}
-      <Card lift="lg" className="p-6 sm:p-8">
+      <Card lift="sm" className="p-6 sm:p-8">
         <form onSubmit={handleSubmit((v) => submit.mutate(v))} className="space-y-4" noValidate>
           <FormField id="apply-name" label="Full name" error={errors.full_name?.message}>
             <Input

@@ -360,3 +360,21 @@ do $$ begin
   exception when insufficient_privilege then null; end;
 end $$;
 reset role;
+
+-- ---------------------------------------------------------------- public outline for the stack page
+reset role;
+set role anon;
+do $$ declare n int; m1 record; begin
+  select count(*) into n from public.public_stack_outline('frontend') where kind = 'module';
+  assert n = 3, format('anon sees the three published modules, got %s', n);
+  select * into m1 from public.public_stack_outline('frontend') where module_number = 1;
+  assert m1.title = 'M1' and m1.lesson_count = 3 and m1.reading_count = 3, 'counts only published lessons';
+  assert m1.has_assignment is not null, 'reports whether the module has an assignment';
+  select count(*) into n from public.public_stack_outline('no-such-stack');
+  assert n = 0, 'unknown stack returns nothing';
+  begin
+    perform 1 from public.lessons limit 1;
+    raise exception 'anon must still not read lessons directly';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;

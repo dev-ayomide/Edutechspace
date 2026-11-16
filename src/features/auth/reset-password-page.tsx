@@ -44,7 +44,7 @@ export function ResetPasswordPage() {
   if (status === 'unauthenticated' || !session) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
-        <Card lift="lg" className="p-8">
+        <Card lift="sm" className="p-8">
           <CardTitle className="font-display text-2xl">This reset link is not valid</CardTitle>
           <CardDescription className="mt-2">
             It may have expired or already been used. Request a new one and try again.
@@ -72,7 +72,7 @@ export function ResetPasswordPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
-      <Card lift="lg" className="p-8">
+      <Card lift="sm" className="p-8">
         <CardTitle className="font-display text-3xl">Choose a new password</CardTitle>
         <CardDescription className="mt-1">Use at least 10 characters.</CardDescription>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>

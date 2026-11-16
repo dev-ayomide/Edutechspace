@@ -51,7 +51,7 @@ export function LeadOverviewPage() {
       )}
       {stacks.length > 0 && (
         <section aria-labelledby="needs-you" className="mb-10">
-          <h2 id="needs-you" className="mb-4 font-display text-2xl font-extrabold tracking-tight">
+          <h2 id="needs-you" className="mb-4 font-display text-2xl font-extrabold">
             Needs you
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
@@ -83,10 +83,7 @@ export function LeadOverviewPage() {
           return (
             <section key={stack.id} aria-labelledby={`stack-${stack.id}`}>
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                <CardTitle
-                  id={`stack-${stack.id}`}
-                  className="font-display text-2xl tracking-tight"
-                >
+                <CardTitle id={`stack-${stack.id}`} className="text-xl">
                   {stack.name}
                 </CardTitle>
                 <Button asChild variant="outline" size="sm">

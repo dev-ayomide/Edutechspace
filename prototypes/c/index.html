@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUNTech Space · Prototype C · Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="proto" aria-label="Prototype pages">
+  <a href="index.html" aria-current="page">Home</a><a href="stack.html">Stack page</a><a href="dashboard.html">Student dashboard</a><a href="lesson.html">Lesson player</a>
+</nav>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="index.html"><img src="logo.png" alt="RUNTech Space"></a>
+    <a class="nav-link hide-md" href="#stacks">Explore stacks</a>
+    <div class="search" role="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>What do you want to learn?</div>
+    <div class="nav-right">
+      <a class="nav-link hide-md" href="#verify">Verify a certificate</a>
+      <a class="btn btn-outline btn-sm" href="dashboard.html">Sign in</a>
+      <a class="btn btn-primary btn-sm" href="stack.html">Apply to join</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Redeemer's University · RUNTech Space</p>
+        <h1>Learn a tech skill properly, <span class="u">with a lead</span> who does it for a living.</h1>
+        <p class="lead">Pick one of eight stacks. Work through it module by module, get real feedback on your assignments, and finish with a certificate anyone can verify.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#stacks">Explore the stacks</a>
+          <a class="btn btn-outline" href="#how">How it works</a>
+        </div>
+        <div class="trust">
+          <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Free for admitted students</span>
+          <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Learn at your own pace</span>
+          <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Verifiable certificate</span>
+        </div>
+      </div>
+      <figure class="hero-figure" style="margin:0">
+        <img src="hero.jpg" alt="Three students working together at a laptop">
+        <div class="hero-note">
+          <span class="seal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span>
+          <span><b>Certificate earned</b><br><span class="muted">Every certificate has its own public check page.</span></span>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="stacks" style="padding-top:24px">
+    <div class="wrap">
+      <div class="section-head">
+        <div><h2>Choose your stack</h2><p>Each stack is a complete path, from the first lesson to the final exam.</p></div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true">All stacks</button>
+        <button role="tab" aria-selected="false">Engineering</button>
+        <button role="tab" aria-selected="false">Data &amp; AI</button>
+        <button role="tab" aria-selected="false">Design &amp; Product</button>
+      </div>
+      <div class="grid">
+        <a class="card" href="stack.html"><div class="cover c-blue" data-k="frontend"><span class="tag">Frontend</span></div><h3>Frontend Development</h3><p class="by">Build fast, accessible and interactive web interfaces.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-navy" data-k="backend"><span class="tag">Backend</span></div><h3>Backend Development</h3><p class="by">Design APIs, databases and the server-side logic behind products.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-teal" data-k="data-analysis"><span class="tag">Data</span></div><h3>Data Analysis</h3><p class="by">Collect, clean, analyse and visualise data to drive decisions.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-slate" data-k="cloud-devops"><span class="tag">Cloud</span></div><h3>Cloud Computing / DevOps</h3><p class="by">Deploy, scale and operate software on the cloud.</p><p class="meta"><span>Some experience</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-plum" data-k="ui-ux"><span class="tag">Design</span></div><h3>UI/UX Design</h3><p class="by">Research, design and prototype products people love to use.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-green" data-k="product-management"><span class="tag">Product</span></div><h3>Product Management</h3><p class="by">Discover problems, define products and lead them to market.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-ink" data-k="machine-learning"><span class="tag">AI</span></div><h3>Machine Learning</h3><p class="by">Build and evaluate models that learn from data.</p><p class="meta"><span>Some experience</span><span>Certificate</span></p><span class="badge">Applications open</span></a>
+        <a class="card" href="stack.html"><div class="cover c-navy" data-k="game-development"><span class="tag">Games</span></div><h3>Game Development</h3><p class="by">Design and build games from mechanics to polish.</p><p class="meta"><span>Beginner friendly</span><span>Certificate</span></p><span class="badge grey">Opening soon</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="how">
+    <div class="wrap">
+      <div class="section-head"><div><h2>How a stack works</h2><p>The same clear path in every stack.</p></div></div>
+      <div class="steps">
+        <div class="step"><p class="k">Step 1</p><h3>Apply</h3><p>Pick a stack and send a short application. The stack lead reviews it and invites you in.</p></div>
+        <div class="step"><p class="k">Step 2</p><h3>Learn</h3><p>Videos, readings and notes from your lead, in order. Each module unlocks the next.</p></div>
+        <div class="step"><p class="k">Step 3</p><h3>Practise</h3><p>Quizzes are marked instantly. Projects are reviewed by your lead, with written feedback.</p></div>
+        <div class="step"><p class="k">Step 4</p><h3>Get certified</h3><p>Pass the final exam to receive a signed certificate with its own verification page.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="verify">
+    <div class="wrap split">
+      <div>
+        <h2 style="font-size:30px;font-weight:800">A certificate employers can check in seconds</h2>
+        <ul class="ticks">
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Issued only when you pass the final exam, never handed out.</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Signed by RUNTech Space and your stack lead.</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>A QR code and number link to a public page that confirms it is real.</li>
+        </ul>
+        <a class="btn btn-outline" href="#">Verify a certificate</a>
+      </div>
+      <div class="cert" aria-label="Example certificate">
+        <p class="small">Certificate of completion</p>
+        <p class="name">Your name here</p>
+        <p class="muted">has completed the</p>
+        <p class="stack">Frontend Development stack</p>
+        <div class="foot">
+          <div class="sig">Stack lead</div>
+          <div class="sig">RUNTech Space</div>
+          <div class="qr" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="wrap">
+      <div class="section-head"><div><h2>Questions</h2></div></div>
+      <div class="faq">
+        <details open><summary>Who can apply?</summary><p>Anyone who wants to learn. Your application goes to the lead of the stack you choose, who decides who joins.</p></details>
+        <details><summary>Can I take more than one stack?</summary><p>One at a time, so you can give it your full attention. When you finish or leave a stack you can apply to another.</p></details>
+        <details><summary>What if I fail a quiz or the exam?</summary><p>You get more than one attempt. If you run out, your stack lead can give you another.</p></details>
+        <details><summary>How long does a stack take?</summary><p>It depends on the stack and your pace. Every lesson shows how long it takes, so you can plan.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <div><h2>Ready to start?</h2><p>Applications are reviewed by the stack lead, usually within a few days.</p></div>
+      <a class="btn btn-light" href="#stacks">Explore the stacks</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div><img src="logo.png" alt="RUNTech Space" style="height:30px;filter:brightness(0) invert(1)"><p style="margin-top:12px;max-width:28em">Stack-led tech learning at Redeemer's University.</p></div>
+    <div><h4>Learn</h4><ul><li><a href="#stacks">All stacks</a></li><li><a href="#how">How it works</a></li><li><a href="#">Apply</a></li></ul></div>
+    <div><h4>Certificates</h4><ul><li><a href="#verify">Verify a certificate</a></li></ul></div>
+    <div><h4>Account</h4><ul><li><a href="#">Sign in</a></li><li><a href="#">Forgot password</a></li></ul></div>
+  </div>
+</footer>
+<script src="covers.js"></script>
+</body>
+</html>
