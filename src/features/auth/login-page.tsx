@@ -47,7 +47,9 @@ export function LoginPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md items-center px-4 py-10">
       <Card lift="sm" className="w-full p-8">
-        <CardTitle className="font-display text-3xl">Welcome back</CardTitle>
+        <CardTitle as="h1" className="font-display text-3xl">
+          Welcome back
+        </CardTitle>
         <CardDescription className="mt-1">
           Sign in to continue learning or teaching.
         </CardDescription>

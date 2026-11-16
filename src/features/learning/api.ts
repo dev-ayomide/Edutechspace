@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { asList } from '@/lib/embed'
 import type {
   Assignment,
   Lesson,
@@ -49,7 +50,9 @@ export async function fetchStackContent(stackId: string): Promise<ModuleWithLess
   if (error) throw error
   return (data as ModuleWithLessons[]).map((m) => ({
     ...m,
-    lessons: [...m.lessons].sort((a, b) => a.order_index - b.order_index),
+    lessons: [...asList(m.lessons)].sort((a, b) => a.order_index - b.order_index),
+    // One assignment per module: PostgREST sends it as an object or null, not a list.
+    assignments: asList(m.assignments),
   }))
 }
 

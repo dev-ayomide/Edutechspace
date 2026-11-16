@@ -25,11 +25,16 @@ export function Card({
   return <div className={cn(cardVariants({ tone, lift }), className)} {...props} />
 }
 
-export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle({
+  className,
+  children,
+  as: Tag = 'h3',
+  ...props
+}: HTMLAttributes<HTMLHeadingElement> & { as?: 'h1' | 'h2' | 'h3' }) {
   return (
-    <h3 className={cn('text-lg font-bold', className)} {...props}>
+    <Tag className={cn('text-lg font-bold', className)} {...props}>
       {children}
-    </h3>
+    </Tag>
   )
 }
 

@@ -32,3 +32,6 @@ playwright-report/
 test-results/
 coverage/
 .vite/
+
+# Walkthrough recordings (large; share them, do not commit)
+/walkthrough/

@@ -19,7 +19,8 @@ export async function listProjectSubmissions(): Promise<ReviewItem[]> {
   const { data, error } = await supabase
     .from('assignment_submissions')
     .select(
-      '*, profiles(full_name, email), assignments!inner(title, max_score, pass_mark, instructions, type, modules(title, stacks(name)))',
+      // Two links to profiles (the student and the grader), so name the one we mean: the student.
+      '*, profiles:profiles!assignment_submissions_user_id_fkey(full_name, email), assignments!inner(title, max_score, pass_mark, instructions, type, modules(title, stacks(name)))',
     )
     .eq('assignments.type', 'submission')
     .order('submitted_at', { ascending: false })

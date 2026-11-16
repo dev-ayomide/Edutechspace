@@ -104,12 +104,14 @@ Resend's free plan allows about 100 emails a day and 3,000 a month. That covers 
 
 1. **Merge the code (needs your OK, I will do it):** open a pull request from the work branches into `master` and merge it, so hosting can deploy from `master`.
 2. **Hosting (YOU), Vercel assumed:** https://vercel.com, sign in with GitHub, **Add New > Project**, import `dev-ayomide/Edutechspace`. Framework: Vite (auto-detected). Add two Environment Variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (the public values from A2). Deploy. Security headers come from `vercel.json` automatically.
-3. **Address:** use the `*.vercel.app` address first. For a nicer address (for example `learn.run.edu.ng`) add it under the Vercel project's **Domains**; the university's DNS must add the record Vercel shows.
+3. **Address:** connect your subdomain by following `docs/CONNECT_SUBDOMAIN.md` (Vercel domain, one DNS record, one redeploy, then the Supabase address settings). Link previews and the sitemap pick up the subdomain automatically.
 4. **Tell Supabase the real address:** update Site URL and the two Redirect URLs (A4), and the `SITE_URL` secret (B6) to the live address. Without this, invitation and reset links point to the wrong place.
 
 ---
 
 ## Part D: Rehearse, then open the doors
+
+The whole journey (every role, every screen) is already tested end to end on a local copy; see `docs/WALKTHROUGH.md` and the videos it produces. The live rehearsal below checks what only the live setup can: real emails and your domain.
 
 1. Run `npm run setup:verify` (I can run it): everything should say PASS.
 2. Do the 30-minute rehearsal in `docs/LAUNCH_CHECKLIST.md` section 5 using techspace@run.edu.ng for the test accounts.
