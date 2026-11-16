@@ -132,45 +132,48 @@ function ModuleSection({
   const pct = state ? percent(state.lessons_done, state.lessons_total) : 0
 
   const tile = {
-    locked: 'border-border bg-muted text-muted-foreground',
-    in_progress: 'border-outline bg-accent text-accent-foreground',
-    complete: 'border-outline bg-primary text-primary-foreground',
+    locked: 'bg-muted text-muted-foreground',
+    in_progress: 'border-2 border-primary text-primary',
+    complete: 'bg-success text-success-foreground',
   }[status]
 
   return (
     <Card
-      lift={status === 'in_progress' ? 'lg' : 'none'}
-      className={cn('overflow-hidden p-0', status === 'locked' && 'border-border bg-surface')}
+      className={cn(
+        'overflow-hidden p-0',
+        status === 'in_progress' && 'border-primary/40 shadow-card',
+        status === 'locked' && 'bg-surface',
+      )}
     >
       <div
         className={cn(
           'flex flex-wrap items-center gap-4 p-5',
-          status !== 'locked' && 'border-b-2 border-outline bg-surface',
+          status !== 'locked' && 'border-b bg-surface',
         )}
       >
         <span
           aria-hidden="true"
           className={cn(
-            'grid size-14 shrink-0 place-items-center rounded-2xl border-2 font-display text-2xl font-extrabold',
+            'grid size-10 shrink-0 place-items-center rounded-full text-base font-bold',
             tile,
           )}
         >
           {status === 'complete' ? (
-            <CheckCircle2 className="size-6" />
+            <CheckCircle2 className="size-5" />
           ) : status === 'locked' ? (
-            <Lock className="size-5" />
+            <Lock className="size-4" />
           ) : (
             index + 1
           )}
         </span>
         <div className="min-w-0 flex-1 basis-60">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-display text-xl font-extrabold tracking-tight">
+            <h2 className="text-lg font-bold">
               <span className="sr-only">Module {index + 1}. </span>
               {module.title}
             </h2>
             {status === 'locked' && <Badge>Locked</Badge>}
-            {status === 'in_progress' && <Badge variant="primary">In progress</Badge>}
+            {status === 'in_progress' && <Badge variant="accent">In progress</Badge>}
             {status === 'complete' && <Badge variant="success">Complete</Badge>}
           </div>
           {module.description && (
@@ -189,7 +192,7 @@ function ModuleSection({
             <p className="mb-1 text-xs font-bold tabular-nums">
               {state.lessons_done} of {state.lessons_total} lessons
             </p>
-            <Progress value={pct} label={`${module.title} lesson progress`} className="h-3" />
+            <Progress value={pct} label={`${module.title} lesson progress`} />
           </div>
         )}
       </div>
@@ -205,19 +208,20 @@ function ModuleSection({
                   <li key={lesson.id}>
                     <Link
                       to={`/dashboard/stack/lessons/${lesson.id}`}
-                      className="flex min-h-16 items-center gap-4 px-5 py-3 transition-colors hover:bg-accent-soft"
+                      className="flex min-h-14 items-center gap-4 px-5 py-3 transition-colors hover:bg-surface"
                     >
                       {done ? (
                         <CheckCircle2
-                          className="size-6 shrink-0 text-success"
+                          className="size-5 shrink-0 text-success"
                           aria-label="Completed"
                         />
                       ) : (
-                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted">
-                          <Icon className="size-4" aria-hidden="true" />
-                        </span>
+                        <Icon
+                          className="size-5 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
                       )}
-                      <span className="flex-1 text-base font-semibold">{lesson.title}</span>
+                      <span className="flex-1 text-[15px]">{lesson.title}</span>
                       {!lesson.is_required && <Badge>Optional</Badge>}
                       {lesson.duration_minutes && (
                         <span className="text-sm text-muted-foreground tabular-nums">
@@ -233,14 +237,12 @@ function ModuleSection({
           {assignment && (
             <Link
               to={`/dashboard/stack/assignments/${assignment.id}`}
-              className="flex min-h-[4.5rem] items-center gap-4 border-t-2 border-outline bg-accent-soft px-5 py-3 text-accent-soft-foreground transition-colors hover:bg-accent"
+              className="flex min-h-16 items-center gap-4 border-t px-5 py-3 transition-colors hover:bg-surface"
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-card">
-                <ClipboardCheck className="size-5" aria-hidden="true" />
-              </span>
+              <ClipboardCheck className="size-5 shrink-0 text-primary" aria-hidden="true" />
               <span className="flex-1">
-                <span className="block text-base font-extrabold">{assignment.title}</span>
-                <span className="text-sm opacity-80">
+                <span className="block text-[15px] font-bold">{assignment.title}</span>
+                <span className="text-sm text-muted-foreground">
                   {assignment.type === 'quiz' ? 'Quiz' : 'Project assignment'}
                 </span>
               </span>

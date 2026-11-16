@@ -2,16 +2,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-const cardVariants = cva('rounded-2xl border-2 border-outline p-5', {
+const cardVariants = cva('rounded-lg border p-5', {
   variants: {
     tone: {
       default: 'bg-card text-card-foreground',
-      accent: 'bg-accent text-accent-foreground',
-      ink: 'bg-brand text-brand-foreground',
-      gold: 'bg-gold text-gold-foreground',
+      accent: 'border-transparent bg-accent-soft text-accent-soft-foreground',
+      ink: 'border-transparent bg-brand text-brand-foreground',
+      gold: 'border-transparent bg-gold-soft text-gold-soft-foreground',
       soft: 'bg-surface text-foreground',
     },
-    lift: { none: '', sm: 'shadow-hard', lg: 'shadow-hard-lg' },
+    lift: { none: '', sm: 'shadow-card', lg: 'shadow-float' },
   },
   defaultVariants: { tone: 'default', lift: 'none' },
 })
@@ -27,7 +27,7 @@ export function Card({
 
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-lg font-extrabold', className)} {...props}>
+    <h3 className={cn('text-lg font-bold', className)} {...props}>
       {children}
     </h3>
   )

@@ -29,7 +29,7 @@ Tell me both and I will put them in `.env` and run the live checks. (Or paste th
 2. In Supabase: **SQL Editor > New query**, paste (Cmd+V), click **Run**.
 3. Expect **Success. No rows returned.** It runs in one transaction: if anything fails, nothing is applied, so you can fix and re-run. Run it **once**.
 4. Check **Table Editor**: you should see about 20 tables and, in `stacks`, the 8 stacks.
-5. **Already ran it before 15 Nov 2026?** Do not run the whole file again. Instead paste only `supabase/migrations/20261115000001_attempt_grants_and_profile_details.sql` and run it once (it adds extra attempts and copies applicant phone numbers to profiles). `npm run setup:verify` tells you whether it is applied.
+5. **Already ran it before 15 Nov 2026?** Do not run the whole file again. Instead paste only the newer files and run each once, in order: `supabase/migrations/20261115000001_attempt_grants_and_profile_details.sql` (extra attempts, applicant phone numbers on profiles) and `supabase/migrations/20261116000001_public_stack_outline.sql` (curriculum on the public stack pages). `npm run setup:verify` tells you whether it is applied.
 
 ### A4. Sign-in settings (YOU)
 **Authentication**:

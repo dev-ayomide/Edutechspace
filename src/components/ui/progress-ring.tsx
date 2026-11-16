@@ -5,11 +5,14 @@ export function ProgressRing({
   value,
   label,
   size = 220,
+  compact = false,
   className,
 }: {
   value: number
   label: string
   size?: number
+  /** Small ring: just the percentage, no caption. */
+  compact?: boolean
   className?: string
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(value)))
@@ -32,26 +35,33 @@ export function ProgressRing({
         className="-rotate-90"
         aria-hidden="true"
       >
-        <circle cx="60" cy="60" r={r} fill="none" strokeWidth="12" className="stroke-muted" />
+        <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-muted" />
         <circle
           cx="60"
           cy="60"
           r={r}
           fill="none"
-          strokeWidth="12"
+          strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - clamped / 100)}
-          className="stroke-primary transition-[stroke-dashoffset] duration-1000 ease-out"
+          className="stroke-progress transition-[stroke-dashoffset] duration-1000 ease-out"
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center" aria-hidden="true">
         <div>
-          <p className="font-display text-5xl leading-none font-extrabold tracking-tighter tabular-nums">
+          <p
+            className={cn(
+              'leading-none font-extrabold tabular-nums',
+              compact ? 'text-lg' : 'text-4xl',
+            )}
+          >
             {clamped}
-            <span className="align-top text-2xl">%</span>
+            <span className={cn('align-top', compact ? 'text-xs' : 'text-xl')}>%</span>
           </p>
-          <p className="mt-1 text-xs font-semibold text-muted-foreground">to certificate</p>
+          {!compact && (
+            <p className="mt-1 text-xs font-semibold text-muted-foreground">to certificate</p>
+          )}
         </div>
       </div>
     </div>

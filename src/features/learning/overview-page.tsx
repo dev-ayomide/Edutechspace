@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageHeader } from '@/components/page-header'
 import { ErrorState, LoadingState } from '@/components/states'
-import { StatCard } from '@/components/stat-card'
+import { StackCover } from '@/components/stack-cover'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
@@ -119,95 +119,135 @@ export function StudentOverviewPage() {
     )
   }
 
+  const initials = (profile?.full_name ?? '?')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('')
+
   return (
     <>
-      <PageHeader
-        title={title}
-        description="Your learning at a glance."
-        actions={
-          membership.status === 'active' && (
-            <Button variant="outline" onClick={() => setConfirmWithdraw(true)}>
-              Withdraw from stack
-            </Button>
-          )
-        }
-      />
-      <p className="-mt-4 mb-6 flex flex-wrap items-center gap-2 text-base text-muted-foreground">
-        {membership.stacks.name}
-        <Badge variant={membership.status === 'completed' ? 'gold' : 'primary'}>
-          {membership.status === 'completed' ? 'Completed' : 'In progress'}
-        </Badge>
-      </p>
-      <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <Card className="grid items-center gap-8 p-7 sm:grid-cols-[auto_1fr] sm:p-9">
-          <ProgressRing
-            value={progress?.overall ?? 0}
-            label="Overall progress toward certification"
-            className="mx-auto"
-          />
-          <div>
-            <h2 className="font-display text-3xl leading-[1.05] font-extrabold tracking-tight">
-              {momentumMessage(progress?.overall ?? 0)}
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              {progress?.lessons_done ?? 0} of {progress?.lessons_total ?? 0} lessons done ·{' '}
-              {progress?.assignments_passed ?? 0} of {progress?.assignments_total ?? 0} assignments
-              passed
-            </p>
-          </div>
-        </Card>
-        <Card tone="accent" lift="lg" className="flex flex-col justify-between gap-8 p-7">
-          {upNext ? (
-            <>
-              <div>
-                <p className="text-xs font-extrabold tracking-[0.14em] uppercase">
-                  Up next{upNext.context ? ` · ${upNext.context}` : ''}
-                </p>
-                <p className="mt-3 font-display text-3xl leading-none font-extrabold tracking-tight">
-                  {upNext.title}
-                </p>
-              </div>
-              <Button asChild size="lg" className="w-full justify-between">
-                <Link to={upNext.to}>
-                  {upNext.cta}
-                  <ArrowRight className="size-5" aria-hidden="true" />
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <p className="font-display text-2xl leading-tight font-extrabold tracking-tight">
-              {learning.modules.length === 0
-                ? 'Your stack lead has not published any modules yet. Check back soon.'
-                : 'Nothing waiting for you right now.'}
-            </p>
-          )}
-        </Card>
-      </div>
-      <section aria-labelledby="journey-heading" className="mt-10">
-        <h2
-          id="journey-heading"
-          className="mb-5 font-display text-2xl font-extrabold tracking-tight"
+      <header className="mb-6 flex flex-wrap items-center gap-4">
+        <span
+          aria-hidden="true"
+          className="grid size-14 shrink-0 place-items-center rounded-full bg-brand text-xl font-bold text-brand-foreground"
         >
-          Your journey
-        </h2>
-        <Card className="p-6 sm:p-8">
-          <JourneyTrack stops={journey} />
+          {initials}
+        </span>
+        <div className="min-w-0 flex-1 basis-56">
+          <h1 className="text-2xl font-extrabold sm:text-3xl">{title}</h1>
+          <p className="mt-0.5 flex flex-wrap items-center gap-2 text-muted-foreground">
+            {membership.stacks.name}
+            <Badge variant={membership.status === 'completed' ? 'gold' : 'neutral'}>
+              {membership.status === 'completed' ? 'Completed' : 'In progress'}
+            </Badge>
+          </p>
+        </div>
+        {membership.status === 'active' && (
+          <Button variant="ghost" size="sm" onClick={() => setConfirmWithdraw(true)}>
+            Withdraw from stack
+          </Button>
+        )}
+      </header>
+
+      {upNext ? (
+        <Link
+          to={upNext.to}
+          className="group grid overflow-hidden rounded-lg border transition-colors hover:bg-surface md:grid-cols-[300px_1fr]"
+        >
+          <StackCover
+            slug={membership.stacks.slug}
+            showTag={false}
+            className="h-full min-h-40 rounded-none md:aspect-auto"
+          />
+          <div className="flex flex-col gap-1.5 p-6 md:px-7">
+            <p className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
+              Continue learning
+            </p>
+            <p className="text-xl font-extrabold group-hover:text-primary">{upNext.title}</p>
+            {upNext.context && <p className="text-muted-foreground">{upNext.context}</p>}
+            <div className="mt-auto flex flex-wrap items-center gap-4 pt-4">
+              <div className="h-1.5 min-w-40 flex-1 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${progress?.overall ?? 0}%` }}
+                />
+              </div>
+              <span className="text-sm font-bold tabular-nums">
+                {progress?.overall ?? 0}% of the stack
+              </span>
+              <span className="inline-flex min-h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-primary-foreground">
+                {upNext.cta}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </span>
+            </div>
+          </div>
+        </Link>
+      ) : (
+        <Card className="text-lg font-semibold">
+          {learning.modules.length === 0
+            ? 'Your stack lead has not published any modules yet. Check back soon.'
+            : 'Nothing waiting for you right now.'}
         </Card>
-      </section>
-      <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Lessons completed"
-          value={`${progress?.lessons_done ?? 0} / ${progress?.lessons_total ?? 0}`}
-        />
-        <StatCard
-          label="Assignments passed"
-          value={`${progress?.assignments_passed ?? 0} / ${progress?.assignments_total ?? 0}`}
-        />
-        <StatCard label="Final exam" value={examLabel.text} hint={examLabel.hint} />
-      </dl>
-      <Button asChild variant="ghost" className="mt-4">
-        <Link to="/dashboard/stack">View all modules</Link>
-      </Button>
+      )}
+
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <section aria-labelledby="journey-heading" className="overflow-hidden rounded-lg border">
+          <div className="flex items-center justify-between border-b px-5 py-4">
+            <h2 id="journey-heading" className="text-lg font-bold">
+              Your journey
+            </h2>
+            <Link to="/dashboard/stack" className="text-sm font-bold text-link hover:underline">
+              View all modules
+            </Link>
+          </div>
+          <JourneyTrack stops={journey} />
+        </section>
+
+        <aside className="grid gap-5">
+          <section aria-labelledby="progress-heading" className="rounded-lg border">
+            <h2 id="progress-heading" className="border-b px-5 py-4 text-lg font-bold">
+              Progress
+            </h2>
+            <div className="flex items-center gap-4 border-b px-5 py-4">
+              <ProgressRing
+                value={progress?.overall ?? 0}
+                label="Overall progress toward certification"
+                size={84}
+                compact
+              />
+              <p className="text-sm text-muted-foreground">
+                <b className="block text-base text-foreground">
+                  {momentumMessage(progress?.overall ?? 0)}
+                </b>
+                Lessons count for 40%, assignments 30% and the final exam 30%.
+              </p>
+            </div>
+            <dl className="grid grid-cols-3 divide-x">
+              {[
+                [
+                  `${progress?.lessons_done ?? 0} / ${progress?.lessons_total ?? 0}`,
+                  'Lessons completed',
+                ],
+                [
+                  `${progress?.assignments_passed ?? 0} / ${progress?.assignments_total ?? 0}`,
+                  'Assignments passed',
+                ],
+                [examLabel.text, 'Final exam'],
+              ].map(([value, label]) => (
+                <div key={label} className="flex flex-col-reverse px-4 py-3.5">
+                  <dt className="text-xs text-muted-foreground">{label}</dt>
+                  <dd className="text-lg font-extrabold tabular-nums">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {examLabel.hint && (
+              <p className="border-t px-5 py-3 text-xs text-muted-foreground">{examLabel.hint}</p>
+            )}
+          </section>
+        </aside>
+      </div>
       <ConfirmDialog
         open={confirmWithdraw}
         onOpenChange={setConfirmWithdraw}

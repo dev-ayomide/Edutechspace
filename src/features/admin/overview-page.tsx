@@ -42,7 +42,7 @@ export function AdminOverviewPage() {
           </dl>
 
           <section aria-labelledby="attention" className="mt-10">
-            <h2 id="attention" className="mb-4 font-display text-2xl font-extrabold tracking-tight">
+            <h2 id="attention" className="mb-4 text-xl font-bold">
               Needs attention
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
@@ -61,8 +61,7 @@ export function AdminOverviewPage() {
             </div>
             {data.activeSignatories === 0 && (
               <Card
-                tone="gold"
-                className="mt-4 flex flex-wrap items-center justify-between gap-4"
+                className="mt-4 flex flex-wrap items-center justify-between gap-4 border-warning/40 bg-warning-soft text-warning-soft-foreground"
                 role="alert"
               >
                 <div className="flex items-start gap-3">

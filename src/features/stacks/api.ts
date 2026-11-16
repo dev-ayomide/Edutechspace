@@ -50,3 +50,26 @@ export async function setStackActive(id: string, isActive: boolean) {
   const { error } = await supabase.from('stacks').update({ is_active: isActive }).eq('id', id)
   if (error) throw error
 }
+
+export interface OutlineRow {
+  kind: 'module' | 'exam'
+  module_number: number | null
+  title: string
+  description: string | null
+  lesson_count: number | null
+  video_count: number | null
+  reading_count: number | null
+  total_minutes: number | null
+  has_assignment: boolean | null
+  question_count: number | null
+  time_limit_minutes: number | null
+}
+
+export const outlineKeys = { bySlug: (slug: string) => ['stacks', 'outline', slug] as const }
+
+/** Public curriculum outline (published titles and counts only); safe for signed-out visitors. */
+export async function fetchStackOutline(slug: string): Promise<OutlineRow[]> {
+  const { data, error } = await supabase.rpc('public_stack_outline', { p_slug: slug })
+  if (error) throw error
+  return (data ?? []) as OutlineRow[]
+}

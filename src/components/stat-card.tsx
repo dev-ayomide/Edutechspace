@@ -16,11 +16,9 @@ export function StatCard({
 }) {
   return (
     <Card tone={tone} lift={lift}>
-      <p className="text-sm font-semibold opacity-80">{label}</p>
-      <p className="mt-1 font-display text-4xl font-extrabold tracking-tight tabular-nums">
-        {value}
-      </p>
-      {hint && <p className="mt-1 text-xs opacity-80">{hint}</p>}
+      <p className="text-sm font-semibold text-muted-foreground">{label}</p>
+      <p className="mt-1 text-3xl font-extrabold tabular-nums">{value}</p>
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </Card>
   )
 }

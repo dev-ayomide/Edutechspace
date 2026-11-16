@@ -58,7 +58,7 @@ export function AcceptInvitePage() {
   if (status === 'unauthenticated' || !session) {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
-        <Card lift="lg" className="p-8">
+        <Card lift="sm" className="p-8">
           <CardTitle className="text-xl">This invitation link has expired</CardTitle>
           <CardDescription className="mt-2">
             Invitation links only work once and for a limited time. Your account is already set up:
@@ -93,7 +93,7 @@ export function AcceptInvitePage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
-      <Card lift="lg" className="p-8">
+      <Card lift="sm" className="p-8">
         <CardTitle className="text-xl">Finish setting up your account</CardTitle>
         <CardDescription className="mt-1">
           Welcome! Choose your name and a password to continue.

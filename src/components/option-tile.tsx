@@ -16,7 +16,7 @@ export function OptionTile({
   children: ReactNode
 }) {
   return (
-    <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border-2 border-input bg-card px-4 py-3 text-base font-medium transition-colors hover:border-outline has-[:checked]:border-outline has-[:checked]:bg-accent-soft has-[:checked]:text-accent-soft-foreground has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring">
+    <label className="flex min-h-14 cursor-pointer items-center gap-3 rounded-md border border-input bg-card px-4 py-3 text-base font-medium transition-colors hover:bg-surface has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-[inset_0_0_0_1px_var(--primary)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring">
       <input
         type="radio"
         name={name}

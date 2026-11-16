@@ -11,7 +11,7 @@ Nothing here has been run against a live Supabase project yet, so treat the firs
 - [ ] **Authentication > Password:** minimum length 10 or more; enable leaked-password protection if your plan offers it.
 - [ ] **Authentication > SMTP:** configure a real sender (the built-in mailer is heavily rate limited and unsuitable for launch). Customise the **Invite user** and **Reset password** templates with the RUNTech Space name.
 - [ ] Apply the migrations in order (`supabase db push`, or paste each file into the SQL editor):
-  `20261030000001_core`, `20261030000002_seed_stacks`, `20261031000001_content_and_lead_management`, `20261101000001_learning`, `20261102000001_exam_and_certificates`, `20261103000001_privilege_hardening`, `20261115000001_attempt_grants_and_profile_details`.
+  `20261030000001_core`, `20261030000002_seed_stacks`, `20261031000001_content_and_lead_management`, `20261101000001_learning`, `20261102000001_exam_and_certificates`, `20261103000001_privilege_hardening`, `20261115000001_attempt_grants_and_profile_details`, `20261116000001_public_stack_outline`.
 - [ ] Confirm the three storage buckets exist: `lesson-media` (private), `submissions` (private), `signatures` (public).
 - [ ] Create the first admin: add the user in Authentication > Users, then run `supabase/seed/first-admin.sql`.
 - [ ] Turn on daily backups / point-in-time recovery (Settings > Database) before real data arrives.

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUNTech Space · Prototype C · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="proto" aria-label="Prototype pages">
+  <a href="index.html">Home</a><a href="stack.html">Stack page</a><a href="dashboard.html" aria-current="page">Student dashboard</a><a href="lesson.html">Lesson player</a>
+</nav>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="index.html"><img src="logo.png" alt="RUNTech Space"></a>
+    <a class="nav-link hide-md" href="#" style="color:var(--ink);font-weight:700">My learning</a>
+    <a class="nav-link hide-md" href="#">Certificates</a>
+    <div class="nav-right">
+      <a class="nav-link hide-md" href="#">Help</a>
+      <span class="avatar" title="Your profile">AO</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="dash-head">
+    <span class="avatar">AO</span>
+    <div><h1>Welcome back, Ada</h1><p class="muted">Frontend Development · joined 3 October</p></div>
+  </div>
+
+  <a class="resume" href="lesson.html">
+    <div class="cover c-blue" data-k="frontend"></div>
+    <div class="in">
+      <p class="k">Continue learning</p>
+      <h2>CSS Grid: building page layouts</h2>
+      <p class="muted">Module 3 · CSS and responsive layout · Lesson 4 of 8 · 22 min</p>
+      <div class="row">
+        <div class="bar"><i style="width:38%"></i></div>
+        <span class="num" style="font-weight:700">38% of the stack</span>
+        <span class="btn btn-primary">Resume lesson</span>
+      </div>
+    </div>
+  </a>
+
+  <div class="dash-grid">
+    <div>
+      <div class="panel">
+        <div class="panel-h"><h3>Your path</h3><a class="link" href="#">See the full curriculum</a></div>
+        <ul class="mods">
+          <li><span class="state done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><div><p class="t">1. How the web works</p><p class="s">6 of 6 lessons · quiz passed</p></div><div class="bar cyan"><i style="width:100%"></i></div></li>
+          <li><span class="state done"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><div><p class="t">2. HTML and accessibility</p><p class="s">8 of 8 lessons · project reviewed</p></div><div class="bar cyan"><i style="width:100%"></i></div></li>
+          <li><span class="state now"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="currentColor"/></svg></span><div><p class="t">3. CSS and responsive layout</p><p class="s">3 of 8 lessons · in progress</p></div><div class="bar"><i style="width:38%"></i></div></li>
+          <li class="locked"><span class="state lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><p class="t">4. JavaScript essentials</p><p class="s">Unlocks after module 3</p></div><div class="bar"><i style="width:0"></i></div></li>
+          <li class="locked"><span class="state lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><p class="t">5. React</p><p class="s">7 lessons</p></div><div class="bar"><i style="width:0"></i></div></li>
+          <li class="locked"><span class="state lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><div><p class="t">6. Portfolio project</p><p class="s">5 lessons</p></div><div class="bar"><i style="width:0"></i></div></li>
+          <li class="locked"><span class="state lock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/></svg></span><div><p class="t">Final exam</p><p class="s">Pass it to earn your certificate</p></div><div class="bar"><i style="width:0"></i></div></li>
+        </ul>
+      </div>
+    </div>
+
+    <aside>
+      <div class="panel">
+        <div class="panel-h"><h3>Progress</h3></div>
+        <div style="display:flex;gap:16px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line-2)">
+          <div class="ring" style="--p:38"><b class="num">38%</b></div>
+          <p style="font-size:14px;color:var(--ink-2)">Lessons count for 40%, assignments 30% and the final exam 30%.</p>
+        </div>
+        <div class="stats">
+          <div><b class="num">17</b><span>of 42 lessons</span></div>
+          <div><b class="num">2</b><span>of 6 assignments</span></div>
+          <div><b class="num">–</b><span>final exam</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h3>Up next</h3></div>
+        <ul class="todo">
+          <li><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><div><p class="t">Quiz: CSS selectors</p><p class="s">Module 3 · 2 attempts left</p></div></li>
+          <li><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><div><p class="t">Feedback on your HTML project</p><p class="s">Passed · read what your lead wrote</p></div></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</main>
+<script src="covers.js"></script>
+</body>
+</html>

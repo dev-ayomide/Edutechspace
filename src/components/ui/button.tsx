@@ -5,21 +5,20 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 px-5 text-sm font-bold transition duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0',
+  'inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md border px-5 text-[15px] font-bold transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        primary: 'border-outline bg-primary text-primary-foreground hover:shadow-hard-primary',
-        accent: 'border-outline bg-accent text-accent-foreground hover:shadow-hard',
-        outline: 'border-outline bg-background text-foreground hover:shadow-hard',
-        ghost:
-          'border-transparent text-foreground hover:bg-muted hover:translate-x-0 hover:translate-y-0',
-        danger: 'border-danger bg-danger text-danger-foreground hover:shadow-hard',
+        primary: 'border-transparent bg-primary text-primary-foreground hover:bg-primary-hover',
+        accent: 'border-transparent bg-accent text-accent-foreground hover:brightness-95',
+        outline: 'border-foreground bg-background text-foreground hover:bg-surface',
+        ghost: 'border-transparent text-foreground hover:bg-muted',
+        danger: 'border-transparent bg-danger text-danger-foreground hover:brightness-95',
       },
       size: {
         md: '',
-        sm: 'min-h-9 rounded-lg px-3.5',
-        lg: 'min-h-14 rounded-2xl px-7 text-base',
+        sm: 'min-h-9 px-3.5 text-sm',
+        lg: 'min-h-12 px-6 text-base',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },

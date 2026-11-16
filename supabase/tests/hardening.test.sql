@@ -18,12 +18,12 @@ do $$ declare t text; begin
   assert t is null, 'SECURITY DEFINER functions without a pinned search_path: ' || coalesce(t, '');
 end $$;
 
--- 3. Anonymous visitors may call exactly one function: public certificate verification.
+-- 3. Anonymous visitors may call exactly two functions: certificate verification and a stack's public outline.
 do $$ declare t text; begin
   select string_agg(p.proname, ', ') into t
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'public' and p.prorettype <> 'trigger'::regtype
-    and has_function_privilege('anon', p.oid, 'execute') and p.proname <> 'verify_certificate';
+    and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('verify_certificate', 'public_stack_outline');
   assert t is null, 'Functions callable by anonymous visitors: ' || coalesce(t, '');
 end $$;
 
@@ -38,7 +38,8 @@ do $$ declare t text; allowed text[] := array[
   'admin_set_role', 'remove_lead_from_stack', 'reorder_modules', 'reorder_lessons', 'complete_lesson',
   'submit_quiz', 'submit_assignment', 'grade_submission', 'save_quiz', 'my_progress', 'my_modules',
   'stack_roster', 'save_exam_questions', 'my_exam', 'start_exam', 'submit_exam', 'revoke_certificate',
-  'reissue_certificate', 'verify_certificate', 'grant_extra_attempts', 'attempt_overview'];
+  'reissue_certificate', 'verify_certificate', 'grant_extra_attempts', 'attempt_overview',
+  'public_stack_outline'];
 begin
   select string_agg(p.proname, ', ') into t
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace

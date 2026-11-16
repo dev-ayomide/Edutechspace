@@ -87,6 +87,13 @@ await check('Latest database update is applied (extra attempts, profile details)
   return error ? ['PASS', 'installed and closed to visitors'] : ['FAIL', 'a visitor could call attempt_overview']
 })
 
+await check('Stack pages can show their curriculum (public outline)', async () => {
+  const { error } = await sb.rpc('public_stack_outline', { p_slug: 'frontend' })
+  if (error && isNetwork(error)) return ['FAIL', error.message]
+  if (error) return ['FAIL', 'paste supabase/migrations/20261116000001_public_stack_outline.sql into the SQL editor and run it']
+  return ['PASS', 'visitors can read published titles and counts']
+})
+
 await check('Private file buckets are not listable by visitors', async () => {
   for (const b of ['lesson-media', 'submissions']) {
     const { data, error } = await sb.storage.from(b).list('', { limit: 1 })

@@ -9,6 +9,7 @@ import { friendlyError } from '@/lib/errors'
 import type { Lesson } from '@/types/domain'
 import { completeLesson, fetchLesson, getLessonFileUrl, learningKeys } from './api'
 import { useMyLearning } from './hooks'
+import { StackContentNav } from './stack-content-nav'
 import { lessonOrder, toEmbedUrl } from './utils'
 
 const isVideoFile = (url: string) => /\.(mp4|webm)(\?.*)?$/i.test(url)
@@ -36,7 +37,7 @@ function VideoOrDocument({ lesson }: { lesson: Lesson }) {
       // eslint-disable-next-line jsx-a11y/media-has-caption -- lessons cannot carry caption tracks yet (accessibility follow-up)
       <video
         controls
-        className="aspect-video w-full rounded-lg bg-black"
+        className="aspect-video w-full rounded-md bg-black"
         src={url}
         aria-label={lesson.title}
       />
@@ -61,7 +62,7 @@ function VideoOrDocument({ lesson }: { lesson: Lesson }) {
       <iframe
         title={lesson.title}
         src={embed}
-        className="aspect-video w-full rounded-lg border"
+        className="aspect-video w-full rounded-md border"
         allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
@@ -73,7 +74,7 @@ function VideoOrDocument({ lesson }: { lesson: Lesson }) {
       // eslint-disable-next-line jsx-a11y/media-has-caption -- lessons cannot carry caption tracks yet (accessibility follow-up)
       <video
         controls
-        className="aspect-video w-full rounded-lg bg-black"
+        className="aspect-video w-full rounded-md bg-black"
         src={url}
         aria-label={lesson.title}
       />
@@ -91,7 +92,7 @@ function VideoOrDocument({ lesson }: { lesson: Lesson }) {
 
 function TextContent({ text }: { text: string }) {
   return (
-    <div className="max-w-prose space-y-5 text-lg leading-8">
+    <div className="max-w-prose space-y-5 text-[17px] leading-[1.7]">
       {text
         .split(/\n{2,}/)
         .filter((p) => p.trim())
@@ -151,66 +152,90 @@ export function LessonPage() {
   const next = index >= 0 ? order[index + 1] : undefined
   const canComplete = learning.membership?.status === 'active'
 
-  return (
-    <article className="mx-auto max-w-4xl">
-      <Button asChild variant="ghost" size="sm" className="mb-4 -ml-3">
-        <Link to="/dashboard/stack">
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          Back to my stack
-        </Link>
-      </Button>
-      <p className="text-sm font-bold tracking-[0.12em] text-link uppercase">{l.modules.title}</p>
-      <div className="mt-2 mb-6 flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
-          {l.title}
-        </h1>
-        {done && (
-          <Badge variant="success">
-            <CheckCircle2 className="mr-1 size-3" aria-hidden="true" />
-            Completed
-          </Badge>
-        )}
-      </div>
-      {l.description && (
-        <p className="mb-8 max-w-prose text-xl text-muted-foreground">{l.description}</p>
-      )}
-      {l.lesson_type === 'text' ? (
-        <TextContent text={l.content_text ?? ''} />
-      ) : (
-        <VideoOrDocument lesson={l} />
-      )}
+  const moduleIndex = learning.modules.findIndex((m) => m.lessons.some((x) => x.id === l.id))
+  const moduleLessons = learning.modules[moduleIndex]?.lessons ?? []
+  const position = moduleLessons.findIndex((x) => x.id === l.id)
 
-      <div className="mt-12 flex flex-wrap items-center gap-3 rounded-2xl border-2 border-outline bg-surface p-5">
-        {!done && canComplete && (
-          <Button
-            size="lg"
-            variant="accent"
-            loading={complete.isPending}
-            onClick={() => complete.mutate()}
-          >
-            <CheckCircle2 className="size-5" aria-hidden="true" />
-            Mark as complete
-          </Button>
+  return (
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <article className="min-w-0">
+        <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1.5 text-sm">
+          <Link to="/dashboard/stack" className="font-semibold text-link hover:underline">
+            <ArrowLeft className="mr-1 inline size-4" aria-hidden="true" />
+            My stack
+          </Link>
+          <span aria-hidden="true" className="text-muted-foreground">
+            ›
+          </span>
+          <span className="text-muted-foreground">{l.modules.title}</span>
+        </nav>
+
+        {l.lesson_type === 'text' ? null : (
+          <div className="mb-6">
+            <VideoOrDocument lesson={l} />
+          </div>
         )}
-        {done && (
-          <p className="rounded-full bg-success-soft px-4 py-2 text-sm font-bold text-success-soft-foreground">
-            Lesson complete. Nice work.
-          </p>
+
+        <p className="text-sm text-muted-foreground">
+          {moduleIndex >= 0 ? `Module ${moduleIndex + 1}` : l.modules.title}
+          {position >= 0 && ` · Lesson ${position + 1} of ${moduleLessons.length}`}
+          {l.duration_minutes ? ` · ${l.duration_minutes} min` : ''}
+        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-extrabold sm:text-[1.75rem]">{l.title}</h1>
+          {done && (
+            <Badge variant="success">
+              <CheckCircle2 className="mr-1 size-3" aria-hidden="true" />
+              Completed
+            </Badge>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-b pb-5">
+          {!done && canComplete && (
+            <Button loading={complete.isPending} onClick={() => complete.mutate()}>
+              <CheckCircle2 className="size-4" aria-hidden="true" />
+              Mark as complete
+            </Button>
+          )}
+          {done && (
+            <p className="text-sm font-semibold text-success-soft-foreground">
+              Lesson complete. Nice work.
+            </p>
+          )}
+          {next && (
+            <Button asChild variant={done ? 'primary' : 'outline'} className="sm:ml-auto">
+              <Link to={`/dashboard/stack/lessons/${next.id}`}>
+                Next lesson
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          )}
+          {!next && done && (
+            <Button asChild className="sm:ml-auto">
+              <Link to="/dashboard/stack">Back to my stack</Link>
+            </Button>
+          )}
+        </div>
+
+        {l.description && (
+          <p className="mt-5 max-w-prose text-lg text-muted-foreground">{l.description}</p>
         )}
-        {next && (
-          <Button asChild size="lg" variant={done ? 'primary' : 'outline'} className="sm:ml-auto">
-            <Link to={`/dashboard/stack/lessons/${next.id}`}>
-              Next lesson
-              <ArrowRight className="size-5" aria-hidden="true" />
-            </Link>
-          </Button>
+        {l.lesson_type === 'text' && (
+          <div className="mt-6">
+            <TextContent text={l.content_text ?? ''} />
+          </div>
         )}
-        {!next && done && (
-          <Button asChild size="lg" className="sm:ml-auto">
-            <Link to="/dashboard/stack">Back to my stack</Link>
-          </Button>
-        )}
-      </div>
-    </article>
+      </article>
+
+      <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto">
+        <StackContentNav
+          modules={learning.modules}
+          states={learning.states}
+          completedLessonIds={learning.completedLessonIds}
+          currentLessonId={l.id}
+        />
+      </aside>
+    </div>
   )
 }

@@ -151,7 +151,7 @@ function Details({ exam }: { exam: MyExam }) {
         ].map(([label, value]) => (
           <div key={label}>
             <dt className="text-xs text-muted-foreground">{label}</dt>
-            <dd className="font-display text-2xl font-extrabold tracking-tight">{value}</dd>
+            <dd className="font-display text-2xl font-extrabold">{value}</dd>
           </div>
         ))}
       </dl>
@@ -167,13 +167,13 @@ function Details({ exam }: { exam: MyExam }) {
 function ResultCard({ result, passMark }: { result: ExamResult; passMark: number }) {
   const ok = result.passed
   return (
-    <Card role="status" tone={ok ? 'gold' : 'default'} lift="lg" className="mb-6 text-center">
+    <Card role="status" tone={ok ? 'gold' : 'default'} lift="sm" className="mb-6 text-center">
       {ok ? (
         <CheckCircle2 className="mx-auto size-10 text-success" aria-hidden="true" />
       ) : (
         <XCircle className="mx-auto size-10 text-danger" aria-hidden="true" />
       )}
-      <h2 className="mt-3 font-display text-4xl font-extrabold tracking-tight">
+      <h2 className="mt-3 font-display text-3xl font-extrabold">
         {result.expired ? 'Time ran out' : ok ? 'You passed!' : 'Not this time'}
       </h2>
       <p className="mt-1 text-muted-foreground">
@@ -270,18 +270,15 @@ function ExamTaker({
         className="space-y-5"
       >
         {list.map((q, qi) => (
-          <fieldset
-            key={q.id}
-            className="space-y-3 rounded-2xl border-2 border-outline bg-card p-5 sm:p-6"
-          >
+          <fieldset key={q.id} className="space-y-3 rounded-lg border bg-card p-5 sm:p-6">
             <legend className="sr-only">
               Question {qi + 1}: {q.prompt}
             </legend>
             <p
               aria-hidden="true"
-              className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold tracking-tight"
+              className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold"
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-accent text-base">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg border bg-accent text-base">
                 {qi + 1}
               </span>
               {q.prompt}

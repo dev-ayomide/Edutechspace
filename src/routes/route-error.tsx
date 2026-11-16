@@ -23,7 +23,7 @@ export function RouteError() {
       <Logo />
       <AlertTriangle className="size-12 text-warning" aria-hidden="true" />
       <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-extrabold">
           {stale
             ? 'A new version is available'
             : notFound

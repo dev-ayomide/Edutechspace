@@ -62,7 +62,7 @@ export function GalleryPage() {
       <Section title="Colour">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {swatches.map(([name, cls]) => (
-            <div key={name} className="overflow-hidden rounded-2xl border-2 border-outline">
+            <div key={name} className="overflow-hidden rounded-lg border">
               <div className={`${cls} h-16`} />
               <p className="bg-card px-3 py-2 text-xs font-bold">{name}</p>
             </div>
@@ -71,7 +71,7 @@ export function GalleryPage() {
       </Section>
 
       <Section title="Type">
-        <p className="font-display text-6xl leading-none font-extrabold tracking-tighter sm:text-8xl">
+        <p className="font-display text-6xl leading-none font-extrabold sm:text-8xl">
           Learn. Grow. Build.
         </p>
         <h1 className="mt-6 font-display text-4xl font-extrabold">Heading one (Sora 800)</h1>

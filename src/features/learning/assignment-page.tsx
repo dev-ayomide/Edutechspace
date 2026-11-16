@@ -94,10 +94,8 @@ export function AssignmentPage() {
           Back to my stack
         </Link>
       </Button>
-      <p className="text-sm font-bold tracking-[0.12em] text-link uppercase">{a.modules.title}</p>
-      <h1 className="mt-2 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">
-        {a.title}
-      </h1>
+      <p className="text-sm font-bold tracking-wider text-link uppercase">{a.modules.title}</p>
+      <h1 className="mt-2 text-2xl font-extrabold sm:text-[1.75rem]">{a.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {a.type === 'quiz' ? 'Quiz' : 'Project'} · Pass mark {a.pass_mark}% ·{' '}
         {allowedAttempts === null
@@ -198,7 +196,7 @@ function QuizForm({
       <Card
         role="status"
         tone={result.passed ? 'gold' : 'default'}
-        lift="lg"
+        lift="sm"
         className="text-center"
       >
         {result.passed ? (
@@ -233,18 +231,15 @@ function QuizForm({
       className="space-y-5"
     >
       {questions.map((q, qi) => (
-        <fieldset
-          key={q.id}
-          className="space-y-3 rounded-2xl border-2 border-outline bg-card p-5 sm:p-6"
-        >
+        <fieldset key={q.id} className="space-y-3 rounded-lg border bg-card p-5 sm:p-6">
           <legend className="sr-only">
             Question {qi + 1}: {q.prompt}
           </legend>
           <p
             aria-hidden="true"
-            className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold tracking-tight"
+            className="flex items-start gap-3 font-display text-xl leading-snug font-extrabold"
           >
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-outline bg-accent text-base">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg border bg-accent text-base">
               {qi + 1}
             </span>
             {q.prompt}

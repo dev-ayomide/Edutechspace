@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUNTech Space · Prototype C · Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="proto" aria-label="Prototype pages">
+  <a href="index.html">Home</a><a href="stack.html">Stack page</a><a href="dashboard.html">Student dashboard</a><a href="lesson.html" aria-current="page">Lesson player</a>
+</nav>
+
+<header class="player-top">
+  <a class="logo" href="dashboard.html"><img src="logo.png" alt="RUNTech Space"></a>
+  <span class="div" aria-hidden="true"></span>
+  <span class="title">Frontend Development</span>
+  <div class="right">
+    <div class="ring" style="--p:38" aria-hidden="true"><b></b></div>
+    <span class="hide-md">Your progress <b style="color:#fff" class="num">17 / 42</b></span>
+    <a class="btn btn-sm" style="color:#fff;border-color:#4a4f5c" href="dashboard.html">Dashboard</a>
+  </div>
+</header>
+
+<div class="player">
+  <main>
+    <div class="stage">
+      <img src="hero.jpg" alt="">
+      <button class="play" aria-label="Play video"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></button>
+      <div class="ctrl"><span class="num">06:12</span><div class="bar"><i style="width:28%"></i></div><span class="num">22:00</span><span>1x</span><span>CC</span></div>
+    </div>
+    <div class="below">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true">Overview</button>
+        <button role="tab" aria-selected="false">Resources (2)</button>
+        <button role="tab" aria-selected="false">Assignment</button>
+      </div>
+      <p class="muted" style="font-size:14px">Module 3 · Lesson 4 of 8</p>
+      <h1>CSS Grid: building page layouts</h1>
+      <div class="complete-row">
+        <span class="muted" style="font-size:15px">22 min video · required</span>
+        <div style="display:flex;gap:10px">
+          <a class="btn btn-outline" href="#">Previous</a>
+          <a class="btn btn-primary" href="#">Mark complete and continue</a>
+        </div>
+      </div>
+      <div class="prose">
+        <p>Grid lets you lay out a whole page in rows and columns at once. In this lesson we rebuild the course page you saw earlier with fewer than twenty lines of CSS.</p>
+        <p>Follow along in the starter project from Resources. Pause whenever you want and try each step yourself before watching the solution.</p>
+      </div>
+      <div class="res">
+        <a href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Slides (PDF)</a>
+        <a href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>Starter project</a>
+      </div>
+    </div>
+  </main>
+
+  <aside class="side">
+    <div class="side-h"><span>Stack content</span><span class="muted" style="font-weight:400;font-size:14px">17 of 42 done</span></div>
+    <div class="curr">
+      <details><summary><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>1. How the web works<span class="sub">6 / 6 · 4 h</span></summary><ul><li>…</li></ul></details>
+      <details><summary><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>2. HTML and accessibility<span class="sub">8 / 8 · 6 h</span></summary><ul><li>…</li></ul></details>
+      <details open>
+        <summary><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>3. CSS and responsive layout<span class="sub">3 / 8 · 7 h</span></summary>
+        <ul>
+          <li><span class="chk y"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg></span><span class="lt"><span>1. The box model</span><small>▶ 14 min</small></span></li>
+          <li><span class="chk y"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg></span><span class="lt"><span>2. Selectors and the cascade</span><small>▶ 18 min</small></span></li>
+          <li><span class="chk y"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M20 6 9 17l-5-5"/></svg></span><span class="lt"><span>3. Flexbox</span><small>▶ 24 min</small></span></li>
+          <li class="on"><span class="chk"></span><span class="lt"><span>4. CSS Grid: building page layouts</span><small>▶ 22 min</small></span></li>
+          <li><span class="chk"></span><span class="lt"><span>5. Reading: responsive images</span><small>Reading · 10 min</small></span></li>
+          <li><span class="chk"></span><span class="lt"><span>6. Media queries</span><small>▶ 16 min</small></span></li>
+          <li><span class="chk"></span><span class="lt"><span>7. Quiz: CSS selectors</span><small>Quiz · 10 questions</small></span></li>
+          <li><span class="chk"></span><span class="lt"><span>8. Project: a responsive landing page</span><small>Reviewed by your lead</small></span></li>
+        </ul>
+      </details>
+      <details><summary class="lockrow"><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>4. JavaScript essentials<span class="sub">Locked until module 3 is done</span></summary><ul><li>…</li></ul></details>
+      <details><summary class="lockrow"><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>5. React<span class="sub">Locked</span></summary><ul><li>…</li></ul></details>
+      <details><summary class="lockrow"><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>6. Portfolio project<span class="sub">Locked</span></summary><ul><li>…</li></ul></details>
+      <details><summary class="lockrow"><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>Final exam<span class="sub">Locked</span></summary><ul><li>…</li></ul></details>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

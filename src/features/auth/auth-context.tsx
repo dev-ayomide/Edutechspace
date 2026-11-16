@@ -15,7 +15,9 @@ interface AuthValue {
   signOut: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthValue | null>(null)
+// Exported for the dev-only screen preview (features/design/preview-page.tsx), which supplies a sample student.
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()

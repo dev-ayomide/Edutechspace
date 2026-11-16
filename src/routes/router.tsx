@@ -48,6 +48,12 @@ const devRoutes: RouteObject[] = import.meta.env.DEV
           import('@/features/design/gallery-page').then((m) => ({ default: m.GalleryPage })),
         ),
       },
+      {
+        path: '_preview/*',
+        ...page(() =>
+          import('@/features/design/preview-page').then((m) => ({ default: m.PreviewPage })),
+        ),
+      },
     ]
   : []
 
@@ -57,6 +63,20 @@ export const routes: RouteObject[] = [
     errorElement: <RouteError />,
     children: [
       { index: true, element: <HomePage /> },
+      {
+        path: 'stacks',
+        ...page(() =>
+          import('@/features/stacks/stacks-page').then((m) => ({ default: m.StacksPage })),
+        ),
+      },
+      {
+        path: 'stacks/:slug',
+        ...page(() =>
+          import('@/features/stacks/stack-detail-page').then((m) => ({
+            default: m.StackDetailPage,
+          })),
+        ),
+      },
       { path: 'login', element: <LoginPage /> },
       { path: 'join', element: <JoinPage /> },
       { path: 'accept-invite', element: <AcceptInvitePage /> },

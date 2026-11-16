@@ -43,16 +43,16 @@ export function ModuleCard({
   const lessonCount = module.lessons.length
   return (
     <Card className={cn('overflow-hidden p-0', busy && 'opacity-70')} aria-busy={busy}>
-      <div className="flex flex-wrap items-start gap-4 border-b-2 border-outline bg-surface p-4">
+      <div className="flex flex-wrap items-start gap-4 border-b bg-surface p-4">
         <span
           aria-hidden="true"
-          className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-outline bg-accent font-display text-xl font-extrabold text-accent-foreground"
+          className="grid size-12 shrink-0 place-items-center rounded-md border bg-accent font-display text-xl font-extrabold text-accent-foreground"
         >
           {index + 1}
         </span>
         <div className="min-w-0 flex-1 basis-full sm:basis-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-display text-lg font-extrabold tracking-tight">
+            <h3 className="font-display text-lg font-extrabold">
               <span className="sr-only">Module {index + 1}. </span>
               {module.title}
             </h3>
