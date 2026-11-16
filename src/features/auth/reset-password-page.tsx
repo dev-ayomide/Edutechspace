@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { updatePassword } from './api'
 import { useAuth } from './auth-context'
 import { homeForRole } from './roles'
+import { passwordChangeError } from '@/lib/errors'
 
 const schema = z
   .object({
@@ -45,7 +46,9 @@ export function ResetPasswordPage() {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
         <Card lift="sm" className="p-8">
-          <CardTitle className="font-display text-2xl">This reset link is not valid</CardTitle>
+          <CardTitle as="h1" className="font-display text-2xl">
+            This reset link is not valid
+          </CardTitle>
           <CardDescription className="mt-2">
             It may have expired or already been used. Request a new one and try again.
           </CardDescription>
@@ -63,8 +66,10 @@ export function ResetPasswordPage() {
       await updatePassword(values.password)
       toast.success('Your password has been changed.')
       setDone(true)
-    } catch {
-      toast.error('Could not change your password. Please request a new link.')
+    } catch (e) {
+      toast.error(
+        passwordChangeError(e, 'Could not change your password. Please request a new link.'),
+      )
     } finally {
       setSubmitting(false)
     }
@@ -73,7 +78,9 @@ export function ResetPasswordPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <Card lift="sm" className="p-8">
-        <CardTitle className="font-display text-3xl">Choose a new password</CardTitle>
+        <CardTitle as="h1" className="font-display text-3xl">
+          Choose a new password
+        </CardTitle>
         <CardDescription className="mt-1">Use at least 10 characters.</CardDescription>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4" noValidate>
           <FormField id="reset-password" label="New password" error={errors.password?.message}>

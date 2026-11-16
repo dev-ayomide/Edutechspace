@@ -1,4 +1,4 @@
-import { friendlyError } from './errors'
+import { friendlyError, passwordChangeError } from './errors'
 
 describe('friendlyError', () => {
   it('maps permission errors', () => {
@@ -28,5 +28,13 @@ describe('friendlyError', () => {
       'Something went wrong. Please try again.',
     )
     expect(friendlyError(undefined)).toBe('Something went wrong. Please try again.')
+  })
+})
+
+describe('passwordChangeError', () => {
+  it('explains the Supabase Auth password rules', () => {
+    expect(passwordChangeError({ code: 'same_password' }, 'x')).toMatch(/current password/)
+    expect(passwordChangeError({ code: 'weak_password' }, 'x')).toMatch(/too easy/)
+    expect(passwordChangeError(new Error('boom'), 'fallback')).toBe('fallback')
   })
 })

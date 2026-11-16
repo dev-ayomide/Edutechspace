@@ -48,7 +48,9 @@ export function ForgotPasswordPage() {
         {sent ? (
           <div role="status" className="text-center">
             <MailCheck className="mx-auto size-10 text-success" aria-hidden="true" />
-            <CardTitle className="mt-3 font-display text-3xl">Check your email</CardTitle>
+            <CardTitle as="h1" className="mt-3 font-display text-3xl">
+              Check your email
+            </CardTitle>
             <CardDescription className="mt-2">
               If that address has an account, we have sent a link to choose a new password. It can
               take a minute to arrive.
@@ -59,7 +61,9 @@ export function ForgotPasswordPage() {
           </div>
         ) : (
           <>
-            <CardTitle className="font-display text-3xl">Forgot your password?</CardTitle>
+            <CardTitle as="h1" className="font-display text-3xl">
+              Forgot your password?
+            </CardTitle>
             <CardDescription className="mt-1">
               Enter your email and we will send you a link to choose a new one.
             </CardDescription>

@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { setPasswordAndName } from './api'
 import { useAuth } from './auth-context'
 import { homeForRole } from './roles'
+import { passwordChangeError } from '@/lib/errors'
 
 const schema = z
   .object({
@@ -59,7 +60,9 @@ export function AcceptInvitePage() {
     return (
       <div className="mx-auto max-w-md px-4 py-16">
         <Card lift="sm" className="p-8">
-          <CardTitle className="text-xl">This invitation link has expired</CardTitle>
+          <CardTitle as="h1" className="text-xl">
+            This invitation link has expired
+          </CardTitle>
           <CardDescription className="mt-2">
             Invitation links only work once and for a limited time. Your account is already set up:
             choose a password using the email address the invitation was sent to, then sign in.
@@ -84,8 +87,8 @@ export function AcceptInvitePage() {
       await queryClient.invalidateQueries({ queryKey: ['profile'] })
       toast.success('Your account is ready.')
       setDone(true)
-    } catch {
-      toast.error('Could not save your details. Please try again.')
+    } catch (e) {
+      toast.error(passwordChangeError(e, 'Could not save your details. Please try again.'))
     } finally {
       setSubmitting(false)
     }
@@ -94,7 +97,9 @@ export function AcceptInvitePage() {
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <Card lift="sm" className="p-8">
-        <CardTitle className="text-xl">Finish setting up your account</CardTitle>
+        <CardTitle as="h1" className="text-xl">
+          Finish setting up your account
+        </CardTitle>
         <CardDescription className="mt-1">
           Welcome! Choose your name and a password to continue.
         </CardDescription>

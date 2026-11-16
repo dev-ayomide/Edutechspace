@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import type { Lesson, Module, ModuleWithLessons } from '@/types/domain'
 import type { LessonInput, ModuleInput } from './schemas'
+import { asList } from '@/lib/embed'
 
 export const contentKeys = {
   stack: (stackId: string) => ['content', stackId] as const,
@@ -15,7 +16,9 @@ export async function listModulesWithLessons(stackId: string): Promise<ModuleWit
   if (error) throw error
   return (data as ModuleWithLessons[]).map((m) => ({
     ...m,
-    lessons: [...m.lessons].sort((a, b) => a.order_index - b.order_index),
+    lessons: [...asList(m.lessons)].sort((a, b) => a.order_index - b.order_index),
+    // One assignment per module: PostgREST sends it as an object or null, not a list.
+    assignments: asList(m.assignments),
   }))
 }
 

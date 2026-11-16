@@ -35,3 +35,11 @@ export function friendlyError(
   }
   return fallback
 }
+
+/** Supabase Auth refuses some new passwords with a reason code; say which rule was broken. */
+export function passwordChangeError(error: unknown, fallback: string): string {
+  const code = (error as { code?: string } | null)?.code
+  if (code === 'same_password') return 'That is your current password. Choose a new one.'
+  if (code === 'weak_password') return 'That password is too easy to guess. Try a longer one.'
+  return fallback
+}

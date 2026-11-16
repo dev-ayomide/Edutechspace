@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 /** Scrolls horizontally inside its container on small screens instead of breaking the page. */
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card">
+    <div className="relative overflow-x-auto rounded-lg border bg-card">
       <table className={cn('w-full text-left text-sm', className)} {...props} />
     </div>
   )
