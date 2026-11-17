@@ -40,7 +40,7 @@ LOCAL_SERVICE_ROLE_KEY=<service_role key from `supabase status`> LOCAL_ANON_KEY=
 ```
 
 `FAST=1` skips the pauses (a quick test run). `PACE=1.6` slows the videos down.
-Each run resets the **local** database (`supabase db reset`), so it always starts clean.
+Each run clears the previous run's test data in the **local** database, so it always starts clean.
 
 Output (not committed): `walkthrough/runtech-space-walkthrough.mp4`, `walkthrough/parts/*.mp4`,
 `walkthrough/sample-certificate.pdf`, and `walkthrough/test-run.log`.

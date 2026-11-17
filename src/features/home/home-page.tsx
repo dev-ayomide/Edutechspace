@@ -690,7 +690,7 @@ function CertificateSection() {
             src={certificateImg}
             alt="A sample RUNTech Space certificate"
             width={1600}
-            height={1131}
+            height={1348}
             loading="lazy"
           />
           <div className="ui verify px-down" aria-hidden="true">

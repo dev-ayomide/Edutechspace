@@ -29,28 +29,47 @@ export function Journey() {
     let cleanup: (() => void) | undefined
     let cancelled = false
     if (typeof IntersectionObserver === 'undefined') return
-    const start = new IntersectionObserver(
-      ([e]) => {
-        if (!e?.isIntersecting) return
-        start.disconnect()
-        void import('./laptop-3d').then(async ({ mountLaptop }) => {
-          if (cancelled) return
-          const stop = await mountLaptop(sec, {
-            dashboard: dashboardTex,
-            lesson: lessonTex,
-            progress: progressTex,
-            certificate: certificateTex,
-          })
-          if (cancelled) stop()
-          else cleanup = stop
+    let started = false
+    const begin = () => {
+      if (started || cancelled) return
+      started = true
+      start.disconnect()
+      window.clearTimeout(idleTimer)
+      void import('./laptop-3d').then(async ({ mountLaptop }) => {
+        if (cancelled) return
+        const stop = await mountLaptop(sec, {
+          dashboard: dashboardTex,
+          lesson: lessonTex,
+          progress: progressTex,
+          certificate: certificateTex,
         })
-      },
-      { rootMargin: '1200px 0px' },
-    )
+        if (cancelled) stop()
+        else cleanup = stop
+      })
+    }
+    // Start when the section comes near...
+    const start = new IntersectionObserver(([e]) => e?.isIntersecting && begin(), {
+      rootMargin: '1200px 0px',
+    })
     start.observe(sec)
+    // ...or quietly a moment after the page settles, so the one-time 3D setup never lands mid-scroll.
+    // Skipped for visitors who asked their browser to save data.
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection
+      ?.saveData
+    const idleTimer = window.setTimeout(() => {
+      if (saveData) return
+      const ric = (
+        window as Window & {
+          requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number
+        }
+      ).requestIdleCallback
+      if (ric) ric(begin, { timeout: 2500 })
+      else begin()
+    }, 1500)
     return () => {
       cancelled = true
       start.disconnect()
+      window.clearTimeout(idleTimer)
       cleanup?.()
     }
   }, [enabled])

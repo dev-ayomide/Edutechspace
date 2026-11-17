@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# live-project version pins moved aside so the local stack uses cached images
+.temp-live-versions

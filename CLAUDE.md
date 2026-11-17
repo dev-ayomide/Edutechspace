@@ -42,6 +42,7 @@ End-to-end test + walkthrough videos against a LOCAL Supabase: `docs/WALKTHROUGH
 
 ## Rules and gotchas
 
+- Local stack: the CLI is linked to live, which makes local `supabase start`/`db reset` try to pull the LIVE Postgres version. The live version files were moved to `supabase/.temp-live-versions/` so local uses the cached images; the walkthrough resets its data with SQL instead of `db reset`.
 - **Never** run `supabase config push` or `supabase db reset --linked`: config.toml holds localhost settings and a reset
   would wipe live data. Plain `supabase db reset` / `supabase start` only touch the local Docker stack.
 - New SQL: add a migration, update `supabase/tests/hardening.test.sql` allowlists for any new function callable by
@@ -71,7 +72,7 @@ badges on stock photos, green-tick lists, generic text-left/photo-right heroes.
 - Photos: Unsplash (free licence), hotlinked in the prototype; download and optimise them into the app before launch
   (ask the user first). Real photos of their students and leads are still wanted.
 
-**In progress (branch `feat/paper-design`, committed locally, not pushed):** Paper rolled into the app: tokens, Newsreader + DM Sans, public shell (real logo, condensing nav, Lenis), home page (all sections, three.js MacBook in `src/features/home/laptop-3d.ts`), photo stack cards, Stacks page. Still to do: retake product screenshots from the new look (`src/assets/screens`), polish lesson/quiz/exam screens, run the walkthrough e2e, phone + Lighthouse checks, PR. Previously: rolling Paper into the React app (public site first, then student/lead/admin screens, then retake the
+**In progress (branch `feat/paper-design`, committed locally, not pushed):** Paper rolled into the app: tokens, Newsreader + DM Sans, public shell (real logo, condensing nav, Lenis), home page (all sections, three.js MacBook in `src/features/home/laptop-3d.ts`), photo stack cards, Stacks page. Done since: new-look product screenshots, serif certificate name, 3D laptop pre-warms after page load, e2e 96+/0 failed, feedback videos (`scripts/walkthrough/tour.mjs` + `record.mjs` + `encode.sh`, output in `walkthrough/`). Next: collect exec/lead feedback, iterate, then push + PR. Previously: rolling Paper into the React app (public site first, then student/lead/admin screens, then retake the
 product screenshots). Branch `feat/feel-lab` holds UNCOMMITTED src changes from the rejected Geist version plus a dev
 `/_lab` page and `src/lib/motion.ts`; start the rollout from `master` and reuse only what fits.
 Other open items: real signatory names/signatures (demo placeholders live), privacy notice + terms, Supabase Pro plan and
