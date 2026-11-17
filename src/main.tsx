@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { Providers } from '@/app/providers'
 import { router } from '@/routes/router'
-import '@fontsource-variable/source-sans-3'
+import '@fontsource-variable/dm-sans'
+import '@fontsource-variable/newsreader'
 import '@/styles/index.css'
 
 createRoot(document.getElementById('root')!).render(

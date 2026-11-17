@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Direction 2 · Zinc · RUNTech Space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      :root {
+        --obsidian: #09090b;
+        --graphite: #18181b;
+        --slate: #27272a;
+        --iron: #3f3f46;
+        --steel: #52525b;
+        --fog: #71717a;
+        --ash: #a1a1aa;
+        --cloud: #ececee;
+        --paper: #f4f4f5;
+        --brand: #1e3a8a;
+        --accent: #08f1ff; /* the one colour: badge punctuation only */
+      }
+      body {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        font-optical-sizing: auto;
+        background: var(--paper);
+        color: var(--graphite);
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* buttons */
+      .btn-dark {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--obsidian);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow:
+          inset 0 0.5px 0 0 rgba(255, 255, 255, 0.5),
+          inset 0 9px 14px -5px rgba(117, 123, 133, 0.4),
+          0 0 0 1.5px #2c2e34,
+          0 4px 6px 0 rgba(0, 0, 0, 0.14);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .btn-dark:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          inset 0 0.5px 0 0 rgba(255, 255, 255, 0.6),
+          inset 0 9px 14px -5px rgba(140, 146, 158, 0.5),
+          0 0 0 1.5px #2c2e34,
+          0 8px 14px -2px rgba(0, 0, 0, 0.18);
+      }
+      .btn-dark:active {
+        transform: translateY(0);
+      }
+      .btn-soft {
+        display: inline-flex;
+        align-items: center;
+        background: #fafafa;
+        color: var(--graphite);
+        padding: 12px 16px;
+        border-radius: 14px;
+        font-size: 14px;
+        box-shadow: inset 0 0 0 1px var(--cloud);
+      }
+      .btn-soft:hover {
+        background: #fff;
+      }
+      .tag {
+        display: inline-block;
+        border: 1px solid var(--cloud);
+        border-radius: 12px;
+        padding: 4px 9px;
+        font-size: 12.5px;
+        color: var(--graphite);
+        background: #fff;
+      }
+      .tag.accent {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--obsidian);
+        font-weight: 500;
+      }
+      .tag.filled {
+        background: var(--iron);
+        border-color: var(--iron);
+        color: #fafafa;
+      }
+
+      /* nav */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(244, 244, 245, 0.82);
+        backdrop-filter: blur(16px);
+      }
+      nav .wrap {
+        height: 68px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        font-size: 14px;
+      }
+      .logo {
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+        color: var(--obsidian);
+      }
+      .logo b {
+        color: var(--brand);
+      }
+      nav .links {
+        display: flex;
+        gap: 30px;
+        color: var(--iron);
+      }
+      nav .links a:hover {
+        color: var(--obsidian);
+      }
+      nav .right {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 18px;
+      }
+      @media (max-width: 780px) {
+        nav .links,
+        nav .signin {
+          display: none;
+        }
+        nav .wrap {
+          grid-template-columns: 1fr auto;
+        }
+      }
+
+      /* hero */
+      .hero {
+        padding: 72px 0 56px;
+      }
+      .hero .grid {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 48px;
+        align-items: end;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2.6rem, 5.6vw, 4.5rem);
+        line-height: 1.08;
+        font-weight: 600;
+        color: var(--obsidian);
+        letter-spacing: -0.022em;
+      }
+      .rotator {
+        display: inline-grid;
+        height: 1.08em;
+        overflow: hidden;
+        vertical-align: bottom;
+      }
+      .rotator span {
+        grid-area: 1 / 1;
+        color: var(--brand);
+        transform: translateY(105%);
+        animation: word 12s cubic-bezier(0.7, 0, 0.2, 1) infinite;
+      }
+      .rotator span:nth-child(2) {
+        animation-delay: 3s;
+      }
+      .rotator span:nth-child(3) {
+        animation-delay: 6s;
+      }
+      .rotator span:nth-child(4) {
+        animation-delay: 9s;
+      }
+      @keyframes word {
+        0% {
+          transform: translateY(105%);
+        }
+        4%,
+        25% {
+          transform: translateY(0);
+        }
+        29%,
+        100% {
+          transform: translateY(-105%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rotator span {
+          animation: none;
+          transform: none;
+        }
+        .rotator span:not(:first-child) {
+          display: none;
+        }
+      }
+      .hero p {
+        margin: 0 0 22px;
+        color: var(--steel);
+        font-size: 16px;
+        max-width: 40ch;
+      }
+      .apply {
+        display: flex;
+        gap: 8px;
+        background: #fff;
+        padding: 6px;
+        border-radius: 18px;
+        box-shadow: inset 0 0 0 1px var(--cloud);
+      }
+      .apply select {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        background: transparent;
+        font: inherit;
+        font-size: 14px;
+        color: var(--graphite);
+        padding: 0 12px;
+        border-radius: 12px;
+        appearance: none;
+        cursor: pointer;
+      }
+      .apply select:focus-visible {
+        outline: 2px solid var(--obsidian);
+      }
+      .note {
+        margin-top: 12px;
+        font-size: 12.5px;
+        color: var(--fog);
+      }
+      @media (max-width: 860px) {
+        .hero .grid {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+      }
+
+      /* stack band */
+      .band {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(270px, 1fr);
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 4px 20px 24px;
+        margin: 0 -20px;
+        scrollbar-width: none;
+      }
+      .band::-webkit-scrollbar {
+        display: none;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 36px;
+        overflow: hidden;
+        scroll-snap-align: start;
+        transition: border-color 0.25s ease;
+      }
+      .card:hover {
+        border-color: var(--ash);
+      }
+      .card .img {
+        overflow: hidden;
+      }
+      .card img {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .card:hover img {
+        transform: scale(1.03);
+      }
+      .card .body {
+        padding: 22px 28px 28px;
+      }
+      .card h3 {
+        margin: 0 0 12px;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--obsidian);
+        letter-spacing: -0.015em;
+      }
+      .card .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      section {
+        padding: 40px 0;
+      }
+      .h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.12;
+        font-weight: 600;
+        color: var(--obsidian);
+        letter-spacing: -0.022em;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+      }
+      .muted {
+        color: var(--steel);
+      }
+
+      /* product */
+      .product {
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 36px;
+        padding: 28px 28px 0;
+        overflow: hidden;
+      }
+      .window {
+        border-radius: 18px 18px 0 0;
+        overflow: hidden;
+        box-shadow: 0 0 0 1px var(--cloud);
+      }
+      .window .chrome {
+        height: 38px;
+        background: #fafafa;
+        border-bottom: 1px solid var(--cloud);
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 14px;
+      }
+      .window .chrome i {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--cloud);
+      }
+      .window .chrome span {
+        margin: 0 auto;
+        font-size: 12px;
+        color: var(--fog);
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 8px;
+        padding: 3px 14px;
+      }
+      .split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .mini {
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 36px;
+        padding: 28px;
+        overflow: hidden;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+      }
+      .mini h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--obsidian);
+      }
+      .mini p {
+        margin: 6px 0 0;
+        color: var(--steel);
+      }
+      .mini img {
+        margin-top: 24px;
+        border-radius: 14px;
+        box-shadow: 0 0 0 1px var(--cloud);
+      }
+      @media (max-width: 760px) {
+        .split {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* dark block */
+      .dark {
+        background: var(--graphite);
+        color: #fafafa;
+        border-radius: 36px;
+        padding: 56px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+      }
+      .dark .h2 {
+        color: #fff;
+      }
+      .dark ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 4px;
+      }
+      .dark li {
+        display: flex;
+        gap: 14px;
+        align-items: baseline;
+        font-size: 20px;
+        font-weight: 500;
+        padding: 14px 0;
+        border-bottom: 1px solid #2f2f33;
+      }
+      .dark li small {
+        display: block;
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--ash);
+        margin-top: 4px;
+      }
+      .dark li::before {
+        content: '→';
+        color: var(--accent);
+      }
+      @media (max-width: 860px) {
+        .dark {
+          grid-template-columns: 1fr;
+          padding: 32px 26px;
+        }
+      }
+
+      /* facts */
+      .facts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .fact {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 28px;
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 28px;
+      }
+      .fact b {
+        font-size: 56px;
+        font-weight: 600;
+        color: var(--obsidian);
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .fact span {
+        color: var(--steel);
+        font-size: 14px;
+        max-width: 18ch;
+      }
+      @media (max-width: 760px) {
+        .facts {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .breath img {
+        width: 100%;
+        aspect-ratio: 21 / 9;
+        object-fit: cover;
+        border-radius: 48px;
+      }
+
+      .cert {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 40px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--cloud);
+        border-radius: 36px;
+        padding: 48px;
+      }
+      .cert img {
+        border-radius: 8px;
+        box-shadow: 0 0 0 1px var(--cloud);
+      }
+      @media (max-width: 860px) {
+        .cert {
+          grid-template-columns: 1fr;
+          padding: 28px;
+        }
+      }
+
+      .end {
+        text-align: center;
+        padding: 100px 0 140px;
+      }
+      .end p {
+        margin: 14px auto 28px;
+        max-width: 44ch;
+      }
+      footer {
+        border-top: 1px solid var(--cloud);
+        padding: 26px 0 90px;
+        color: var(--fog);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="wrap">
+        <a class="logo" href="#"><b>RUN</b>Tech Space</a>
+        <div class="links">
+          <a href="#stacks">Stacks</a>
+          <a href="#product">How it works</a>
+          <a href="#certificate">Certificates</a>
+        </div>
+        <div class="right">
+          <a class="signin" href="#">Sign in</a>
+          <a class="btn-dark" href="#">Apply to join</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="wrap grid">
+        <h1 class="load">
+          Learn
+          <span class="rotator" aria-label="frontend, data analysis, UI/UX design, cloud">
+            <span>frontend</span><span>data analysis</span><span>UI/UX design</span
+            ><span>cloud</span>
+          </span>
+          <br />from people who do it for a living.
+        </h1>
+        <div class="load d2">
+          <p>
+            Eight stacks at Redeemer&rsquo;s University. Work module by module, get your projects
+            reviewed by a lead, and finish with a certificate anyone can check.
+          </p>
+          <form class="apply" onsubmit="return false">
+            <label for="s" style="position: absolute; left: -9999px">Choose a stack</label>
+            <select id="s">
+              <option>Frontend Development</option>
+              <option>Backend Development</option>
+              <option>Data Analysis</option>
+              <option>Cloud Computing / DevOps</option>
+              <option>UI/UX Design</option>
+              <option>Product Management</option>
+              <option>Machine Learning</option>
+              <option>Game Development</option>
+            </select>
+            <button class="btn-dark" style="border: 0; cursor: pointer">Apply</button>
+          </form>
+          <p class="note">Free for admitted students · Reviewed by the stack lead</p>
+        </div>
+      </div>
+    </header>
+
+    <section id="stacks" style="padding-top: 8px">
+      <div class="wrap">
+        <div class="band">
+          <a class="card" href="#"><div class="img"><img src="shots/cover-frontend.png" alt="" /></div><div class="body"><h3>Frontend Development</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Engineering</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-backend.png" alt="" /></div><div class="body"><h3>Backend Development</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Engineering</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-data-analysis.png" alt="" /></div><div class="body"><h3>Data Analysis</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Data &amp; AI</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-ui-ux.png" alt="" /></div><div class="body"><h3>UI/UX Design</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Design</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-cloud-devops.png" alt="" /></div><div class="body"><h3>Cloud / DevOps</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Engineering</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-machine-learning.png" alt="" /></div><div class="body"><h3>Machine Learning</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Data &amp; AI</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-product-management.png" alt="" /></div><div class="body"><h3>Product Management</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Product</span></div></div></a>
+          <a class="card" href="#"><div class="img"><img src="shots/cover-game-development.png" alt="" /></div><div class="body"><h3>Game Development</h3><div class="tags"><span class="tag accent">Applications open</span><span class="tag">Engineering</span></div></div></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="product">
+      <div class="wrap">
+        <div class="row rise">
+          <h2 class="h2">Everything a student needs,<br />in one place.</h2>
+          <a class="btn-soft" href="#">See a stack</a>
+        </div>
+        <div class="product rise">
+          <div class="window">
+            <div class="chrome"><i></i><i></i><i></i><span>runtechspace.com.ng/dashboard</span></div>
+            <img src="shots/lesson.png" alt="The lesson player" />
+          </div>
+        </div>
+        <div class="split">
+          <div class="mini rise">
+            <h3>Know what&rsquo;s next</h3>
+            <p>Your dashboard always points at the next lesson.</p>
+            <img src="shots/dashboard.png" alt="" />
+          </div>
+          <div class="mini rise">
+            <h3>See your progress</h3>
+            <p>Lessons, assignments and the exam, counted for you.</p>
+            <img src="shots/progress.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="dark rise">
+          <div>
+            <span class="tag filled">Why RUNTech Space</span>
+            <h2 class="h2" style="margin-top: 18px">Learning that<br />actually finishes.</h2>
+          </div>
+          <ul>
+            <li><div>A lead who reviews your work<small>Written feedback on every project, not a robot score.</small></div></li>
+            <li><div>A clear order to follow<small>Each module unlocks the next, so you always know what to do.</small></div></li>
+            <li><div>Quizzes marked instantly<small>Know where you stand before you move on.</small></div></li>
+            <li><div>A certificate with proof<small>Every certificate has its own public check page.</small></div></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap facts">
+        <div class="fact rise"><b>8</b><span>stacks to choose from</span></div>
+        <div class="fact rise"><b>4</b><span>steps from application to certificate</span></div>
+        <div class="fact rise"><b>1</b><span>public check page for every certificate</span></div>
+      </div>
+    </section>
+
+    <section class="breath">
+      <div class="wrap"><img class="rise" src="shots/photo.jpg" alt="" /></div>
+    </section>
+
+    <section id="certificate">
+      <div class="wrap">
+        <div class="cert rise">
+          <div>
+            <h2 class="h2">A certificate employers can check.</h2>
+            <p class="muted" style="font-size: 16px; margin: 16px 0 26px">
+              Issued only when you pass the final exam. Signed, numbered, and backed by a page
+              anyone can open.
+            </p>
+            <a class="btn-soft" href="#">Verify a certificate</a>
+          </div>
+          <img src="shots/certificate.png" alt="A RUNTech Space certificate" />
+        </div>
+      </div>
+    </section>
+
+    <section class="end">
+      <div class="wrap rise">
+        <h2 class="h2">Ready when you are.</h2>
+        <p class="muted">The stack lead reviews every application, usually within a few days.</p>
+        <a class="btn-dark" href="#">Apply to join</a>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">RUNTech Space · Redeemer&rsquo;s University</div>
+    </footer>
+
+    <div class="switcher">
+      <a href="1-keynote.html">1 · Keynote</a>
+      <a href="2-zinc.html" aria-current="page">2 · Zinc</a>
+      <a href="3-paper.html">3 · Paper</a>
+    </div>
+  </body>
+</html>

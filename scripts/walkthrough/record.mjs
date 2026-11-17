@@ -9,6 +9,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, renameSync, rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { chromium } from 'playwright'
+import { showCard } from './card.mjs'
 
 const BASE = process.env.BASE_URL ?? 'http://localhost:5175'
 const SUPA = process.env.LOCAL_SUPABASE_URL ?? 'http://127.0.0.1:54321'
@@ -181,7 +182,7 @@ async function part(file, title, subtitle, fn, { storage, warm } = {}) {
       !/favicon|youtube|ERR_BLOCKED|net::/i.test(m.text()) &&
       (errors.push(m.text()), console.log('      CONSOLE: ' + m.text().slice(0, 600))),
   )
-  await page.setContent(titleCard(title, subtitle))
+  await showCard(page, BASE, { title, subtitle })
   await beat(page, 2600)
   let state = null
   try {
@@ -203,13 +204,6 @@ async function part(file, title, subtitle, fn, { storage, warm } = {}) {
     state ??= saved
   }
   return state
-}
-
-function titleCard(title, subtitle) {
-  return `<!doctype html><html><body style="margin:0;height:100vh;display:grid;place-items:center;background:#0b1a4a;color:#fff;font-family:'Source Sans 3',system-ui,sans-serif">
-  <div style="max-width:900px;padding:0 60px"><p style="margin:0 0 14px;font-size:20px;letter-spacing:.12em;text-transform:uppercase;color:#08f1ff;font-weight:700">RUNTech Space</p>
-  <h1 style="margin:0;font-size:56px;line-height:1.08;font-weight:800">${title}</h1>
-  <p style="margin:20px 0 0;font-size:26px;color:#c7d0ea">${subtitle}</p></div></body></html>`
 }
 
 async function signIn(page, who, password = PW) {
@@ -281,7 +275,14 @@ try {
   await step('Reset local test data', async () => {
     await clearMail()
     // A clean local database every run: all migrations plus the demo signatories seed.
-    execFileSync('supabase', ['db', 'reset'], { stdio: 'ignore' })
+    // Clear the previous run's test data. (Not `supabase db reset`: when the CLI is linked to the live project it
+    // tries to download the live Postgres version first.)
+    sql(`delete from public.certificates where user_id in (select id from public.profiles where email like '%@runtech.test');
+         delete from auth.users where email like '%@runtech.test';
+         delete from public.stack_applications where email like '%@runtech.test';
+         delete from public.invitations where email like '%@runtech.test';
+         delete from public.exams where stack_id = (select id from public.stacks where slug = 'frontend');
+         delete from public.modules where stack_id = (select id from public.stacks where slug = 'frontend');`)
     for (let i = 0; i < 60; i++) {
       const ok = await Promise.all(
         [
@@ -507,7 +508,7 @@ try {
         await scrollThrough(page, 6)
       })
       await step('Visitor opens the Frontend course page and sees the curriculum', async () => {
-        await page.getByRole('link', { name: 'Explore stacks' }).first().click()
+        await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Stacks', exact: true }).click()
         await page.getByRole('heading', { name: 'All stacks' }).waitFor()
         await beat(page, 1200)
         await page

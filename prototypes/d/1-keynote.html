@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Direction 1 · Keynote · RUNTech Space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="shared.css" />
+    <style>
+      :root {
+        --ink: #1d1d1f;
+        --muted: #6e6e73;
+        --soft: #f5f5f7;
+        --link: #0066cc;
+        --brand: #1e3a8a;
+      }
+      body {
+        font-family: 'Inter Tight', system-ui, sans-serif;
+        color: var(--ink);
+        background: #fff;
+        letter-spacing: -0.011em;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 22px;
+      }
+
+      /* nav: thin, translucent, quiet */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: saturate(180%) blur(20px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+      nav .wrap {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 34px;
+        font-size: 13px;
+      }
+      nav .brand {
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: -0.02em;
+        margin-right: auto;
+      }
+      nav .brand b {
+        color: var(--brand);
+      }
+      nav a:not(.brand):not(.cta) {
+        color: #424245;
+      }
+      nav .cta {
+        margin-left: auto;
+        background: var(--ink);
+        color: #fff;
+        padding: 6px 13px;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      @media (max-width: 720px) {
+        nav .hide-sm {
+          display: none;
+        }
+      }
+
+      /* hero */
+      .hero {
+        text-align: center;
+        padding: 96px 0 0;
+      }
+      .eyebrow {
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--brand);
+      }
+      h1 {
+        margin: 12px auto 0;
+        font-size: clamp(3rem, 8.4vw, 6.6rem);
+        line-height: 0.98;
+        font-weight: 650;
+        letter-spacing: -0.038em;
+        max-width: 11ch;
+        text-wrap: balance;
+      }
+      .lede {
+        margin: 26px auto 0;
+        max-width: 34ch;
+        font-size: clamp(1.15rem, 2vw, 1.5rem);
+        line-height: 1.38;
+        color: var(--muted);
+        font-weight: 500;
+        letter-spacing: -0.015em;
+      }
+      .links {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 28px;
+        flex-wrap: wrap;
+        font-size: 19px;
+      }
+      .btn {
+        background: var(--link);
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 999px;
+        font-size: 17px;
+        font-weight: 500;
+      }
+      .more {
+        color: var(--link);
+        align-self: center;
+      }
+      .more::after {
+        content: ' ›';
+      }
+      .more:hover {
+        text-decoration: underline;
+      }
+      .hero .laptop {
+        margin-top: 72px;
+      }
+
+      section {
+        padding: 140px 0;
+      }
+      .h2 {
+        font-size: clamp(2.4rem, 5.4vw, 4.4rem);
+        line-height: 1.03;
+        font-weight: 650;
+        letter-spacing: -0.035em;
+        margin: 0;
+      }
+      .center {
+        text-align: center;
+      }
+      .sub {
+        font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+        color: var(--muted);
+        line-height: 1.4;
+        font-weight: 500;
+        margin: 18px auto 0;
+        max-width: 40ch;
+      }
+
+      /* black band: the path */
+      .black {
+        background: #000;
+        color: #f5f5f7;
+      }
+      .black .sub {
+        color: #86868b;
+      }
+      .steps {
+        margin-top: 90px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 36px;
+      }
+      .steps .n {
+        font-size: 15px;
+        color: #86868b;
+        font-weight: 500;
+      }
+      .steps h3 {
+        font-size: 30px;
+        letter-spacing: -0.035em;
+        font-weight: 600;
+        margin: 10px 0 10px;
+      }
+      .steps p {
+        margin: 0;
+        color: #a1a1a6;
+        font-size: 17px;
+        line-height: 1.47;
+      }
+      .steps .bar {
+        height: 2px;
+        background: #333;
+        margin-bottom: 26px;
+        position: relative;
+        overflow: hidden;
+      }
+      .steps .bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        transform-origin: left;
+        transform: scaleX(0);
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        @supports (animation-timeline: view()) {
+          .steps li:nth-child(1) .bar::after {
+            animation: fill linear both;
+            animation-timeline: view();
+            animation-range: entry 40% cover 40%;
+          }
+          .steps li:nth-child(2) .bar::after {
+            animation: fill linear both;
+            animation-timeline: view();
+            animation-range: entry 55% cover 46%;
+          }
+          .steps li:nth-child(3) .bar::after {
+            animation: fill linear both;
+            animation-timeline: view();
+            animation-range: entry 70% cover 52%;
+          }
+          .steps li:nth-child(4) .bar::after {
+            animation: fill linear both;
+            animation-timeline: view();
+            animation-range: entry 85% cover 58%;
+          }
+        }
+      }
+      @keyframes fill {
+        to {
+          transform: scaleX(1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .steps .bar::after {
+          transform: scaleX(1);
+        }
+      }
+      @media (max-width: 860px) {
+        .steps {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 520px) {
+        .steps {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* tiles */
+      .soft {
+        background: var(--soft);
+      }
+      .tiles {
+        margin-top: 70px;
+        display: grid;
+        grid-template-columns: 1.55fr 1fr;
+        gap: 20px;
+      }
+      .tile {
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        position: relative;
+        min-height: 520px;
+        display: flex;
+        flex-direction: column;
+      }
+      .tile .copy {
+        padding: 40px 44px 0;
+      }
+      .tile h3 {
+        margin: 0;
+        font-size: 30px;
+        letter-spacing: -0.035em;
+        font-weight: 600;
+        line-height: 1.12;
+      }
+      .tile p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.47;
+        max-width: 36ch;
+      }
+      .tile .shot {
+        margin: 36px 0 0 44px;
+        border-radius: 14px 0 0 0;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+        width: calc(100% - 44px);
+        object-fit: cover;
+        object-position: left top;
+        flex: 1;
+      }
+      .tile .phone {
+        margin: 40px auto -120px;
+      }
+      @media (max-width: 860px) {
+        .tiles {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* stacks */
+      .stacks {
+        margin-top: 70px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 34px 22px;
+      }
+      .stacks img {
+        border-radius: 18px;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .stacks a {
+        display: block;
+      }
+      .stacks a:hover img {
+        transform: scale(1.025);
+      }
+      .stacks h3 {
+        margin: 16px 0 4px;
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+      }
+      .stacks span {
+        color: var(--link);
+        font-size: 15px;
+      }
+      .stacks span::after {
+        content: ' ›';
+      }
+      @media (max-width: 960px) {
+        .stacks {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* certificate */
+      .cert img {
+        margin: 80px auto 0;
+        width: min(900px, 100%);
+        border-radius: 6px;
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.06),
+          0 50px 100px -30px rgba(0, 0, 0, 0.3);
+      }
+
+      footer {
+        background: var(--soft);
+        color: var(--muted);
+        font-size: 12px;
+        padding: 30px 0 90px;
+        border-top: 1px solid #e5e5e7;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="wrap">
+        <a class="brand" href="#"><b>RUN</b>Tech Space</a>
+        <a class="hide-sm" href="#stacks">Stacks</a>
+        <a class="hide-sm" href="#how">How it works</a>
+        <a class="hide-sm" href="#certificate">Certificate</a>
+        <a class="cta" href="#">Apply</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="wrap">
+        <p class="eyebrow load">RUNTech Space</p>
+        <h1 class="load d1">Learn tech. The proper way.</h1>
+        <p class="lede load d2">
+          Eight stacks, each led by someone who does the work for a living. Real feedback, and a
+          certificate anyone can check.
+        </p>
+        <div class="links load d3">
+          <a class="btn" href="#stacks">Explore the stacks</a>
+          <a class="more" href="#how">See how it works</a>
+        </div>
+        <div class="laptop grow">
+          <div class="screen"><img src="shots/lesson.png" alt="The lesson player" /></div>
+          <div class="base"></div>
+        </div>
+      </div>
+    </header>
+
+    <section id="how" class="black">
+      <div class="wrap">
+        <h2 class="h2 center rise">One clear path.<br />Every stack.</h2>
+        <p class="sub center rise">From your application to a certificate with your name on it.</p>
+        <ol class="steps" style="list-style: none; padding: 0">
+          <li class="rise">
+            <div class="bar"></div>
+            <span class="n">Step 1</span>
+            <h3>Apply</h3>
+            <p>Choose a stack. Its lead reads your application and invites you in.</p>
+          </li>
+          <li class="rise">
+            <div class="bar"></div>
+            <span class="n">Step 2</span>
+            <h3>Learn</h3>
+            <p>Videos and readings in order. Each module unlocks the next.</p>
+          </li>
+          <li class="rise">
+            <div class="bar"></div>
+            <span class="n">Step 3</span>
+            <h3>Practise</h3>
+            <p>Quizzes are marked instantly. Your lead reviews every project.</p>
+          </li>
+          <li class="rise">
+            <div class="bar"></div>
+            <span class="n">Step 4</span>
+            <h3>Get certified</h3>
+            <p>Pass the final exam. Your certificate gets its own public page.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="soft">
+      <div class="wrap">
+        <h2 class="h2 center rise">Always know<br />where you are.</h2>
+        <div class="tiles">
+          <div class="tile rise">
+            <div class="copy">
+              <h3>Your progress, at a glance.</h3>
+              <p>What to do next, how far you have come, and what is left before the exam.</p>
+            </div>
+            <img class="shot" src="shots/dashboard.png" alt="" />
+          </div>
+          <div class="tile rise">
+            <div class="copy">
+              <h3>Learn on your phone.</h3>
+              <p>Every lesson works on the device you already have.</p>
+            </div>
+            <div class="phone"><img src="shots/phone-lesson.png" alt="" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="stacks">
+      <div class="wrap">
+        <h2 class="h2 center rise">Eight stacks.<br />Pick yours.</h2>
+        <div class="stacks">
+          <a class="rise" href="#"><img src="shots/cover-frontend.png" alt="" /><h3>Frontend Development</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-backend.png" alt="" /><h3>Backend Development</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-data-analysis.png" alt="" /><h3>Data Analysis</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-cloud-devops.png" alt="" /><h3>Cloud / DevOps</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-ui-ux.png" alt="" /><h3>UI/UX Design</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-product-management.png" alt="" /><h3>Product Management</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-machine-learning.png" alt="" /><h3>Machine Learning</h3><span>Learn more</span></a>
+          <a class="rise" href="#"><img src="shots/cover-game-development.png" alt="" /><h3>Game Development</h3><span>Learn more</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="certificate" class="soft cert">
+      <div class="wrap center">
+        <h2 class="h2 rise">A certificate<br />that proves itself.</h2>
+        <p class="sub rise">
+          Signed, numbered, and backed by a public page employers can open in seconds.
+        </p>
+        <div class="links rise"><a class="more" href="#">Verify a certificate</a></div>
+        <img class="grow" src="shots/certificate.png" alt="A RUNTech Space certificate" />
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">RUNTech Space · Redeemer&rsquo;s University</div>
+    </footer>
+
+    <div class="switcher">
+      <a href="1-keynote.html" aria-current="page">1 · Keynote</a>
+      <a href="2-zinc.html">2 · Zinc</a>
+      <a href="3-paper.html">3 · Paper</a>
+    </div>
+  </body>
+</html>

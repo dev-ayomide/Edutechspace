@@ -15,7 +15,7 @@ export function CertificateView({ certificate: c }: { certificate: Certificate }
         </p>
         <h2 className="mt-3 text-2xl font-extrabold sm:text-4xl">Certificate of Completion</h2>
         <p className="mt-6 text-sm text-muted-foreground">This is to certify that</p>
-        <p className="mt-2 border-b-2 border-gold px-4 pb-1 text-3xl font-extrabold sm:text-[2.6rem]">
+        <p className="mt-2 border-b-2 border-gold px-4 pb-1 font-display text-4xl tracking-[-0.02em] italic sm:text-5xl">
           {c.student_name}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">has successfully completed the</p>

@@ -2,10 +2,10 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
-const cardVariants = cva('rounded-lg border p-5', {
+const cardVariants = cva('rounded-2xl border p-6', {
   variants: {
     tone: {
-      default: 'bg-card text-card-foreground',
+      default: 'border-transparent bg-card text-card-foreground shadow-card',
       accent: 'border-transparent bg-accent-soft text-accent-soft-foreground',
       ink: 'border-transparent bg-brand text-brand-foreground',
       gold: 'border-transparent bg-gold-soft text-gold-soft-foreground',
