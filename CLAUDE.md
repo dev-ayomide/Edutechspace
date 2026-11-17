@@ -72,8 +72,19 @@ badges on stock photos, green-tick lists, generic text-left/photo-right heroes.
 - Photos: Unsplash (free licence), hotlinked in the prototype; download and optimise them into the app before launch
   (ask the user first). Real photos of their students and leads are still wanted.
 
-**In progress (branch `feat/paper-design`, committed locally, not pushed):** Paper rolled into the app: tokens, Newsreader + DM Sans, public shell (real logo, condensing nav, Lenis), home page (all sections, three.js MacBook in `src/features/home/laptop-3d.ts`), photo stack cards, Stacks page. Done since: new-look product screenshots, serif certificate name, 3D laptop pre-warms after page load, e2e 96+/0 failed, feedback videos (`scripts/walkthrough/tour.mjs` + `record.mjs` + `encode.sh`, output in `walkthrough/`). Next: collect exec/lead feedback, iterate, then push + PR. Previously: rolling Paper into the React app (public site first, then student/lead/admin screens, then retake the
-product screenshots). Branch `feat/feel-lab` holds UNCOMMITTED src changes from the rejected Geist version plus a dev
-`/_lab` page and `src/lib/motion.ts`; start the rollout from `master` and reuse only what fits.
+**Shipped (2026-11-17): Paper is live on master** (PR dev-ayomide/Edutechspace#6, then #7 for the scroll fix). Tokens,
+Newsreader + DM Sans, public shell (real logo, condensing nav, Lenis), home page (all sections, three.js MacBook in
+`src/features/home/laptop-3d.ts`, pre-warmed after load), photo stack cards, Stacks page, new-look screenshots, serif
+certificate name. e2e 96+/0 failed.
+- Scrolling: `html` had `scroll-behavior: smooth`, which fought Lenis and made scrolling sluggish/stall. Now
+  `lenis/dist/lenis.css` is imported and `html.lenis { scroll-behavior: auto !important }`; Lenis uses `lerp: 0.18`
+  (do NOT use `duration`: it restarts on every wheel event and stalls during continuous trackpad scrolling).
+  Laptop section is 380vh (mobile 320vh).
+- Feedback videos: `scripts/walkthrough/tour.mjs` (public tour; wheel ticks spaced >=100 ms, headless Chrome needs it) +
+  `record.mjs` (roles) + `encode.sh`; output in `walkthrough/` (gitignored). Latest exec film:
+  `walkthrough/runtech-space-feedback-short-whatsapp.mp4` (70 s).
+- Sent to execs and leads with a note that access is by invite (students apply at /join and are admitted by a lead;
+  leads/others are invited by an admin). Next: collect their feedback and iterate.
+Rejected work: `stash@{0}` (Geist/serif-accent version + feel lab); branch `feat/feel-lab` is obsolete.
 Other open items: real signatory names/signatures (demo placeholders live), privacy notice + terms, Supabase Pro plan and
 backups, delete the duplicate Vercel project (`edutechspace-g6l8`), error monitoring, lead email on new applications.
