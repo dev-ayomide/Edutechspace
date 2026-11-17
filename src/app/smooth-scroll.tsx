@@ -1,4 +1,5 @@
 import Lenis from 'lenis'
+import 'lenis/dist/lenis.css'
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -18,7 +19,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const instance = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4) })
+    // Frame-based follow (lerp): tracks the wheel and trackpad closely, so scrolling feels quick, never floaty.
+    // (A fixed `duration` restarts on every wheel event and stalls during continuous trackpad scrolling.)
+    const instance = new Lenis({ lerp: 0.18, wheelMultiplier: 1.1, smoothWheel: true })
     let raf = 0
     const loop = (time: number) => {
       instance.raf(time)

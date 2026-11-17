@@ -28,7 +28,9 @@ async function record(file, fn) {
   console.log(`recorded ${file}`)
 }
 
-const wheel = async (page, total, step = 70, gap = 55) => {
+const PACE = Number(process.env.PACE ?? 0.6) // multiplies every pause; lower = brisker
+// Ticks are spaced >=100 ms apart: headless Chrome starves animation frames when wheel events arrive faster.
+const wheel = async (page, total, step = 130, gap = 110) => {
   const dir = Math.sign(total)
   for (let d = 0; d < Math.abs(total); d += step) {
     await page.mouse.wheel(0, dir * step)
@@ -48,14 +50,14 @@ await record('00-intro', async (page) => {
 
 await record('00-public-site', async (page) => {
   await showCard(page, BASE, { title: 'The public site', subtitle: 'What students, parents and employers see first.' })
-  await page.waitForTimeout(2800)
+  await page.waitForTimeout(2800 * PACE)
   await page.goto(BASE, { waitUntil: 'networkidle' })
   await page.mouse.move(720, 500)
   // let the 3D laptop finish its one-time setup before scrolling (it starts loading as the page opens)
   await page
     .waitForFunction(() => document.getElementById('journey')?.classList.contains('gl-ready'), null, { timeout: 60000 })
     .catch(() => {})
-  await page.waitForTimeout(3000)
+  await page.waitForTimeout(3000 * PACE)
   for (const [x, y] of [
     [480, 420],
     [960, 380],
@@ -63,59 +65,59 @@ await record('00-public-site', async (page) => {
     [720, 520],
   ]) {
     await page.mouse.move(x, y, { steps: 25 })
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200 * PACE)
   }
   await wheel(page, 950)
-  await page.waitForTimeout(1600)
-  await wheel(page, 800, 55, 70) // read-along statement
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(1600 * PACE)
+  await wheel(page, 800, 60, 110) // read-along statement
+  await page.waitForTimeout(1200 * PACE)
   // the laptop: a slow, steady scroll through the pinned section
   const h = await page.evaluate(() => {
     const s = document.getElementById('journey')
     return s ? s.offsetHeight : 0
   })
-  await wheel(page, h + 200, 20, 60)
-  await page.waitForTimeout(1600)
+  await wheel(page, h + 200, 40, 110)
+  await page.waitForTimeout(1600 * PACE)
   // stack cards: hover a few, then filter
   await wheel(page, 500)
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(1200 * PACE)
   const cards = page.locator('.sc')
   for (const i of [0, 1, 2]) {
     const bx = await cards.nth(i).boundingBox()
     if (!bx) continue
     await page.mouse.move(bx.x + bx.width * 0.3, bx.y + bx.height * 0.4, { steps: 15 })
-    await page.waitForTimeout(250)
+    await page.waitForTimeout(250 * PACE)
     await page.mouse.move(bx.x + bx.width * 0.7, bx.y + bx.height * 0.6, { steps: 20 })
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(500 * PACE)
   }
   for (const t of ['Data & AI', 'Design & Product', 'All stacks']) {
     await page.getByRole('tab', { name: t }).click()
-    await page.waitForTimeout(1300)
+    await page.waitForTimeout(1300 * PACE)
   }
   await page.mouse.move(720, 120)
   await wheel(page, 1500)
-  await page.waitForTimeout(1200)
+  await page.waitForTimeout(1200 * PACE)
   for (let k = 0; k < 4; k++) {
-    await wheel(page, 620, 80, 60) // platform chapters
-    await page.waitForTimeout(1600)
+    await wheel(page, 620) // platform chapters
+    await page.waitForTimeout(1600 * PACE)
   }
   for (const d of [1000, 1000, 1100, 900]) {
     await wheel(page, d)
-    await page.waitForTimeout(1700)
+    await page.waitForTimeout(1700 * PACE)
   }
   await page.locator('summary').nth(1).click()
-  await page.waitForTimeout(1300)
+  await page.waitForTimeout(1300 * PACE)
   await wheel(page, 1300)
-  await page.waitForTimeout(1500)
-  await wheel(page, -500, 80, 60) // the navbar returns on scroll up
-  await page.waitForTimeout(1400)
+  await page.waitForTimeout(1500 * PACE)
+  await wheel(page, -500, 100, 110) // the navbar returns on scroll up
+  await page.waitForTimeout(1400 * PACE)
   // the course page for one stack
   await page.goto(`${BASE}/stacks/frontend`, { waitUntil: 'networkidle' })
-  await page.waitForTimeout(2200)
+  await page.waitForTimeout(2200 * PACE)
   await page.getByText('2. Your first web page').click().catch(() => {})
-  await page.waitForTimeout(1400)
+  await page.waitForTimeout(1400 * PACE)
   await wheel(page, 500)
-  await page.waitForTimeout(1600)
+  await page.waitForTimeout(1600 * PACE)
 })
 
 await record('99-outro', async (page) => {

@@ -1453,7 +1453,7 @@
   }
   .journey {
     position: relative;
-    height: 520vh;
+    height: 380vh;
     background: radial-gradient(120% 70% at 50% 40%, #13265f 0%, #0b1a4a 45%, #070f2e 100%);
     color: #fff;
     margin: 0 16px;
@@ -1750,7 +1750,7 @@
   }
   @media (max-width: 700px) {
     .journey {
-      height: 420vh;
+      height: 320vh;
       margin: 0;
       border-radius: 0;
     }
