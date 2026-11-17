@@ -560,7 +560,7 @@ export async function mountLaptop(sec: HTMLElement, textures: LaptopTextures): P
     if (visible) {
       const goal = reduce ? 0.6 : target()
       // critically damped follow: smooth on wheels and trackpads, never lags far behind
-      p += (goal - p) * (1 - Math.exp(-dt * 7))
+      p += (goal - p) * (1 - Math.exp(-dt * 12))
       if (Math.abs(goal - p) < 0.0004) p = goal
       if (fade) {
         const k = clamp((now - fade.t0) / 450)
