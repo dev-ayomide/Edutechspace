@@ -1,10 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
+import { useRef } from 'react'
+import { useReveal } from '@/features/home/paper-motion'
 import { listStacks, stackKeys } from './api'
 import { categories, categoryOf, FALLBACK_STACKS } from './catalogue-data'
-import { StackCard } from './catalogue'
+import { StackPhotoCard } from './stack-photo-card'
 
-/** Public catalogue of every open stack, grouped by category. */
+/** Public catalogue of every open stack, grouped by category, as photo cards. */
 export function StacksPage() {
+  const root = useRef<HTMLDivElement>(null)
+  useReveal(root)
   const query = useQuery({ queryKey: stackKeys.all, queryFn: listStacks })
   const live = (query.data ?? []).filter((s) => s.is_active)
   const stacks = live.length > 0 ? live : FALLBACK_STACKS
@@ -13,33 +17,48 @@ export function StacksPage() {
     .filter((g) => g.items.length > 0)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-extrabold">All stacks</h1>
-      <p className="mt-1 text-muted-foreground">
-        {stacks.length} stacks, each a complete path from the first lesson to a verified
-        certificate.
-      </p>
-      {groups.map((g) => (
-        <section
-          key={g.name}
-          aria-labelledby={`cat-${g.name.replace(/\W+/g, '-')}`}
-          className="mt-10"
+    <div ref={root} className="paper">
+      <div className="wrap" style={{ paddingTop: 56, paddingBottom: 120 }}>
+        <p className="eyebrow rv">The stacks</p>
+        <h1
+          className="serif"
+          data-reveal=""
+          style={{ fontSize: 'clamp(2.6rem, 5.4vw, 4.2rem)', margin: '14px 0 0' }}
         >
-          <h2
-            id={`cat-${g.name.replace(/\W+/g, '-')}`}
-            className="mb-4 border-b pb-2 text-xl font-bold"
+          <span className="ln">
+            <span>All stacks</span>
+          </span>
+        </h1>
+        <p className="sub rv">
+          {stacks.length} stacks, each a complete path from the first lesson to a verified
+          certificate.
+        </p>
+        {groups.map((g) => (
+          <section
+            key={g.name}
+            aria-labelledby={`cat-${g.name.replace(/\W+/g, '-')}`}
+            style={{ marginTop: 72 }}
           >
-            {g.name}
-          </h2>
-          <ul className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {g.items.map((s) => (
-              <li key={s.id}>
-                <StackCard stack={s} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+            <h2
+              id={`cat-${g.name.replace(/\W+/g, '-')}`}
+              className="rv"
+              style={{
+                fontSize: 30,
+                margin: 0,
+                paddingBottom: 14,
+                borderBottom: '1px solid var(--line)',
+              }}
+            >
+              {g.name}
+            </h2>
+            <div className="stacks2">
+              {g.items.map((s, i) => (
+                <StackPhotoCard key={s.slug} stack={s} hidden={false} delay={(i % 4) * 0.06} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   )
 }

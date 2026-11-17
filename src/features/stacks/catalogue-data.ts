@@ -49,3 +49,18 @@ export const FALLBACK_STACKS: Pick<Stack, 'id' | 'slug' | 'name' | 'description'
   name: name!,
   description: description!,
 }))
+
+/** Stacks that have a photo in src/assets/photos (stack-<slug>). Others fall back to their drawn cover. */
+const PHOTOS = new Set([
+  'frontend',
+  'backend',
+  'data-analysis',
+  'cloud-devops',
+  'ui-ux',
+  'product-management',
+  'machine-learning',
+  'game-development',
+])
+
+/** The photo for a stack (src/assets/photos/stack-<slug>), or null when it only has a drawn cover. */
+export const stackPhotoName = (slug: string) => (PHOTOS.has(slug) ? `stack-${slug}` : null)

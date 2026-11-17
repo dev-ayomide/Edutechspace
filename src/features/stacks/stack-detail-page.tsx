@@ -9,12 +9,13 @@ import {
   PlayCircle,
 } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
+import { Photo } from '@/components/photo'
 import { StackCover } from '@/components/stack-cover'
 import { EmptyState, ErrorState, LoadingState } from '@/components/states'
 import { Button } from '@/components/ui/button'
 import { usePageTitle } from '@/app/use-document-title'
 import { fetchStackOutline, listStacks, outlineKeys, stackKeys, type OutlineRow } from './api'
-import { categoryOf } from './catalogue-data'
+import { categoryOf, stackPhotoName } from './catalogue-data'
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
@@ -183,7 +184,19 @@ export function StackDetailPage() {
 
         <aside className="lg:-mt-48">
           <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-float lg:sticky lg:top-24">
-            <StackCover slug={stack.slug} className="rounded-none" />
+            {stackPhotoName(stack.slug) ? (
+              <Photo
+                name={stackPhotoName(stack.slug)!}
+                alt=""
+                sizes="340px"
+                width={680}
+                height={425}
+                className="aspect-[16/10] w-full object-cover"
+                priority
+              />
+            ) : (
+              <StackCover slug={stack.slug} className="rounded-none" />
+            )}
             <div className="p-5">
               <p className="text-2xl font-extrabold">Free</p>
               <p className="text-sm text-muted-foreground">for admitted students</p>
